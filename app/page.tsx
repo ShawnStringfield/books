@@ -1,6 +1,6 @@
 'use client';
 
-import SignInPage from './auth/signin';
+import SignInPage from '@/app/components/signin';
 
 export default function Home() {
   return (

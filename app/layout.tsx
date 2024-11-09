@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/authOptions';
-import AuthProvider from '@/app/api/auth/authProvider';
+import { Providers } from '@/lib/auth/providers/Providers';
 import localFont from 'next/font/local';
 import './globals.css';
 
@@ -22,11 +20,10 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const session = await getServerSession(authOptions);
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider session={session}>{children}</AuthProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

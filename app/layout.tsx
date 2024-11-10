@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Providers } from '@/lib/auth/providers/Providers';
+import { Toaster } from '@/app/components/ui/toaster';
 import localFont from 'next/font/local';
 import './globals.css';
 
@@ -23,7 +24,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

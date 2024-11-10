@@ -1,48 +1,89 @@
+// app/auth/page.tsx
 'use client';
 
-import { signIn, signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { useAuth } from '@/lib/auth/hooks/useAuth';
+import { SignIn } from '@/app/components/auth/sign-in';
+import { SignOut } from '@/app/components/auth/sign-out';
+import { Loader2 } from 'lucide-react';
+import type { AuthAction, AuthError } from '@/lib/auth/types';
+import { getErrorMessage, normalizeError } from '@/lib/auth/utiles/error-utils';
 
-export default function AuthButton() {
-  const [loading, setLoading] = useState(false);
-  const { data: session } = useSession();
-  console.log(session);
+export default function AuthPage(): JSX.Element {
+  const [authAction, setAuthAction] = useState<AuthAction>(null);
+  const [error, setError] = useState<AuthError | null>(null);
+  const { session, signIn, signOut, isLoading } = useAuth();
 
-  const handleSignOut = async () => {
-    setLoading(true);
-    await signOut({ callbackUrl: '/' });
+  const handleSignIn = async (): Promise<void> => {
+    setError(null);
+    setAuthAction('signin');
+    try {
+      await signIn('google');
+    } catch (err) {
+      setAuthAction(null);
+      const normalizedError = normalizeError(err);
+      setError(normalizedError);
+      console.error('Sign in error:', {
+        message: normalizedError.message,
+        code: normalizedError.code,
+        details: normalizedError.cause,
+      });
+    }
   };
 
-  const handleSignIn = async () => {
-    setLoading(true);
-    await signIn('google', { callbackUrl: '/' });
+  const handleSignOut = async (): Promise<void> => {
+    setError(null);
+    setAuthAction('signout');
+    try {
+      await signOut();
+    } catch (err) {
+      setAuthAction(null);
+      const normalizedError = normalizeError(err);
+      setError(normalizedError);
+      console.error('Sign out error:', {
+        message: normalizedError.message,
+        code: normalizedError.code,
+        details: normalizedError.cause,
+      });
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="max-w-md w-full space-y-8 p-8">
-        {session ? (
-          <>
-            <h2 className="text-center text-3xl font-bold">Sign Out</h2>
-            <p className="text-center">Are you sure you want to sign out?</p>
-            <div className="flex justify-center space-x-4">
-              <button onClick={handleSignOut} disabled={loading} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
-                {loading ? 'Signing out...' : 'Sign Out'}
-              </button>
-              <a href="/" className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
-                Cancel
-              </a>
-            </div>
-          </>
+        {session?.isAuthenticated ? (
+          <SignOut
+            onSignOut={handleSignOut}
+            error={
+              error && {
+                ...error,
+                message: getErrorMessage(error),
+              }
+            }
+            authAction={authAction}
+          />
         ) : (
-          <>
-            <h2 className="text-center text-3xl font-bold">Sign In</h2>
-            <div className="flex justify-center">
-              <button onClick={handleSignIn} disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                {loading ? 'Signing in...' : 'Sign In'}
-              </button>
-            </div>
-          </>
+          <SignIn
+            onSignIn={handleSignIn}
+            error={
+              error && {
+                ...error,
+                message: getErrorMessage(error),
+              }
+            }
+            authAction={authAction}
+          />
         )}
       </div>
     </div>

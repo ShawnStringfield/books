@@ -1,4 +1,3 @@
-// Core types reexported
 export interface User {
   id: string;
   email: string | null | undefined;
@@ -10,30 +9,48 @@ export interface User {
 export interface AuthError {
   code: string;
   message: string;
+  cause?: unknown;
 }
 
 export interface Session {
-  user: {
-    id: string;
-    email: string | null;
-    name: string | null;
-    image: string | null;
-    accessToken: string;
-  } | null;
+  user: User | null;
   isAuthenticated: boolean;
 }
 
 export interface AuthContextType {
+  user: User | null;
   session: Session;
-  isLoading: boolean;
   error: AuthError | null;
-  signIn: (provider?: string) => Promise<void>;
+  signIn: (provider?: string, options?: SignInOptions) => Promise<SignInResult>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
+  isLoading: boolean;
+  loadingState: LoadingState;
 }
 
+export interface LoadingState {
+  isInitializing: boolean; // Initial auth state loading
+  isRefreshing: boolean; // Session refresh in progress
+  isSigningIn: boolean; // Sign in operation in progress
+  isSigningOut: boolean; // Sign out operation in progress
+}
+
+export interface SignInResult {
+  error: string | null;
+  ok: boolean;
+  url: string | null;
+}
+
+export interface SignInOptions {
+  redirect?: boolean;
+  callbackUrl?: string;
+}
+
+export type AuthAction = 'signin' | 'signout' | null;
+
 // Using type for union types and error structure
-export type AuthErrorCode = 'SIGN_IN_ERROR' | 'SIGN_OUT_ERROR' | 'SESSION_ERROR' | 'REFRESH_ERROR' | 'NETWORK_ERROR' | 'UNKNOWN_ERROR';
+// NextAuth specific error codes
+export type AuthErrorCode = 'Configuration' | 'AccessDenied' | 'Verification' | 'OAuthSignin' | 'OAuthCallback' | 'OAuthCreateAccount' | 'EmailCreateAccount' | 'Callback' | 'OAuthAccountNotLinked' | 'EmailSignin' | 'CredentialsSignin' | 'SessionRequired' | 'Default';
 
 // Event types
 export type AuthEventType = 'signIn' | 'signOut' | 'sessionExpired' | 'sessionRefreshed' | 'error';

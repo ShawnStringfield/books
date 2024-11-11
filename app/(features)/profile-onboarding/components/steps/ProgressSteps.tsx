@@ -1,27 +1,26 @@
 import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
+import { STEPS } from '@/lib/onboarding/constants';
+import type { StepId } from '@/app/(features)/profile-onboarding/types/onboarding';
 
 interface ProgressStepsProps {
-  steps: string[];
-  currentStep: string;
-  completedSteps: string[];
-  onStepClick: (step: string) => void;
-  isStepClickable: (step: string) => boolean;
+  steps: typeof STEPS;
+  currentStep: StepId;
+  completedSteps: StepId[];
+  onStepClick: (step: StepId) => void;
 }
 
-export const ProgressSteps = ({ steps, currentStep, completedSteps, onStepClick, isStepClickable }: ProgressStepsProps) => (
+export const ProgressSteps = ({ steps, currentStep, completedSteps, onStepClick }: ProgressStepsProps) => (
   <div className="flex justify-between px-2 mt-2">
     {steps.map((step, index) => {
       const isCompleted = completedSteps.includes(step);
       const isCurrent = currentStep === step;
-      const isClickable = isStepClickable(step);
 
       return (
         <motion.button
           key={step}
           onClick={() => onStepClick(step)}
-          disabled={!isClickable}
-          className={`flex flex-col items-center flex-1 ${isClickable ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-50'}`}
+          className={`flex flex-col items-center flex-1 $ ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-50'}`}
           initial={{ opacity: 0, y: 10 }}
           animate={{
             opacity: 1,

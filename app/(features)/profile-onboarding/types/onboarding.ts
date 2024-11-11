@@ -1,16 +1,20 @@
+import { STEPS } from '@/lib/onboarding/constants';
+
+export type StepId = (typeof STEPS)[number];
+
 export interface OnboardingData {
   selectedGenres: string[];
   selectedGoal: string | null;
   selectedTimes: string[];
-  completedSteps: string[];
-  isOnboardingComplete: boolean;
+  completedSteps: StepId[];
 }
 
-export type StepValidationResult = {
-  isValid: boolean;
-  errorTitle?: string;
-  errorMessage: string;
-};
+export interface OnboardingState extends OnboardingData {
+  currentStep: StepId;
+  progress: number;
+  isLoading: boolean;
+  error: Error | null;
+}
 
 export type StepperState = {
   currentStep: string;

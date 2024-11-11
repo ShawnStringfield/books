@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { StepperState, StepperCallbacks } from '../onboarding';
+import type { StepperState, StepperCallbacks } from '../types/onboarding';
 
 const validateStepTransition = (targetStep: string, state: StepperState, validateStep: (step: string) => boolean, getValidationMessage: (step: string) => string) => {
   const { currentStep, steps } = state;

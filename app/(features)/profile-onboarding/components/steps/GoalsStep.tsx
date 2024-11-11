@@ -1,50 +1,68 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/app/components/ui/button';
-import { Target, Clock } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 import { containerVariants, itemVariants } from '../_animations';
+import { Card, CardContent } from '@/app/components/ui/card';
+import { Label } from '@/app/components/ui/label';
+import { useOnboardingStore } from '../../hooks/useOnboardingStore';
 
-interface GoalsStepProps {
-  selectedGoal: string | null;
-  onGoalSelect: (goalId: string) => void;
-}
+// Optional: Add a default value for type safety
+const DEFAULT_GOALS = {
+  monthlyTarget: 2,
+  yearlyTarget: 24,
+};
 
-const GOALS = [
-  {
-    id: 'books',
-    title: 'Books per Month',
-    description: 'Set a target number of books to read each month',
-    icon: Target,
-  },
-  {
-    id: 'time',
-    title: 'Reading Time',
-    description: 'Set daily or weekly reading time goals',
-    icon: Clock,
-  },
-];
+export const GoalsStep = () => {
+  const { bookGoals = DEFAULT_GOALS, updateData } = useOnboardingStore();
 
-export const GoalsStep = ({ selectedGoal, onGoalSelect }: GoalsStepProps) => (
-  <motion.div variants={containerVariants} className="space-y-6">
-    <motion.h2 variants={itemVariants} className="text-3xl font-bold">
-      Set Your Reading Goals
-    </motion.h2>
-    <motion.p variants={itemVariants} className="text-gray-600">
-      What would you like to achieve with your reading?
-    </motion.p>
-    <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {GOALS.map((goal) => (
-        <motion.div key={goal.id} variants={itemVariants}>
-          <Button variant={selectedGoal === goal.id ? 'default' : 'outline'} className="w-full h-auto p-6 text-left" onClick={() => onGoalSelect(goal.id)}>
-            <div className="flex items-center w-full">
-              <goal.icon className="w-6 h-6 mr-2" />
-              <div>
-                <div className="font-semibold">{goal.title}</div>
-                <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+  const updateBookGoals = (monthly: number) => {
+    updateData({
+      bookGoals: {
+        monthlyTarget: monthly,
+        yearlyTarget: monthly * 12,
+      },
+    });
+  };
+
+  return (
+    <motion.div variants={containerVariants} className="space-y-6">
+      <motion.h2 variants={itemVariants} className="text-3xl font-bold">
+        Set Your Reading Goals
+      </motion.h2>
+      <motion.p variants={itemVariants} className="text-gray-600">
+        How many books would you like to read?
+      </motion.p>
+
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Books per Month</Label>
+              <div className="flex items-center space-x-4">
+                <Button variant="outline" size="sm" onClick={() => updateBookGoals(Math.max(1, bookGoals.monthlyTarget - 1))} aria-label="Decrease monthly book target">
+                  <Minus className="w-4 h-4" />
+                </Button>
+                <span className="w-12 text-center font-medium">{bookGoals.monthlyTarget}</span>
+                <Button variant="outline" size="sm" onClick={() => updateBookGoals(Math.min(50, bookGoals.monthlyTarget + 1))} aria-label="Increase monthly book target">
+                  <Plus className="w-4 h-4" />
+                </Button>
               </div>
             </div>
-          </Button>
-        </motion.div>
-      ))}
+
+            <div className="pt-4">
+              <div className="flex items-center justify-between text-sm text-gray-600">
+                <span>Yearly goal</span>
+                <span className="font-medium">{bookGoals.yearlyTarget} books</span>
+              </div>
+              <div className="mt-1 text-xs text-gray-500">{`That's about ${Math.round(bookGoals.yearlyTarget / 52)} books per week`}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <motion.div variants={itemVariants} className="text-sm text-gray-600">
+        <p>{`Next, you'll be able to set your preferred reading schedule and reminders.`}</p>
+      </motion.div>
     </motion.div>
-  </motion.div>
-);
+  );
+};

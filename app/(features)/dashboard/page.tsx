@@ -1,24 +1,26 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useOnboardingStore } from '../profile-onboarding/hooks/useOnboardingStore';
+import { useOnboardingCheck } from '@/app/(features)/profile-onboarding/hooks/useOnboardingCheck';
+import { LoadingSpinner } from '@/app/components/LoadingSpinner';
 
-export default function Dashboard() {
-  const router = useRouter();
-  const { data } = useOnboardingStore();
+const Dashboard = () => {
+  const { isOnboardingComplete } = useOnboardingCheck();
 
-  useEffect(() => {
-    if (!data.isOnboardingComplete) {
-      console.log('pushing to onboarding because onboarding is not complete');
-      // router.push('/onboarding');
-    }
-  }, [data.isOnboardingComplete, router]);
+  // Show loading state while checking onboarding status
+  if (!isOnboardingComplete) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
+  // Your dashboard content
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Welcome to Your Dashboard</h1>
-      {/* Add dashboard content here */}
+    <div>
+      <h1>Dashboard</h1>
     </div>
   );
-}
+};
+
+export default Dashboard;

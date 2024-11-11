@@ -21,17 +21,41 @@ import { STEPS } from '@/lib/onboarding/constants';
 const ProfileOnboarding = () => {
   const router = useRouter();
   const { toast } = useToast();
-  const { currentStep, nextStep, previousStep, isFirstStep, isLastStep, handleStepChange } = useOnboardingNavigation();
-  const { selectedGenres, selectedGoal, selectedTimes, completedSteps, progress, updateData } = useOnboardingStore();
+  const { currentStep, handleNextStep, handlePreviousStep, isFirstStep, isLastStep, handleStepChange } = useOnboardingNavigation();
+  const { selectedGenres, bookGoals, readingSchedule, completedSteps, progress, updateData } = useOnboardingStore();
 
   const handleComplete = async () => {
     try {
-      // Save final data to backend
-      //  await saveOnboardingData(useOnboardingStore.getState());
+      const finalData = {
+        genres: selectedGenres,
+        bookGoals,
+        readingSchedule,
+      };
+      console.log('finalData', finalData);
+
+      const hasNotificationPreferences = readingSchedule.preferences.some((pref) => pref.notifications);
+
+      if (hasNotificationPreferences) {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            localStorage.setItem('readingSchedule', JSON.stringify(readingSchedule));
+          }
+        } catch (error) {
+          console.error('Notification permission error:', error);
+        }
+      }
+
+      // Update the completion status
+      updateData({
+        isOnboardingComplete: true,
+      });
+
       toast({
         title: 'Profile Complete!',
         description: 'Welcome to BookBuddy. Redirecting to your dashboard...',
       });
+
       router.push('/dashboard');
     } catch (error) {
       toast({
@@ -59,18 +83,9 @@ const ProfileOnboarding = () => {
           />
         );
       case 'goals':
-        return <GoalsStep selectedGoal={selectedGoal} onGoalSelect={(goalId) => updateData({ selectedGoal: goalId })} />;
+        return <GoalsStep />;
       case 'schedule':
-        return (
-          <ScheduleStep
-            selectedTimes={selectedTimes}
-            onTimeSelect={(timeId) =>
-              updateData({
-                selectedTimes: selectedTimes.includes(timeId) ? selectedTimes.filter((t) => t !== timeId) : [...selectedTimes, timeId],
-              })
-            }
-          />
-        );
+        return <ScheduleStep />;
       case 'complete':
         return <CompleteStep onDashboardClick={handleComplete} />;
       default:
@@ -92,12 +107,12 @@ const ProfileOnboarding = () => {
               <motion.div key={currentStep} variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-8">
                 {renderStepContent()}
                 <div className="flex justify-between pt-6">
-                  <Button variant="ghost" onClick={previousStep} disabled={isFirstStep} className="flex items-center">
+                  <Button variant="ghost" onClick={handlePreviousStep} disabled={isFirstStep} className="flex items-center">
                     <ChevronLeft className="w-4 h-4 mr-2" />
                     Back
                   </Button>
                   {!isLastStep && (
-                    <Button onClick={nextStep} className="flex items-center">
+                    <Button onClick={handleNextStep} className="flex items-center">
                       Next
                       <ChevronRight className="w-4 h-4 ml-2" />
                     </Button>

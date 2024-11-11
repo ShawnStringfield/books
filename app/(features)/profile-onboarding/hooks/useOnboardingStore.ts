@@ -13,11 +13,17 @@ const INITIAL_STATE: OnboardingState = {
   currentStep: STEPS[0],
   progress: 0,
   selectedGenres: [],
-  selectedGoal: null,
-  selectedTimes: [],
+  bookGoals: {
+    monthlyTarget: 2,
+    yearlyTarget: 24,
+  },
+  readingSchedule: {
+    preferences: [],
+  },
   completedSteps: [STEPS[0]],
   isLoading: false,
   error: null,
+  isOnboardingComplete: false,
 };
 
 export const useOnboardingStore = create<OnboardingStore>((set) => ({

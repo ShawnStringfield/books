@@ -4,9 +4,10 @@ export type StepId = (typeof STEPS)[number];
 
 export interface OnboardingData {
   selectedGenres: string[];
-  selectedGoal: string | null;
-  selectedTimes: string[];
+  bookGoals: BookGoals;
+  readingSchedule: ReadingSchedule;
   completedSteps: StepId[];
+  isOnboardingComplete: boolean;
 }
 
 export interface OnboardingState extends OnboardingData {
@@ -34,3 +35,33 @@ export type StepperCallbacks = {
   updateData: (data: { completedSteps: string[] }) => void;
   toast: (props: ToastProps) => void;
 };
+
+export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+
+export interface ReadingTimePreference {
+  time: string; // 24-hour format HH:mm
+  daysOfWeek: DayOfWeek[];
+  duration: number; // in minutes
+  notifications: boolean;
+}
+
+export interface ReadingSchedule {
+  preferences: ReadingTimePreference[];
+}
+
+export interface BookGoals {
+  monthlyTarget: number;
+  yearlyTarget: number;
+}
+
+export interface ReadingGoals {
+  books: {
+    monthlyTarget: number;
+    yearlyTarget: number;
+  };
+  readingTime: {
+    weeklyTarget: number; // in minutes
+    dailyTarget: number; // in minutes
+    preferences: ReadingTimePreference[];
+  };
+}

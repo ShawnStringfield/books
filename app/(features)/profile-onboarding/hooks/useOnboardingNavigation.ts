@@ -10,13 +10,14 @@ export const useOnboardingNavigation = () => {
 
   const validateStep = useCallback((step: StepId): boolean => {
     const state = useOnboardingStore.getState();
+
     switch (step) {
       case 'genres':
         return state.selectedGenres.length > 0;
       case 'goals':
-        return !!state.selectedGoal;
+        return state.bookGoals.monthlyTarget > 0;
       case 'schedule':
-        return state.selectedTimes.length > 0;
+        return state.readingSchedule.preferences.length > 0 && state.readingSchedule.preferences.every((pref) => pref.daysOfWeek.length > 0);
       default:
         return true;
     }
@@ -49,22 +50,26 @@ export const useOnboardingNavigation = () => {
     [currentStep, setCurrentStep, updateProgress, updateData, toast, validateStep]
   );
 
+  const handleNextStep = useCallback(() => {
+    const nextStepIndex = STEPS.indexOf(currentStep) + 1;
+    if (nextStepIndex < STEPS.length) {
+      handleStepChange(STEPS[nextStepIndex] as StepId);
+    }
+  }, [currentStep, handleStepChange]);
+
+  const handlePreviousStep = useCallback(() => {
+    const prevStepIndex = STEPS.indexOf(currentStep) - 1;
+    if (prevStepIndex >= 0) {
+      handleStepChange(STEPS[prevStepIndex] as StepId);
+    }
+  }, [currentStep, handleStepChange]);
+
   return {
     currentStep,
     handleStepChange,
+    handleNextStep,
+    handlePreviousStep,
     isFirstStep: currentStep === STEPS[0],
     isLastStep: currentStep === STEPS[STEPS.length - 1],
-    nextStep: () => {
-      const nextStepIndex = STEPS.indexOf(currentStep) + 1;
-      if (nextStepIndex < STEPS.length) {
-        handleStepChange(STEPS[nextStepIndex] as StepId);
-      }
-    },
-    previousStep: () => {
-      const prevStepIndex = STEPS.indexOf(currentStep) - 1;
-      if (prevStepIndex >= 0) {
-        handleStepChange(STEPS[prevStepIndex] as StepId);
-      }
-    },
   };
 };

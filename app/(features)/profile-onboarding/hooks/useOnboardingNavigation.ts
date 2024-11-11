@@ -1,32 +1,34 @@
 import { useCallback } from 'react';
-import { STEPS } from '@/lib/onboarding/constants';
-import { useOnboardingStore } from '../hooks/useOnboardingStore';
 import { useToast } from '@/hooks/use-toast';
-import type { StepId } from '../types/onboarding';
 
-export const useOnboardingNavigation = () => {
-  const { currentStep, setCurrentStep, updateProgress, updateData } = useOnboardingStore();
+export type StepValidationRules<TStep extends string, TState> = Partial<Record<TStep, (state: TState) => boolean>>;
+
+interface OnboardingNavigationConfig<TStep extends string, TState> {
+  steps: TStep[];
+  validationRules?: StepValidationRules<TStep, TState>;
+  onStepChange?: (step: TStep) => void;
+  getCurrentState: () => TState;
+}
+
+export function useOnboardingNavigation<TStep extends string, TState extends { currentStep: TStep }>({ steps, validationRules = {}, onStepChange, getCurrentState }: OnboardingNavigationConfig<TStep, TState>) {
   const { toast } = useToast();
+  const currentStep = getCurrentState().currentStep;
 
-  const validateStep = useCallback((step: StepId): boolean => {
-    const state = useOnboardingStore.getState();
+  const validateStep = useCallback(
+    (step: TStep): boolean => {
+      const validator = validationRules[step];
+      if (!validator) return true;
 
-    switch (step) {
-      case 'genres':
-        return state.selectedGenres.length > 0;
-      case 'goals':
-        return state.bookGoals.monthlyTarget > 0;
-      case 'schedule':
-        return state.readingSchedule.preferences.length > 0 && state.readingSchedule.preferences.every((pref) => pref.daysOfWeek.length > 0);
-      default:
-        return true;
-    }
-  }, []);
+      const state = getCurrentState();
+      return validator(state);
+    },
+    [validationRules, getCurrentState]
+  );
 
   const handleStepChange = useCallback(
-    (targetStep: StepId) => {
-      const currentIndex = STEPS.indexOf(currentStep);
-      const targetIndex = STEPS.indexOf(targetStep);
+    (targetStep: TStep) => {
+      const currentIndex = steps.indexOf(currentStep);
+      const targetIndex = steps.indexOf(targetStep);
 
       // Don't allow skipping steps
       if (targetIndex > currentIndex + 1) {
@@ -43,33 +45,31 @@ export const useOnboardingNavigation = () => {
         return;
       }
 
-      setCurrentStep(targetStep);
-      updateProgress(targetStep);
-      updateData({});
+      onStepChange?.(targetStep);
     },
-    [currentStep, setCurrentStep, updateProgress, updateData, toast, validateStep]
+    [currentStep, steps, validateStep, toast, onStepChange]
   );
 
   const handleNextStep = useCallback(() => {
-    const nextStepIndex = STEPS.indexOf(currentStep) + 1;
-    if (nextStepIndex < STEPS.length) {
-      handleStepChange(STEPS[nextStepIndex] as StepId);
+    const nextStepIndex = steps.indexOf(currentStep) + 1;
+    if (nextStepIndex < steps.length) {
+      handleStepChange(steps[nextStepIndex]);
     }
-  }, [currentStep, handleStepChange]);
+  }, [currentStep, steps, handleStepChange]);
 
   const handlePreviousStep = useCallback(() => {
-    const prevStepIndex = STEPS.indexOf(currentStep) - 1;
+    const prevStepIndex = steps.indexOf(currentStep) - 1;
     if (prevStepIndex >= 0) {
-      handleStepChange(STEPS[prevStepIndex] as StepId);
+      handleStepChange(steps[prevStepIndex]);
     }
-  }, [currentStep, handleStepChange]);
+  }, [currentStep, steps, handleStepChange]);
 
   return {
     currentStep,
     handleStepChange,
     handleNextStep,
     handlePreviousStep,
-    isFirstStep: currentStep === STEPS[0],
-    isLastStep: currentStep === STEPS[STEPS.length - 1],
+    isFirstStep: currentStep === steps[0],
+    isLastStep: currentStep === steps[steps.length - 1],
   };
-};
+}

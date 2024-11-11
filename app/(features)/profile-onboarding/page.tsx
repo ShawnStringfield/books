@@ -15,14 +15,32 @@ import { CompleteStep } from '@/app/(features)/profile-onboarding/components/ste
 import { containerVariants } from '@/app/(features)/profile-onboarding/components/_animations';
 import { useOnboardingStore } from '@/app/(features)/profile-onboarding/hooks/useOnboardingStore';
 import { useToast } from '@/hooks/use-toast';
-import { useOnboardingNavigation } from '@/app/(features)/profile-onboarding/hooks/useOnboardingNavigation';
+import { StepValidationRules, useOnboardingNavigation } from '@/app/(features)/profile-onboarding/hooks/useOnboardingNavigation';
 import { STEPS } from '@/lib/onboarding/constants';
+import { OnboardingState } from './types/onboarding';
+import { StepId } from './types/onboarding';
 
 const ProfileOnboarding = () => {
   const router = useRouter();
   const { toast } = useToast();
-  const { currentStep, handleNextStep, handlePreviousStep, isFirstStep, isLastStep, handleStepChange } = useOnboardingNavigation();
-  const { selectedGenres, bookGoals, readingSchedule, completedSteps, progress, updateData } = useOnboardingStore();
+  const { selectedGenres, bookGoals, readingSchedule, completedSteps, progress, updateData, setCurrentStep, updateProgress } = useOnboardingStore();
+
+  const validationRules: StepValidationRules<StepId, OnboardingState> = {
+    genres: (state) => state.selectedGenres.length > 0,
+    goals: (state) => state.bookGoals.monthlyTarget > 0,
+    schedule: (state) => state.readingSchedule.preferences.length > 0 && state.readingSchedule.preferences.every((pref) => pref.daysOfWeek.length > 0),
+  };
+
+  const { currentStep, handleStepChange, handleNextStep, handlePreviousStep, isFirstStep, isLastStep } = useOnboardingNavigation<StepId, OnboardingState>({
+    steps: STEPS,
+    validationRules,
+    onStepChange: (step) => {
+      setCurrentStep(step);
+      updateProgress(step);
+      updateData({});
+    },
+    getCurrentState: useOnboardingStore.getState,
+  });
 
   const handleComplete = async () => {
     try {
@@ -46,7 +64,6 @@ const ProfileOnboarding = () => {
         }
       }
 
-      // Update the completion status
       updateData({
         isOnboardingComplete: true,
       });

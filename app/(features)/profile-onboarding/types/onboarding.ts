@@ -22,6 +22,14 @@ export type StepperState = {
   steps: string[];
   data: { completedSteps: string[] };
 };
+export type StepValidationRules<TStep extends string, TState> = Partial<Record<TStep, (state: TState) => boolean>>;
+
+export interface OnboardingNavigationConfig<TStep extends string, TState> {
+  steps: TStep[];
+  validationRules?: StepValidationRules<TStep, TState>;
+  onStepChange?: (step: TStep) => void;
+  getCurrentState: () => TState;
+}
 
 export type ToastProps = {
   title: string;

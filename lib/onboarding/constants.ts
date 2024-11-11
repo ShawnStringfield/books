@@ -1,1 +1,1 @@
-export const STEPS = ['welcome', 'genres', 'goals', 'schedule', 'complete'] as const; // Make it a readonly tuple
+export const STEPS = ['welcome', 'genres', 'goals', 'schedule', 'complete'];

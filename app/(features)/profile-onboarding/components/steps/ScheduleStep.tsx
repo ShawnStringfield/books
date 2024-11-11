@@ -32,8 +32,8 @@ export const ScheduleStep = () => {
 
   const addTimePreference = () => {
     const newPreference: ReadingTimePreference = {
-      time: '09:00',
-      daysOfWeek: ['monday', 'wednesday', 'friday'],
+      time: '07:00',
+      daysOfWeek: [],
       duration: 30,
       notifications: true,
     };

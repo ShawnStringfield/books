@@ -20,21 +20,29 @@ export const ProgressSteps = ({ steps, currentStep, completedSteps, onStepClick 
         <motion.button
           key={step}
           onClick={() => onStepClick(step)}
-          className={`flex flex-col items-center flex-1 $ ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-50'}`}
+          className={`flex flex-col items-center flex-1 ${isCompleted || isCurrent ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-50'}`}
           initial={{ opacity: 0, y: 10 }}
           animate={{
             opacity: 1,
             y: 0,
-            color: isCurrent ? 'rgb(37, 99, 235)' : isCompleted ? 'rgb(37, 99, 235)' : 'rgb(156, 163, 175)',
+            color: isCurrent || isCompleted ? 'rgb(37, 99, 235)' : 'rgb(156, 163, 175)',
           }}
         >
-          <div className="text-xs font-medium capitalize">{step}</div>
-          <div className="text-xs">
+          <div className={`text-xs font-medium capitalize ${!isCompleted && !isCurrent ? 'cursor-not-allowed' : ''}`}>{step}</div>
+          <div className={`text-xs ${!isCompleted && !isCurrent ? 'cursor-not-allowed' : ''}`}>
             {index + 1}/{steps.length}
           </div>
           {isCompleted && !isCurrent && (
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mt-1">
-              <CheckCircle2 className="w-3 h-3" />
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{
+                duration: 0.3,
+                ease: 'easeOut',
+              }}
+              className="mt-1 text-green-500"
+            >
+              <CheckCircle2 className="w-4 h-4" />
             </motion.div>
           )}
         </motion.button>

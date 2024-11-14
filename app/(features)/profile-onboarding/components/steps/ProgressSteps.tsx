@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
-import { STEPS } from '@/lib/onboarding/constants';
+import { STEPS } from '@/app/(features)/profile-onboarding/constants';
 import type { StepId } from '@/app/(features)/profile-onboarding/types/onboarding';
 
 interface ProgressStepsProps {

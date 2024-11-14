@@ -7,7 +7,7 @@ import { SignIn } from '@/app/components/auth/sign-in';
 import { SignOut } from '@/app/components/auth/sign-out';
 import { Loader2 } from 'lucide-react';
 import type { AuthAction, AuthError } from '@/lib/auth/types';
-import { getErrorMessage, normalizeError } from '@/lib/auth/utiles/error-utils';
+import { getErrorMessage, normalizeError } from '@/lib/auth/utils/error-utils';
 
 export default function AuthPage(): JSX.Element {
   const [authAction, setAuthAction] = useState<AuthAction>(null);

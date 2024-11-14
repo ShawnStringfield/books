@@ -1,28 +1,54 @@
+// app/(features)/profile-onboarding/components/steps/GoalsStep.tsx
+
 import { motion } from 'framer-motion';
 import { Button } from '@/app/components/ui/button';
-import { Plus, Minus } from 'lucide-react';
+import { Target } from 'lucide-react';
 import { containerVariants, itemVariants } from '../_animations';
-import { Card, CardContent } from '@/app/components/ui/card';
-import { Label } from '@/app/components/ui/label';
-import { useOnboardingStore } from '../../hooks/useOnboardingStore';
 
-// Optional: Add a default value for type safety
-const DEFAULT_GOALS = {
-  monthlyTarget: 2,
-  yearlyTarget: 24,
-};
+interface BookGoals {
+  monthlyTarget: number;
+  yearlyTarget: number;
+}
 
-export const GoalsStep = () => {
-  const { bookGoals = DEFAULT_GOALS, updateData } = useOnboardingStore();
+interface GoalsStepProps {
+  goals: BookGoals;
+  onGoalsUpdate: (goals: BookGoals) => void;
+}
 
-  const updateBookGoals = (monthly: number) => {
-    updateData({
-      bookGoals: {
-        monthlyTarget: monthly,
-        yearlyTarget: monthly * 12,
-      },
+export const GoalsStep = ({ goals, onGoalsUpdate }: GoalsStepProps) => {
+  const handleGoalSelect = (monthlyTarget: number) => {
+    onGoalsUpdate({
+      monthlyTarget,
+      yearlyTarget: monthlyTarget * 12,
     });
   };
+
+  const GOALS = [
+    {
+      id: '1',
+      title: '1 Book Monthly',
+      description: 'Perfect for casual readers',
+      monthlyTarget: 1,
+    },
+    {
+      id: '2',
+      title: '2 Books Monthly',
+      description: 'Regular reading habit',
+      monthlyTarget: 2,
+    },
+    {
+      id: '4',
+      title: '4 Books Monthly',
+      description: 'Avid reader',
+      monthlyTarget: 4,
+    },
+    {
+      id: 'custom',
+      title: 'Custom Goal',
+      description: 'Set your own target',
+      monthlyTarget: goals.monthlyTarget,
+    },
+  ];
 
   return (
     <motion.div variants={containerVariants} className="space-y-6">
@@ -30,39 +56,29 @@ export const GoalsStep = () => {
         Set Your Reading Goals
       </motion.h2>
       <motion.p variants={itemVariants} className="text-gray-600">
-        How many books would you like to read?
+        How many books would you like to read each month?
       </motion.p>
-
-      <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Books per Month</Label>
-              <div className="flex items-center space-x-4">
-                <Button variant="outline" size="sm" onClick={() => updateBookGoals(Math.max(1, bookGoals.monthlyTarget - 1))} aria-label="Decrease monthly book target">
-                  <Minus className="w-4 h-4" />
-                </Button>
-                <span className="w-12 text-center font-medium">{bookGoals.monthlyTarget}</span>
-                <Button variant="outline" size="sm" onClick={() => updateBookGoals(Math.min(50, bookGoals.monthlyTarget + 1))} aria-label="Increase monthly book target">
-                  <Plus className="w-4 h-4" />
-                </Button>
+      <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {GOALS.map((goal) => (
+          <motion.div key={goal.id} variants={itemVariants}>
+            <Button variant={goals.monthlyTarget === goal.monthlyTarget ? 'default' : 'outline'} className="w-full h-auto p-6 text-left" onClick={() => handleGoalSelect(goal.monthlyTarget)}>
+              <div className="flex items-center w-full">
+                <Target className="w-6 h-6 mr-2" />
+                <div>
+                  <div className="font-semibold">{goal.title}</div>
+                  <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                </div>
               </div>
-            </div>
-
-            <div className="pt-4">
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <span>Yearly goal</span>
-                <span className="font-medium">{bookGoals.yearlyTarget} books</span>
-              </div>
-              <div className="mt-1 text-xs text-gray-500">{`That's about ${Math.round(bookGoals.yearlyTarget / 52)} books per week`}</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <motion.div variants={itemVariants} className="text-sm text-gray-600">
-        <p>{`Next, you'll be able to set your preferred reading schedule and reminders.`}</p>
+            </Button>
+          </motion.div>
+        ))}
       </motion.div>
+
+      {goals.monthlyTarget > 0 && (
+        <motion.div variants={itemVariants} className="mt-6 text-center text-gray-600">
+          <p>Your yearly target: {goals.yearlyTarget} books</p>
+        </motion.div>
+      )}
     </motion.div>
   );
 };

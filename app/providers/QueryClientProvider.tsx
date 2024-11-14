@@ -2,12 +2,11 @@
 
 'use client';
 
-import { SessionProvider } from 'next-auth/react';
-import { AuthProvider } from '@/lib/auth/providers/AuthProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState, type ReactNode } from 'react';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { useState } from 'react';
 
-export function Providers({ children }: { children: ReactNode }) {
+export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -15,7 +14,6 @@ export function Providers({ children }: { children: ReactNode }) {
           queries: {
             staleTime: 60 * 1000, // 1 minute
             refetchOnWindowFocus: false,
-            retry: 1, // Only retry once
           },
           mutations: {
             retry: false,
@@ -26,9 +24,8 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SessionProvider>
-        <AuthProvider>{children}</AuthProvider>
-      </SessionProvider>
+      {children}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

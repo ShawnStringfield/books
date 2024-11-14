@@ -1,20 +1,41 @@
-import { STEPS } from '@/lib/onboarding/constants';
+import { z } from 'zod';
+import { STEPS } from '@/app/(features)/profile-onboarding/constants';
 
 export type StepId = (typeof STEPS)[number];
 
-export interface OnboardingData {
-  selectedGenres: string[];
-  bookGoals: BookGoals;
-  readingSchedule: ReadingSchedule;
-  completedSteps: StepId[];
-  isOnboardingComplete: boolean;
-}
+export const userPreferencesSchema = z.object({
+  selectedGenres: z.array(z.string()),
+  bookGoals: z.object({
+    monthlyTarget: z.number().min(1),
+    yearlyTarget: z.number().min(1),
+  }),
+  readingSchedule: z.object({
+    preferences: z.array(
+      z.object({
+        daysOfWeek: z.array(z.string()),
+        timeOfDay: z.string(),
+        notifications: z.boolean(),
+      })
+    ),
+  }),
+  isOnboardingComplete: z.boolean(),
+});
 
-export interface OnboardingState extends OnboardingData {
+export type UserPreferences = z.infer<typeof userPreferencesSchema>;
+
+export interface OnboardingState {
   currentStep: StepId;
   progress: number;
+  formData: UserPreferences;
+  completedSteps: StepId[];
   isLoading: boolean;
   error: Error | null;
+}
+
+export interface OnboardingResponse {
+  success: boolean;
+  data?: UserPreferences;
+  error?: string;
 }
 
 export type StepperState = {

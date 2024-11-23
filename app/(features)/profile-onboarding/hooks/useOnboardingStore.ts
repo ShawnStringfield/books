@@ -1,35 +1,9 @@
 import { create } from 'zustand';
 import { STEPS } from '@profile-onboarding/constants';
-import type { StepId } from '@profile-onboarding/types/onboarding';
+import type { BookGoals, OnboardingStateData, ReadingSchedule, StepId } from '@profile-onboarding/types/onboarding';
 
-interface ReadingPreference {
-  daysOfWeek: string[];
-  timeOfDay: string;
-  notifications: boolean;
-}
-
-interface BookGoals {
-  monthlyTarget: number;
-  yearlyTarget: number;
-}
-
-interface ReadingSchedule {
-  preferences: ReadingPreference[];
-}
-
-interface OnboardingState {
-  currentStep: StepId;
-  progress: number;
-  selectedGenres: string[];
-  bookGoals: BookGoals;
-  readingSchedule: ReadingSchedule;
-  completedSteps: StepId[];
-  isOnboardingComplete: boolean;
-  isLoading: boolean;
-  error: Error | null;
-}
-
-interface OnboardingStore extends OnboardingState {
+// Store interface extends the state and adds methods
+interface OnboardingStore extends OnboardingStateData {
   setCurrentStep: (step: StepId) => void;
   updateProgress: (step: StepId) => void;
   updateGenres: (genres: string[]) => void;
@@ -39,7 +13,7 @@ interface OnboardingStore extends OnboardingState {
   resetOnboarding: () => void;
 }
 
-const INITIAL_STATE: OnboardingState = {
+const INITIAL_STATE: OnboardingStateData = {
   currentStep: STEPS[0],
   progress: 0,
   selectedGenres: [],
@@ -70,7 +44,7 @@ export const useOnboardingStore = create<OnboardingStore>((set) => ({
   },
 
   updateGenres: (genres: string[]) => {
-    set((state: OnboardingState) => ({
+    set((state: OnboardingStateData) => ({
       ...state,
       selectedGenres: genres,
       completedSteps: updateCompletedSteps(state, 'genres'),
@@ -78,7 +52,7 @@ export const useOnboardingStore = create<OnboardingStore>((set) => ({
   },
 
   updateGoals: (goals: BookGoals) => {
-    set((state: OnboardingState) => ({
+    set((state: OnboardingStateData) => ({
       ...state,
       bookGoals: goals,
       completedSteps: updateCompletedSteps(state, 'goals'),
@@ -86,7 +60,7 @@ export const useOnboardingStore = create<OnboardingStore>((set) => ({
   },
 
   updateSchedule: (schedule: ReadingSchedule) => {
-    set((state: OnboardingState) => ({
+    set((state: OnboardingStateData) => ({
       ...state,
       readingSchedule: schedule,
       completedSteps: updateCompletedSteps(state, 'schedule'),
@@ -94,7 +68,7 @@ export const useOnboardingStore = create<OnboardingStore>((set) => ({
   },
 
   completeOnboarding: () => {
-    set((state: OnboardingState) => ({
+    set((state: OnboardingStateData) => ({
       ...state,
       isOnboardingComplete: true,
       completedSteps: [...state.completedSteps, 'complete'],
@@ -105,7 +79,7 @@ export const useOnboardingStore = create<OnboardingStore>((set) => ({
 }));
 
 // Helper function to update completed steps
-function updateCompletedSteps(state: OnboardingState, currentStep: StepId): StepId[] {
+function updateCompletedSteps(state: OnboardingStateData, currentStep: StepId): StepId[] {
   if (state.completedSteps.includes(currentStep)) {
     return state.completedSteps;
   }
@@ -113,7 +87,7 @@ function updateCompletedSteps(state: OnboardingState, currentStep: StepId): Step
 }
 
 // Helper to get onboarding data for API
-export function getOnboardingData(state: OnboardingState) {
+export function getOnboardingData(state: OnboardingStateData) {
   return {
     selectedGenres: state.selectedGenres,
     bookGoals: state.bookGoals,

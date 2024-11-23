@@ -17,6 +17,7 @@ interface GoalsStepProps {
 
 export const GoalsStep = ({ goals, onGoalsUpdate }: GoalsStepProps) => {
   const handleGoalSelect = (monthlyTarget: number) => {
+    console.log('lick');
     onGoalsUpdate({
       monthlyTarget,
       yearlyTarget: monthlyTarget * 12,

@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
-import { STEPS } from '@/app/(features)/profile-onboarding/constants';
-import type { StepId } from '@/app/(features)/profile-onboarding/types/onboarding';
-
+import { STEPS } from '@profile-onboarding/constants';
+import type { StepId } from '@profile-onboarding/types/onboarding';
+import ProgressCompletion from './ProgressCompletion';
 interface ProgressStepsProps {
   steps: typeof STEPS;
   currentStep: StepId;
@@ -20,7 +20,9 @@ export const ProgressSteps = ({ steps, currentStep, completedSteps, onStepClick 
         <motion.button
           key={step}
           onClick={() => onStepClick(step)}
-          className={`flex flex-col items-center flex-1 ${isCompleted || isCurrent ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-50'}`}
+          className={`flex flex-col items-center flex-1 ${
+            isCompleted || isCurrent ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-50'
+          }`}
           initial={{ opacity: 0, y: 10 }}
           animate={{
             opacity: 1,
@@ -28,10 +30,8 @@ export const ProgressSteps = ({ steps, currentStep, completedSteps, onStepClick 
             color: isCurrent || isCompleted ? 'rgb(37, 99, 235)' : 'rgb(156, 163, 175)',
           }}
         >
-          <div className={`text-xs font-medium capitalize ${!isCompleted && !isCurrent ? 'cursor-not-allowed' : ''}`}>{step}</div>
-          <div className={`text-xs ${!isCompleted && !isCurrent ? 'cursor-not-allowed' : ''}`}>
-            {index + 1}/{steps.length}
-          </div>
+          <div className={`text-xs font-medium capitalize`}>{step}</div>
+          <ProgressCompletion index={index} stepsLength={steps.length} />
           {isCompleted && !isCurrent && (
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}

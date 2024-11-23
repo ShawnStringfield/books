@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
 
-interface AnimatedProgressProps {
+interface ProgressBarProps {
   value: number;
 }
 
-export const AnimatedProgress = ({ value }: AnimatedProgressProps) => (
+export const ProgressBar = ({ value }: ProgressBarProps) => (
   <div className="relative h-2 w-full bg-gray-100 rounded-full overflow-hidden">
     <motion.div
       className="absolute left-0 top-0 bottom-0 bg-blue-600 rounded-full"

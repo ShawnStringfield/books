@@ -1,7 +1,7 @@
 // app/(features)/profile-onboarding/components/steps/GoalsStep.tsx
 
 import { motion } from 'framer-motion';
-import { Button } from '@/app/components/ui/button';
+import { Button } from '@components/ui/button';
 import { Target } from 'lucide-react';
 import { containerVariants, itemVariants } from '../_animations';
 
@@ -61,7 +61,11 @@ export const GoalsStep = ({ goals, onGoalsUpdate }: GoalsStepProps) => {
       <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {GOALS.map((goal) => (
           <motion.div key={goal.id} variants={itemVariants}>
-            <Button variant={goals.monthlyTarget === goal.monthlyTarget ? 'default' : 'outline'} className="w-full h-auto p-6 text-left" onClick={() => handleGoalSelect(goal.monthlyTarget)}>
+            <Button
+              variant={goals.monthlyTarget === goal.monthlyTarget ? 'default' : 'outline'}
+              className="w-full h-auto p-6 text-left"
+              onClick={() => handleGoalSelect(goal.monthlyTarget)}
+            >
               <div className="flex items-center w-full">
                 <Target className="w-6 h-6 mr-2" />
                 <div>

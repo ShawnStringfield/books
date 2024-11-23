@@ -1,23 +1,23 @@
 import { create } from 'zustand';
-import { STEPS } from '@/app/(features)/profile-onboarding/constants';
-import type { StepId } from '@/app/(features)/profile-onboarding/types/onboarding';
+import { STEPS } from '@profile-onboarding/constants';
+import type { StepId } from '@profile-onboarding/types/onboarding';
 
-export interface ReadingPreference {
+interface ReadingPreference {
   daysOfWeek: string[];
   timeOfDay: string;
   notifications: boolean;
 }
 
-export interface BookGoals {
+interface BookGoals {
   monthlyTarget: number;
   yearlyTarget: number;
 }
 
-export interface ReadingSchedule {
+interface ReadingSchedule {
   preferences: ReadingPreference[];
 }
 
-export interface OnboardingState {
+interface OnboardingState {
   currentStep: StepId;
   progress: number;
   selectedGenres: string[];
@@ -29,7 +29,7 @@ export interface OnboardingState {
   error: Error | null;
 }
 
-export interface OnboardingStore extends OnboardingState {
+interface OnboardingStore extends OnboardingState {
   setCurrentStep: (step: StepId) => void;
   updateProgress: (step: StepId) => void;
   updateGenres: (genres: string[]) => void;
@@ -121,3 +121,33 @@ export function getOnboardingData(state: OnboardingState) {
     isOnboardingComplete: state.isOnboardingComplete,
   };
 }
+
+// Add selector hooks for specific state slices
+export const useOnboardingStep = () => useOnboardingStore((state) => state.currentStep);
+export const useOnboardingProgress = () => useOnboardingStore((state) => state.progress);
+export const useSelectedGenres = () => useOnboardingStore((state) => state.selectedGenres);
+export const useBookGoals = () => useOnboardingStore((state) => state.bookGoals);
+export const useReadingSchedule = () => useOnboardingStore((state) => state.readingSchedule);
+export const useOnboardingStatus = () =>
+  useOnboardingStore((state) => ({
+    isComplete: state.isOnboardingComplete,
+    isLoading: state.isLoading,
+    error: state.error,
+  }));
+
+// Add actions selector
+export const useOnboardingActions = () =>
+  useOnboardingStore((state) => ({
+    setCurrentStep: state.setCurrentStep,
+    updateProgress: state.updateProgress,
+    updateGenres: state.updateGenres,
+    updateGoals: state.updateGoals,
+    updateSchedule: state.updateSchedule,
+    completeOnboarding: state.completeOnboarding,
+    resetOnboarding: state.resetOnboarding,
+  }));
+
+// Add this selector
+export const useOnboardingCompletedSteps = () => {
+  return useOnboardingStore((state) => state.completedSteps);
+};

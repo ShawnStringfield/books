@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Button } from '@/app/components/ui/button';
+import { Button } from '@components/ui/button';
 import { CheckCircle2 } from 'lucide-react';
 import { containerVariants, itemVariants } from '../_animations';
 
@@ -43,7 +43,9 @@ export const ScheduleStep = ({ schedule, onScheduleUpdate }: ScheduleStepProps) 
   };
 
   const handleDayToggle = (dayId: string) => {
-    const updatedDays = currentPreference.daysOfWeek.includes(dayId) ? currentPreference.daysOfWeek.filter((d) => d !== dayId) : [...currentPreference.daysOfWeek, dayId];
+    const updatedDays = currentPreference.daysOfWeek.includes(dayId)
+      ? currentPreference.daysOfWeek.filter((d) => d !== dayId)
+      : [...currentPreference.daysOfWeek, dayId];
 
     const updatedPreference: ReadingPreference = {
       ...currentPreference,
@@ -91,7 +93,12 @@ export const ScheduleStep = ({ schedule, onScheduleUpdate }: ScheduleStepProps) 
         <h3 className="text-lg font-semibold">Reading Days</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {DAYS_OF_WEEK.map((day) => (
-            <Button key={day.id} variant={currentPreference.daysOfWeek.includes(day.id) ? 'default' : 'outline'} onClick={() => handleDayToggle(day.id)} className="w-full">
+            <Button
+              key={day.id}
+              variant={currentPreference.daysOfWeek.includes(day.id) ? 'default' : 'outline'}
+              onClick={() => handleDayToggle(day.id)}
+              className="w-full"
+            >
               {day.label}
             </Button>
           ))}
@@ -103,7 +110,12 @@ export const ScheduleStep = ({ schedule, onScheduleUpdate }: ScheduleStepProps) 
         <h3 className="text-lg font-semibold">Preferred Time</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {TIME_SLOTS.map((time) => (
-            <Button key={time.id} variant={currentPreference.timeOfDay === time.id ? 'default' : 'outline'} onClick={() => handleTimeSelect(time.id)} className="w-full justify-start">
+            <Button
+              key={time.id}
+              variant={currentPreference.timeOfDay === time.id ? 'default' : 'outline'}
+              onClick={() => handleTimeSelect(time.id)}
+              className="w-full justify-start"
+            >
               <span className="mr-2">{time.icon}</span>
               {time.label}
               {currentPreference.timeOfDay === time.id && (

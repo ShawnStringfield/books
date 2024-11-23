@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@hooks/use-toast';
 
 export type StepValidationRules<TStep extends string, TState> = Partial<Record<TStep, (state: TState) => boolean>>;
 
@@ -10,7 +10,12 @@ interface OnboardingNavigationConfig<TStep extends string, TState> {
   getCurrentState: () => TState;
 }
 
-export function useOnboardingNavigation<TStep extends string, TState extends { currentStep: TStep }>({ steps, validationRules = {}, onStepChange, getCurrentState }: OnboardingNavigationConfig<TStep, TState>) {
+export function useProgressNavigation<TStep extends string, TState extends { currentStep: TStep }>({
+  steps,
+  validationRules = {},
+  onStepChange,
+  getCurrentState,
+}: OnboardingNavigationConfig<TStep, TState>) {
   const { toast } = useToast();
   const currentStep = getCurrentState().currentStep;
 

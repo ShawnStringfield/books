@@ -21,7 +21,11 @@ export const GenresStep = ({ selectedGenres, onGenreSelect }: GenresStepProps) =
     <motion.div variants={containerVariants} className="grid grid-cols-2 md:grid-cols-3 gap-4">
       {GENRES.map((genre) => (
         <motion.div key={genre} variants={itemVariants}>
-          <Button variant={selectedGenres.includes(genre) ? 'default' : 'outline'} className="w-full h-auto py-4 px-6 text-left justify-start" onClick={() => onGenreSelect(genre)}>
+          <Button
+            variant={selectedGenres.includes(genre) ? 'default' : 'outline'}
+            className="w-full h-auto py-4 px-6 text-left justify-start"
+            onClick={() => onGenreSelect(genre)}
+          >
             <BookMarked className="w-5 h-5 mr-2" />
             {genre}
             {selectedGenres.includes(genre) && (

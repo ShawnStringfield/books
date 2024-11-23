@@ -1,6 +1,5 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { SupabaseAdapter } from '@auth/supabase-adapter';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,13 +13,11 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  adapter: SupabaseAdapter({
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    secret: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-  }),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
   debug: true,
   pages: {
@@ -36,6 +33,9 @@ export const authOptions: NextAuthOptions = {
           ...token,
           accessToken: account.access_token,
           userId: user.id,
+          email: user.email,
+          name: user.name,
+          picture: user.image,
         };
       }
       return token;
@@ -48,6 +48,9 @@ export const authOptions: NextAuthOptions = {
           ...session.user,
           id: token.userId, // From your JWT token
           accessToken: token.accessToken, // From your JWT token
+          email: token.email,
+          name: token.name,
+          picture: token.picture,
         },
       };
     },

@@ -39,21 +39,21 @@ export const AuthProvider = ({
   }, []);
 
   // Convert NextAuth session to our custom session type
-  const session: Session = useMemo(
-    () => ({
+  const session: Session = useMemo(() => {
+    console.log('Session Data:', sessionData); // Debug log
+    return {
       user: sessionData?.user
         ? {
-            id: sessionData.user.id as string,
+            id: sessionData.user.id,
             email: sessionData.user.email,
             name: sessionData.user.name,
             image: sessionData.user.image,
-            accessToken: sessionData.user.accessToken as string,
+            accessToken: sessionData.user.accessToken,
           }
         : null,
       isAuthenticated: !!sessionData?.user,
-    }),
-    [sessionData]
-  );
+    };
+  }, [sessionData]);
 
   // Error handling utility
   const handleError = useCallback(

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Button } from '@components/ui/button';
-import { Target } from 'lucide-react';
+import { Target, Plus, Minus } from 'lucide-react';
 import { containerVariants, itemVariants } from '../_animations';
 
 interface BookGoals {
@@ -16,40 +16,13 @@ interface GoalsStepProps {
 }
 
 export const GoalsStep = ({ goals, onGoalsUpdate }: GoalsStepProps) => {
-  const handleGoalSelect = (monthlyTarget: number) => {
-    console.log('lick');
+  const handleGoalChange = (change: number) => {
+    const newMonthlyTarget = Math.max(1, goals.monthlyTarget + change);
     onGoalsUpdate({
-      monthlyTarget,
-      yearlyTarget: monthlyTarget * 12,
+      monthlyTarget: newMonthlyTarget,
+      yearlyTarget: newMonthlyTarget * 12,
     });
   };
-
-  const GOALS = [
-    {
-      id: '1',
-      title: '1 Book Monthly',
-      description: 'Perfect for casual readers',
-      monthlyTarget: 1,
-    },
-    {
-      id: '2',
-      title: '2 Books Monthly',
-      description: 'Regular reading habit',
-      monthlyTarget: 2,
-    },
-    {
-      id: '4',
-      title: '4 Books Monthly',
-      description: 'Avid reader',
-      monthlyTarget: 4,
-    },
-    {
-      id: 'custom',
-      title: 'Custom Goal',
-      description: 'Set your own target',
-      monthlyTarget: goals.monthlyTarget,
-    },
-  ];
 
   return (
     <motion.div variants={containerVariants} className="space-y-6">
@@ -59,31 +32,33 @@ export const GoalsStep = ({ goals, onGoalsUpdate }: GoalsStepProps) => {
       <motion.p variants={itemVariants} className="text-gray-600">
         How many books would you like to read each month?
       </motion.p>
-      <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {GOALS.map((goal) => (
-          <motion.div key={goal.id} variants={itemVariants}>
-            <Button
-              variant={goals.monthlyTarget === goal.monthlyTarget ? 'default' : 'outline'}
-              className="w-full h-auto p-6 text-left"
-              onClick={() => handleGoalSelect(goal.monthlyTarget)}
-            >
-              <div className="flex items-center w-full">
-                <Target className="w-6 h-6 mr-2" />
-                <div>
-                  <div className="font-semibold">{goal.title}</div>
-                  <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
-                </div>
-              </div>
-            </Button>
-          </motion.div>
-        ))}
-      </motion.div>
 
-      {goals.monthlyTarget > 0 && (
-        <motion.div variants={itemVariants} className="mt-6 text-center text-gray-600">
+      <motion.div variants={itemVariants} className="flex flex-col items-center space-y-4">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleGoalChange(-1)}
+            aria-label="Decrease monthly book target"
+            disabled={goals.monthlyTarget <= 1}
+          >
+            <Minus className="w-4 h-4" />
+          </Button>
+
+          <div className="flex flex-col items-center">
+            <span className="text-4xl font-bold">{goals.monthlyTarget}</span>
+            <span className="text-sm text-gray-600">books per month</span>
+          </div>
+
+          <Button variant="outline" size="icon" onClick={() => handleGoalChange(1)} aria-label="Increase monthly book target">
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
+
+        <motion.div variants={itemVariants} className="text-center text-gray-600">
           <p>Your yearly target: {goals.yearlyTarget} books</p>
         </motion.div>
-      )}
+      </motion.div>
     </motion.div>
   );
 };

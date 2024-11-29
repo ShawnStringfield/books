@@ -125,3 +125,12 @@ export const useOnboardingActions = () =>
 export const useOnboardingCompletedSteps = () => {
   return useOnboardingStore((state) => state.completedSteps);
 };
+
+// Add new selector for just the genre update function
+const selectGenreUpdater = (state: OnboardingStore) => ({
+  updateGenres: state.updateGenres,
+  selectedGenres: state.selectedGenres,
+});
+
+// Export a custom hook for genre management
+export const useGenreManager = () => useOnboardingStore(selectGenreUpdater);

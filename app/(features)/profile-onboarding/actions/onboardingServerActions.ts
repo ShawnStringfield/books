@@ -21,13 +21,12 @@ const OnboardingDataSchema = z.object({
   isOnboardingComplete: z.boolean(),
 });
 
-console.log('OnboardingDataSchema:', OnboardingDataSchema);
-
 export type OnboardingData = z.infer<typeof OnboardingDataSchema>;
 
 export async function saveOnboardingData(data: OnboardingData) {
   try {
-    console.log('Saving onboarding data:', data);
+    const validatedData = OnboardingDataSchema.parse(data);
+    console.log('Saving onboarding data:', validatedData);
     revalidatePath('/dashboard');
     console.log('Successfully completed onboarding save');
     return { success: true };

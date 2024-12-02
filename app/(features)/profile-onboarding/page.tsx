@@ -9,7 +9,7 @@ import { useOnboardingStore, getOnboardingData } from '@profile-onboarding/hooks
 import { useOnboardingMutation } from '@profile-onboarding/hooks/useOnboardingMutation';
 import { STEPS } from '@profile-onboarding/constants';
 import { OnboardingState, StepId } from '@profile-onboarding/types/onboarding';
-import { useProgressNavigation, StepValidationRules } from '@components/progress/useProgressNavigation';
+import { useProgressNavigation, StepValidationRules } from '@/app/components/progress/useProgressNavigation';
 import { ProgressWizard } from '@/app/components/progress/ProgressWizard';
 import { memo, useCallback, useMemo } from 'react';
 

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Button } from '@components/ui/button';
+import { Button } from '@/app/components/ui/button';
 import { CheckCircle2 } from 'lucide-react';
 import { containerVariants, itemVariants } from '../_animations';
 

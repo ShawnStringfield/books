@@ -2,8 +2,8 @@ import { StepId } from '@/app/(features)/profile-onboarding/types/onboarding';
 import { ProgressBar } from './ProgressBar';
 import { ProgressSteps } from './ProgressSteps';
 import { Card, CardContent } from '../ui/card';
-import { AnimatePresence, motion } from 'framer-motion';
-import { containerVariants } from '@/app/(features)/profile-onboarding/components/_animations';
+// import { AnimatePresence, motion } from 'framer-motion';
+// import { containerVariants } from '@/app/(features)/profile-onboarding/components/_animations';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -42,23 +42,24 @@ export const ProgressWizard = ({
 
         <Card className="border-none shadow-lg">
           <CardContent className="p-8">
-            <AnimatePresence mode="wait">
-              <motion.div key={currentStep} variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-8">
-                {children}
-                <div className="flex justify-between pt-6">
-                  <Button variant="ghost" onClick={onPreviousStep} disabled={isFirstStep} className="flex items-center">
-                    <ChevronLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </Button>
-                  {!isLastStep && (
-                    <Button onClick={onNextStep} className="flex items-center">
-                      Next
-                      <ChevronRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  )}
-                </div>
-              </motion.div>
-            </AnimatePresence>
+            {/* TODO: Add back animation after fixing re-render bug */}
+            {/* <AnimatePresence mode="wait"> */}
+            {/* <motion.div key={currentStep} variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-8"> */}
+            {children}
+            <div className="flex justify-between pt-6">
+              <Button variant="ghost" onClick={onPreviousStep} disabled={isFirstStep} className="flex items-center">
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              {!isLastStep && (
+                <Button onClick={onNextStep} className="flex items-center">
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              )}
+            </div>
+            {/* </motion.div> */}
+            {/* </AnimatePresence> */}
           </CardContent>
         </Card>
       </div>

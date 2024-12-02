@@ -23,15 +23,16 @@
       "@/*": ["./*"],
       "@features/*": ["app/(features)/*"],
       "@dashboard/*": ["app/(features)/dashboard/*"],
-      "@profile-onboarding/*": ["app/(features)/profile-onboarding/*"],
-      "@components/*": ["app/components/*"],
+      "@profile-onboarding/*": ["./app/(features)/profile-onboarding/*"],
+      "@components/*": ["./components/*"],
       "@shadcn/*": ["app/components/ui/*"],
       "@hooks/*": ["hooks/*"],
       "@utils/*": ["utils/*"],
       "@types/*": ["types/*"],
       "@constants/*": ["constants/*"]
     },
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["jest", "@testing-library/jest-dom"]
   },
   "include": [
     "next-env.d.ts",
@@ -39,7 +40,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/api/auth/[...nextauth]/route.ts",
-    "app/api/auth/[...nextauth]/route.ts"
+    "app/api/auth/[...nextauth]/route.ts",
+    "jest.setup.js",
+    "jest.config.mjs"
   ],
   "exclude": ["node_modules"]
 }

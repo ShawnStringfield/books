@@ -1,8 +1,8 @@
 // app/(features)/profile-onboarding/components/steps/GoalsStep.tsx
 
 import { motion } from 'framer-motion';
-import { Button } from '@components/ui/button';
-import { Target, Plus, Minus } from 'lucide-react';
+import { Button } from '@/app/components/ui/button';
+import { Plus, Minus } from 'lucide-react';
 import { containerVariants, itemVariants } from '../_animations';
 
 interface BookGoals {

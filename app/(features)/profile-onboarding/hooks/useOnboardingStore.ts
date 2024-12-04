@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { STEPS } from '@profile-onboarding/constants';
 import type { BookGoals, OnboardingStateData, ReadingSchedule, StepId } from '@profile-onboarding/types/onboarding';
 
@@ -30,53 +31,72 @@ const INITIAL_STATE: OnboardingStateData = {
   error: null,
 };
 
-export const useOnboardingStore = create<OnboardingStore>((set) => ({
-  ...INITIAL_STATE,
+// Add storage key constant
+const STORAGE_KEY = 'user-onboarding-state';
 
-  setCurrentStep: (step: StepId) => {
-    set({ currentStep: step });
-  },
+// Modify store creation to use persist middleware
+export const useOnboardingStore = create<OnboardingStore>()(
+  persist(
+    (set) => ({
+      ...INITIAL_STATE,
 
-  updateProgress: (step: StepId) => {
-    const currentIndex = STEPS.indexOf(step);
-    const progress = (currentIndex / (STEPS.length - 1)) * 100;
-    set({ progress });
-  },
+      setCurrentStep: (step: StepId) => {
+        set({ currentStep: step });
+      },
 
-  updateGenres: (genres: string[]) => {
-    set((state: OnboardingStateData) => ({
-      ...state,
-      selectedGenres: genres,
-      completedSteps: updateCompletedSteps(state, 'genres'),
-    }));
-  },
+      updateProgress: (step: StepId) => {
+        const currentIndex = STEPS.indexOf(step);
+        const progress = (currentIndex / (STEPS.length - 1)) * 100;
+        set({ progress });
+      },
 
-  updateGoals: (goals: BookGoals) => {
-    set((state: OnboardingStateData) => ({
-      ...state,
-      bookGoals: goals,
-      completedSteps: updateCompletedSteps(state, 'goals'),
-    }));
-  },
+      updateGenres: (genres: string[]) => {
+        set((state: OnboardingStateData) => ({
+          ...state,
+          selectedGenres: genres,
+          completedSteps: updateCompletedSteps(state, 'genres'),
+        }));
+      },
 
-  updateSchedule: (schedule: ReadingSchedule) => {
-    set((state: OnboardingStateData) => ({
-      ...state,
-      readingSchedule: schedule,
-      completedSteps: updateCompletedSteps(state, 'schedule'),
-    }));
-  },
+      updateGoals: (goals: BookGoals) => {
+        set((state: OnboardingStateData) => ({
+          ...state,
+          bookGoals: goals,
+          completedSteps: updateCompletedSteps(state, 'goals'),
+        }));
+      },
 
-  completeOnboarding: () => {
-    set((state: OnboardingStateData) => ({
-      ...state,
-      isOnboardingComplete: true,
-      completedSteps: [...state.completedSteps, 'complete'],
-    }));
-  },
+      updateSchedule: (schedule: ReadingSchedule) => {
+        set((state: OnboardingStateData) => ({
+          ...state,
+          readingSchedule: schedule,
+          completedSteps: updateCompletedSteps(state, 'schedule'),
+        }));
+      },
 
-  resetOnboarding: () => set(INITIAL_STATE),
-}));
+      completeOnboarding: () => {
+        set((state: OnboardingStateData) => ({
+          ...state,
+          isOnboardingComplete: true,
+          completedSteps: [...state.completedSteps, 'complete'],
+        }));
+      },
+
+      resetOnboarding: () => set(INITIAL_STATE),
+    }),
+    {
+      name: STORAGE_KEY, // storage key
+      partialize: (state) => ({
+        // Only store essential data, excluding temporary UI state
+        selectedGenres: state.selectedGenres,
+        bookGoals: state.bookGoals,
+        readingSchedule: state.readingSchedule,
+        isOnboardingComplete: state.isOnboardingComplete,
+        completedSteps: state.completedSteps,
+      }),
+    }
+  )
+);
 
 // Helper function to update completed steps
 function updateCompletedSteps(state: OnboardingStateData, currentStep: StepId): StepId[] {

@@ -1,18 +1,32 @@
 // hooks/useOnboardingCheck.ts
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useOnboardingStore } from './useOnboardingStore';
 
-export const useOnboardingCheck = () => {
+interface OnboardingState {
+  isComplete: boolean;
+  steps?: string[];
+  lastCompletedStep?: string;
+  // Add other relevant fields
+}
+
+export function useOnboardingCheck() {
   const router = useRouter();
-  const { isOnboardingComplete = false } = useOnboardingStore();
 
   useEffect(() => {
-    // If onboarding is not complete, redirect to onboarding
-    if (!isOnboardingComplete) {
+    const onboardingState = (() => {
+      try {
+        const stored = localStorage.getItem('user-onboarding-state');
+        return stored ? (JSON.parse(stored) as OnboardingState) : null;
+      } catch (error) {
+        console.error('Error parsing onboarding state:', error);
+        return null;
+      }
+    })();
+
+    if (!onboardingState) {
       router.push('/profile-onboarding');
     }
-  }, [isOnboardingComplete, router]);
+  }, [router]);
 
-  return { isOnboardingComplete };
-};
+  return null; // You could return the onboarding state if needed
+}

@@ -5,7 +5,7 @@ interface ProgressBarProps {
 }
 
 export const ProgressBar = ({ value }: ProgressBarProps) => (
-  <div className="relative h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+  <div role="progressbar" className="relative h-2 w-full bg-gray-100 rounded-full overflow-hidden">
     <motion.div
       className="absolute left-0 top-0 bottom-0 bg-blue-600 rounded-full"
       initial={{ width: 0 }}

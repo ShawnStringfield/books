@@ -2,8 +2,6 @@ import { StepId } from '@/app/(features)/profile-onboarding/types/onboarding';
 import { ProgressBar } from './ProgressBar';
 import { ProgressSteps } from './ProgressSteps';
 import { Card, CardContent } from '../ui/card';
-// import { AnimatePresence, motion } from 'framer-motion';
-// import { containerVariants } from '@/app/(features)/profile-onboarding/components/_animations';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -35,16 +33,13 @@ export const ProgressWizard = ({
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 max-w-4xl">
-        <div className="mb-8 space-y-2">
+        <div className="mb-8 space-y-2" data-testid="progress-wizard">
           <ProgressBar value={progress} />
           <ProgressSteps steps={steps.map((step) => step)} currentStep={currentStep} completedSteps={completedSteps} onStepClick={onStepChange} />
         </div>
 
         <Card className="border-none shadow-lg">
           <CardContent className="p-8">
-            {/* TODO: Add back animation after fixing re-render bug */}
-            {/* <AnimatePresence mode="wait"> */}
-            {/* <motion.div key={currentStep} variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-8"> */}
             {children}
             <div className="flex justify-between pt-6">
               <Button variant="ghost" onClick={onPreviousStep} disabled={isFirstStep} className="flex items-center">
@@ -58,8 +53,6 @@ export const ProgressWizard = ({
                 </Button>
               )}
             </div>
-            {/* </motion.div> */}
-            {/* </AnimatePresence> */}
           </CardContent>
         </Card>
       </div>

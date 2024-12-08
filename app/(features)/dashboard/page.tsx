@@ -1,7 +1,5 @@
 'use client';
 import React from 'react';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { BookOpen, Quote } from 'lucide-react';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { useOnboardingCheck } from '@/app/(features)/profile-onboarding/hooks/useOnboardingCheck';
@@ -9,63 +7,18 @@ import AddBookOnboarding from './components/AddBookOnboarding';
 import WishlistOnboarding from './components/WishlistOnboarding';
 import FavHighlightsOnboarding from './components/FavHighlightsOnboarding';
 import RecentHighlights from './components/RecentHighlights';
-// import GoogleBooks from './components/GoogleBooks';
-
-// Types
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  coverUrl?: string;
-  totalPages: number;
-  currentPage?: number;
-  startDate?: Date;
-  completedDate?: Date;
-}
-
-interface Highlight {
-  id: string;
-  bookId: string;
-  text: string;
-  page: number;
-  isFavorite: boolean;
-  createdAt: Date;
-}
-
-interface DashboardStore {
-  books: Book[];
-  highlights: Highlight[];
-  addBook: (book: Book) => void;
-  addHighlight: (highlight: Highlight) => void;
-  toggleFavoriteHighlight: (id: string) => void;
-  updateReadingProgress: (bookId: string, currentPage: number) => void;
-}
-
-// Store
-const useDashboardStore = create<DashboardStore>()(
-  persist(
-    (set) => ({
-      books: [],
-      highlights: [],
-      addBook: (book) => set((state) => ({ books: [...state.books, book] })),
-      addHighlight: (highlight) => set((state) => ({ highlights: [...state.highlights, highlight] })),
-      toggleFavoriteHighlight: (id) =>
-        set((state) => ({
-          highlights: state.highlights.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h)),
-        })),
-      updateReadingProgress: (bookId, currentPage) =>
-        set((state) => ({
-          books: state.books.map((b) => (b.id === bookId ? { ...b, currentPage } : b)),
-        })),
-    }),
-    { name: 'dashboard-store' }
-  )
-);
+import { useDashboardStore, selectBooks, selectHighlights, selectHasHydrated } from './stores/useDashboardStore';
 
 export default function DashboardPage() {
   useOnboardingCheck();
+  const hasHydrated = useDashboardStore(selectHasHydrated);
 
-  const { books, highlights } = useDashboardStore();
+  const books = useDashboardStore(selectBooks);
+  const highlights = useDashboardStore(selectHighlights);
+
+  if (!hasHydrated) {
+    return null; // or a loading spinner
+  }
 
   const booksThisMonth = books.filter((b) => b.completedDate && new Date(b.completedDate).getMonth() === new Date().getMonth()).length;
   const booksThisYear = books.filter((b) => b.completedDate && new Date(b.completedDate).getFullYear() === new Date().getFullYear()).length;

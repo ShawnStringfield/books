@@ -1,66 +1,14 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Clock, Library, PlusCircle } from 'lucide-react';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  coverUrl?: string;
-  totalPages: number;
-  currentPage?: number;
-  startDate?: Date;
-  completedDate?: Date;
-}
-
-interface Highlight {
-  id: string;
-  bookId: string;
-  text: string;
-  page: number;
-  isFavorite: boolean;
-  createdAt: Date;
-}
-
-interface DashboardStore {
-  books: Book[];
-  highlights: Highlight[];
-  addBook: (book: Book) => void;
-  addHighlight: (highlight: Highlight) => void;
-  toggleFavoriteHighlight: (id: string) => void;
-  updateReadingProgress: (bookId: string, currentPage: number) => void;
-}
-
-const useDashboardStore = create<DashboardStore>()(
-  persist(
-    (set) => ({
-      books: [],
-      highlights: [],
-      addBook: (book) => set((state) => ({ books: [...state.books, book] })),
-      addHighlight: (highlight) => set((state) => ({ highlights: [...state.highlights, highlight] })),
-      toggleFavoriteHighlight: (id) =>
-        set((state) => ({
-          highlights: state.highlights.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h)),
-        })),
-      updateReadingProgress: (bookId, currentPage) =>
-        set((state) => ({
-          books: state.books.map((b) => (b.id === bookId ? { ...b, currentPage } : b)),
-        })),
-    }),
-    { name: 'dashboard-store' }
-  )
-);
+import Image from 'next/image';
+import { useDashboardStore } from '../stores/useDashboardStore';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
+import { AddBookForm } from './AddBookForm';
 
 const AddBookOnboarding = () => {
   const { books } = useDashboardStore();
   const currentlyReading = books.find((b) => b.currentPage && !b.completedDate);
-
-  const handleAddBook = () => {
-    // setIsAddBookModalOpen(true);
-    // You would implement the AddBookModal component separately
-  };
 
   return (
     <div>
@@ -75,7 +23,7 @@ const AddBookOnboarding = () => {
           <CardContent>
             <div className="flex items-start gap-4">
               {currentlyReading.coverUrl && (
-                <img src={currentlyReading.coverUrl} alt={currentlyReading.title} className="w-24 h-36 object-cover rounded" />
+                <Image src={currentlyReading.coverUrl} alt={currentlyReading.title} width={96} height={144} className="object-cover rounded" />
               )}
               <div className="flex-1">
                 <h3 className="font-semibold">{currentlyReading.title}</h3>
@@ -96,13 +44,15 @@ const AddBookOnboarding = () => {
           </CardContent>
         </Card>
       ) : (
-        <EmptyReadingState onAddBook={handleAddBook} />
+        <EmptyReadingState />
       )}
     </div>
   );
 };
 
-function EmptyReadingState({ onAddBook }: { onAddBook: () => void }) {
+function EmptyReadingState() {
+  const { isAddBookDrawerOpen, setAddBookDrawerOpen } = useDashboardStore();
+
   return (
     <Card className="bg-gradient-to-br from-blue-50 to-white">
       <CardContent className="pt-6">
@@ -116,10 +66,22 @@ function EmptyReadingState({ onAddBook }: { onAddBook: () => void }) {
               Track your reading progress, collect meaningful highlights, and discover new books to read.
             </p>
           </div>
-          <Button onClick={onAddBook} className="mt-4 flex items-center gap-2">
-            <PlusCircle className="w-4 h-4" />
-            Add Your First Book
-          </Button>
+          <Drawer open={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen}>
+            <DrawerTrigger asChild>
+              <Button className="mt-4 flex items-center gap-2">
+                <PlusCircle className="w-4 h-4" />
+                Add Your First Book
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Add New Book</DrawerTitle>
+              </DrawerHeader>
+              <div className="p-4">
+                <AddBookForm />
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
       </CardContent>
     </Card>

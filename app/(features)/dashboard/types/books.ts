@@ -1,18 +1,17 @@
-export interface BookVolume {
+export interface GoogleBook {
   id: string;
   volumeInfo: {
     title: string;
     authors?: string[];
-    description?: string;
+    pageCount?: number;
     imageLinks?: {
-      thumbnail: string;
+      thumbnail?: string;
     };
-    publishedDate?: string;
   };
 }
 
 export interface GoogleBooksResponse {
-  items: BookVolume[];
+  items: GoogleBook[];
   totalItems: number;
 }
 

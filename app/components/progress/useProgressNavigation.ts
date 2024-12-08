@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useToast } from '@hooks/use-toast';
+import { useToast } from '@/app/hooks/use-toast';
 
 export type StepValidationRules<TStep extends string, TState> = Partial<Record<TStep, (state: TState) => boolean>>;
 

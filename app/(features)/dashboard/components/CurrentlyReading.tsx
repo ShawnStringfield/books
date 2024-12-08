@@ -5,43 +5,46 @@ import Image from 'next/image';
 import { useDashboardStore, selectFirstCurrentlyReading } from '../stores/useDashboardStore';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
+import Link from 'next/link';
 
-const AddBookOnboarding = () => {
+const CurrentlyReading = () => {
   const currentlyReading = useDashboardStore(selectFirstCurrentlyReading);
 
   return (
     <div>
       {currentlyReading ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5" />
-              Currently Reading
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-start gap-4">
-              {currentlyReading.coverUrl && (
-                <Image src={currentlyReading.coverUrl} alt={currentlyReading.title} width={96} height={144} className="object-cover rounded" />
-              )}
-              <div className="flex-1">
-                <h3 className="font-semibold">{currentlyReading.title}</h3>
-                <p className="text-sm text-gray-600">{currentlyReading.author}</p>
-                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full"
-                    style={{
-                      width: `${(currentlyReading.currentPage / currentlyReading.totalPages) * 100}%`,
-                    }}
-                  />
+        <Link href={`/dashboard/books/${currentlyReading.id}`} className="block">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Currently Reading
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-start gap-4">
+                {currentlyReading.coverUrl && (
+                  <Image src={currentlyReading.coverUrl} alt={currentlyReading.title} width={96} height={144} className="object-cover rounded" />
+                )}
+                <div className="flex-1">
+                  <h3 className="font-semibold">{currentlyReading.title}</h3>
+                  <p className="text-sm text-gray-600">{currentlyReading.author}</p>
+                  <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full"
+                      style={{
+                        width: `${(currentlyReading.currentPage / currentlyReading.totalPages) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="text-sm mt-1">
+                    Page {currentlyReading.currentPage} of {currentlyReading.totalPages}
+                  </p>
                 </div>
-                <p className="text-sm mt-1">
-                  Page {currentlyReading.currentPage} of {currentlyReading.totalPages}
-                </p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
       ) : (
         <EmptyReadingState />
       )}
@@ -87,4 +90,4 @@ function EmptyReadingState() {
   );
 }
 
-export default AddBookOnboarding;
+export default CurrentlyReading;

@@ -3,7 +3,7 @@ import React from 'react';
 import { BookOpen, Quote } from 'lucide-react';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { useOnboardingCheck } from '@/app/(features)/profile-onboarding/hooks/useOnboardingCheck';
-import AddBookOnboarding from './components/AddBookOnboarding';
+import CurrentlyReading from './components/CurrentlyReading';
 import WishlistOnboarding from './components/WishlistOnboarding';
 import FavHighlightsOnboarding from './components/FavHighlightsOnboarding';
 import RecentHighlights from './components/RecentHighlights';
@@ -32,7 +32,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AddBookOnboarding />
+        <CurrentlyReading />
         <WishlistOnboarding />
         <FavHighlightsOnboarding />
         <RecentHighlights />

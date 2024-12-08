@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import ProfileOnboarding from './page';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { STEPS } from '@profile-onboarding/constants';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/app/hooks/use-toast';
 import { act } from '@testing-library/react';
 
 // Mock Next.js navigation hooks

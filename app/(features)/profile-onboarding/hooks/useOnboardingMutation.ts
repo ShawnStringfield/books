@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { saveOnboardingData } from '@profile-onboarding/actions/onboardingServerActions';
 import type { OnboardingData } from '@profile-onboarding/actions/onboardingServerActions';
-import { useToast } from '@hooks/use-toast';
+import { useToast } from '@/app/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 export function useOnboardingMutation() {

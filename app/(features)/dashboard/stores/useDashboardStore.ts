@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { Book, Highlight } from '../types/books';
+import { Book, Highlight, ReadingStatus } from '../types/books';
 
 interface DashboardState {
   books: Book[];
@@ -20,18 +20,10 @@ interface DashboardActions {
   setError: (error: string | null) => void;
   setAddBookDrawerOpen: (isOpen: boolean) => void;
   setHasHydrated: (state: boolean) => void;
+  updateBookStatus: (bookId: string, status: ReadingStatus) => void;
 }
 
 export type DashboardStore = DashboardState & DashboardActions;
-
-// const initialState: DashboardState = {
-//   books: [],
-//   highlights: [],
-//   isLoading: false,
-//   error: null,
-//   isAddBookDrawerOpen: false,
-//   hasHydrated: false,
-// };
 
 interface VersionedState extends DashboardState {
   version?: number;
@@ -51,7 +43,14 @@ export const useDashboardStore = create<DashboardStore>()(
       // Actions
       addBook: (book) =>
         set((state) => ({
-          books: [...state.books, book],
+          books: [
+            ...state.books,
+            {
+              ...book,
+              status: state.books.length === 0 ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED,
+              currentPage: 0,
+            },
+          ],
           error: null,
         })),
 
@@ -78,6 +77,19 @@ export const useDashboardStore = create<DashboardStore>()(
       setAddBookDrawerOpen: (isOpen) => set({ isAddBookDrawerOpen: isOpen }),
 
       setHasHydrated: (state) => set({ hasHydrated: state }),
+
+      updateBookStatus: (bookId, status) =>
+        set((state) => ({
+          books: state.books.map((b) =>
+            b.id === bookId
+              ? {
+                  ...b,
+                  status,
+                  completedDate: status === ReadingStatus.COMPLETED ? new Date() : b.completedDate,
+                }
+              : b
+          ),
+        })),
     }),
     {
       name: 'dashboard-storage',
@@ -115,3 +127,5 @@ export const selectHighlights = (state: DashboardStore) => state.highlights;
 export const selectIsLoading = (state: DashboardStore) => state.isLoading;
 export const selectError = (state: DashboardStore) => state.error;
 export const selectHasHydrated = (state: DashboardStore) => state.hasHydrated;
+export const selectCurrentlyReading = (state: DashboardStore) => state.books.filter((book) => book.status === ReadingStatus.IN_PROGRESS);
+export const selectFirstCurrentlyReading = (state: DashboardStore) => state.books.find((book) => book.status === ReadingStatus.IN_PROGRESS);

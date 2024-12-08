@@ -6,6 +6,7 @@ import { Input } from '@/app/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/app/components/ui/form';
 import { useDashboardStore } from '../stores/useDashboardStore';
 import { v4 as uuidv4 } from 'uuid';
+import { ReadingStatus } from '../types/books';
 
 // Validation schema remains the same
 const bookFormSchema = z.object({
@@ -43,6 +44,8 @@ export function AddBookForm() {
         coverUrl: data.coverUrl || undefined,
         createdAt: new Date().toISOString(),
         completedDate: undefined,
+        currentPage: data.currentPage ?? 0,
+        status: ReadingStatus.NOT_STARTED,
       };
 
       addBook(newBook);

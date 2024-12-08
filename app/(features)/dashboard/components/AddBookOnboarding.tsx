@@ -2,13 +2,12 @@ import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Clock, Library, PlusCircle } from 'lucide-react';
 import Image from 'next/image';
-import { useDashboardStore } from '../stores/useDashboardStore';
+import { useDashboardStore, selectFirstCurrentlyReading } from '../stores/useDashboardStore';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 
 const AddBookOnboarding = () => {
-  const { books } = useDashboardStore();
-  const currentlyReading = books.find((b) => b.currentPage && !b.completedDate);
+  const currentlyReading = useDashboardStore(selectFirstCurrentlyReading);
 
   return (
     <div>
@@ -32,7 +31,7 @@ const AddBookOnboarding = () => {
                   <div
                     className="bg-blue-600 h-2 rounded-full"
                     style={{
-                      width: `${(currentlyReading.currentPage! / currentlyReading.totalPages) * 100}%`,
+                      width: `${(currentlyReading.currentPage / currentlyReading.totalPages) * 100}%`,
                     }}
                   />
                 </div>

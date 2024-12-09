@@ -1,4 +1,5 @@
 'use client';
+
 import React from 'react';
 import { BookOpen, Quote } from 'lucide-react';
 import { Card, CardContent } from '@/app/components/ui/card';
@@ -8,6 +9,7 @@ import WishlistOnboarding from './components/WishlistOnboarding';
 import FavHighlightsOnboarding from './components/FavHighlightsOnboarding';
 import RecentHighlights from './components/RecentHighlights';
 import { useDashboardStore, selectBooks, selectHighlights, selectHasHydrated } from './stores/useDashboardStore';
+import DashboardLayout from './components/DashboardLayout';
 
 export default function DashboardPage() {
   useOnboardingCheck();
@@ -26,16 +28,21 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={<BookOpen className="w-6 h-6" />} title="Books Read" value={`${booksThisMonth} this month / ${booksThisYear} this year`} />
-        <StatCard icon={<Quote className="w-6 h-6" />} title="New Highlights" value={`${highlightsThisMonth} this month`} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CurrentlyReading />
-        <WishlistOnboarding />
-        <FavHighlightsOnboarding />
-        <RecentHighlights />
+      <div className="">
+        <DashboardLayout>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              icon={<BookOpen className="w-6 h-6" />}
+              title="Books Read"
+              value={`${booksThisMonth} this month / ${booksThisYear} this year`}
+            />
+            <StatCard icon={<Quote className="w-6 h-6" />} title="New Highlights" value={`${highlightsThisMonth} this month`} />
+          </div>
+          <CurrentlyReading />
+          <WishlistOnboarding />
+          <FavHighlightsOnboarding />
+          <RecentHighlights />
+        </DashboardLayout>
       </div>
     </div>
   );

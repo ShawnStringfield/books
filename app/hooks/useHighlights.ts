@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useMemo, useEffect } from 'react';
 import { create } from 'zustand';
 

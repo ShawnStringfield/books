@@ -18,7 +18,7 @@ export const UserMenu: FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus:outline-none cursor-pointer" asChild>
-        <Avatar className="h-8 w-8">
+        <Avatar className="h-10 w-10">
           <AvatarImage src={user?.image ?? ''} alt={user?.name ?? 'User avatar'} />
           <AvatarFallback>U</AvatarFallback>
         </Avatar>

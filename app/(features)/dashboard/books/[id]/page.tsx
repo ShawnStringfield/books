@@ -1,4 +1,5 @@
 'use client';
+
 import { useParams, useRouter } from 'next/navigation';
 import { useDashboardStore } from '../../stores/useDashboardStore';
 import { Button } from '@/app/components/ui/button';
@@ -6,7 +7,7 @@ import { ReadingStatus } from '../../types/books';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Highlight } from '../../types/books';
 import { formatDate } from '../../utils/dateUtils';
 
@@ -17,6 +18,11 @@ export default function BookDetailsPage() {
   const { canChangeStatus, changeBookStatus } = useBookStatus(books);
   const book = books.find((b) => b.id === id);
   const [newHighlight, setNewHighlight] = useState('');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   if (!book) return <div>Book not found</div>;
 
@@ -39,6 +45,7 @@ export default function BookDetailsPage() {
     addHighlight(book.id, {
       text: newHighlight,
       page: book.currentPage,
+      isFavorite: false,
     });
     setNewHighlight('');
   };
@@ -126,7 +133,7 @@ export default function BookDetailsPage() {
                 <div key={highlight.id} className="p-4 bg-gray-50 rounded-lg space-y-2">
                   <p className="text-gray-800">{highlight.text}</p>
                   <p className="text-sm text-gray-500">
-                    Page {highlight.page} • {formatDate(highlight.createdAt)}
+                    Page {highlight.page} • {isClient ? formatDate(highlight.createdAt) : ''}
                   </p>
                 </div>
               ))}

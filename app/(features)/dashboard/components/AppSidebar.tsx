@@ -1,4 +1,4 @@
-import { LucideIcon } from 'lucide-react';
+import { Home, LucideIcon } from 'lucide-react';
 
 interface NavItem {
   label: string;
@@ -18,14 +18,14 @@ import {
 } from '@/app/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { BarChart2, Book, Settings, Users } from 'lucide-react';
+import { BarChart2, Book, Settings } from 'lucide-react';
 
 export function AppSidebar() {
   const NAV: NavItem[] = [
-    { label: 'Books', path: '/books', icon: Book },
-    { label: 'Reading Groups', path: '/groups', icon: Users },
-    { label: 'Statistics', path: '/stats', icon: BarChart2 },
-    { label: 'Settings', path: '/settings', icon: Settings },
+    { label: 'Home', path: '/dashboard', icon: Home },
+    { label: 'Books', path: '/dashboard/books', icon: Book },
+    { label: 'Statistics', path: '/dashboard/stats', icon: BarChart2 },
+    { label: 'Settings', path: '/dashboard/settings', icon: Settings },
   ];
 
   return (

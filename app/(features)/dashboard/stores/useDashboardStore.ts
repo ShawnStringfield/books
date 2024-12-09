@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { Book, Highlight, ReadingStatus } from '../types/books';
-import { nanoid } from 'nanoid';
+import { v4 as uuidv4 } from 'uuid';
 
 interface DashboardState {
   books: Book[];
@@ -58,19 +58,21 @@ export const useDashboardStore = create<DashboardStore>()(
 
       addHighlight: (bookId, highlight) =>
         set((state) => ({
+          highlights: [
+            ...state.highlights,
+            {
+              id: uuidv4(),
+              bookId,
+              ...highlight,
+              createdAt: new Date(),
+              isFavorite: false,
+            },
+          ],
           books: state.books.map((book) =>
             book.id === bookId
               ? {
                   ...book,
-                  highlights: [
-                    ...(book.highlights || []),
-                    {
-                      id: nanoid(),
-                      bookId,
-                      ...highlight,
-                      createdAt: new Date(),
-                    },
-                  ],
+                  highlights: book.highlights || [],
                 }
               : book
           ),

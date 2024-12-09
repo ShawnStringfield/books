@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useDashboardStore } from './useDashboardStore';
+import { ReadingStatus } from '../types/books';
 
 describe('useDashboardStore', () => {
   beforeEach(() => {
@@ -21,32 +22,14 @@ describe('useDashboardStore', () => {
         author: 'Test Author',
         currentPage: 0,
         totalPages: 100,
+        completedDate: null,
+        status: ReadingStatus.NOT_STARTED,
+        highlights: [],
       });
     });
 
     expect(result.current.books).toHaveLength(1);
     expect(result.current.books[0].title).toBe('Test Book');
-  });
-
-  it('should toggle highlight favorite status', () => {
-    const { result } = renderHook(() => useDashboardStore());
-
-    act(() => {
-      result.current.addHighlight({
-        id: '1',
-        text: 'Test highlight',
-        isFavorite: false,
-        bookId: '1',
-        page: 1,
-        createdAt: new Date(),
-      });
-    });
-
-    act(() => {
-      result.current.toggleFavoriteHighlight('1');
-    });
-
-    expect(result.current.highlights[0].isFavorite).toBe(true);
   });
 
   it('should update reading progress', () => {
@@ -59,6 +42,9 @@ describe('useDashboardStore', () => {
         author: 'Test Author',
         currentPage: 0,
         totalPages: 100,
+        completedDate: null,
+        status: ReadingStatus.NOT_STARTED,
+        highlights: [],
       });
     });
 

@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { useProgressNavigation } from './useProgressNavigation';
 import { useToast } from '@/app/hooks/use-toast';
 
-jest.mock('../../../hooks/use-toast', () => ({
+jest.mock('../../hooks/use-toast', () => ({
   useToast: jest.fn(),
 }));
 

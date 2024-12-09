@@ -39,6 +39,15 @@ export interface Highlight {
   bookId: string;
   text: string;
   page: number;
+  isFavorite: boolean;
   createdAt: Date;
+}
+
+export interface BookHighlight {
+  id: string;
+  bookId: string;
+  text: string;
+  page: number;
   isFavorite?: boolean;
+  createdAt: Date;
 }

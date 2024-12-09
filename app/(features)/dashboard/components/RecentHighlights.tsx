@@ -1,67 +1,22 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { BookText, Quote } from 'lucide-react';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  coverUrl?: string;
-  totalPages: number;
-  currentPage?: number;
-  startDate?: Date;
-  completedDate?: Date;
-}
-
-interface Highlight {
-  id: string;
-  bookId: string;
-  text: string;
-  page: number;
-  isFavorite: boolean;
-  createdAt: Date;
-}
-
-interface DashboardStore {
-  books: Book[];
-  highlights: Highlight[];
-  addBook: (book: Book) => void;
-  addHighlight: (highlight: Highlight) => void;
-  toggleFavoriteHighlight: (id: string) => void;
-  updateReadingProgress: (bookId: string, currentPage: number) => void;
-}
-
-const useDashboardStore = create<DashboardStore>()(
-  persist(
-    (set) => ({
-      books: [],
-      highlights: [],
-      addBook: (book) => set((state) => ({ books: [...state.books, book] })),
-      addHighlight: (highlight) => set((state) => ({ highlights: [...state.highlights, highlight] })),
-      toggleFavoriteHighlight: (id) =>
-        set((state) => ({
-          highlights: state.highlights.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h)),
-        })),
-      updateReadingProgress: (bookId, currentPage) =>
-        set((state) => ({
-          books: state.books.map((b) => (b.id === bookId ? { ...b, currentPage } : b)),
-        })),
-    }),
-    { name: 'dashboard-store' }
-  )
-);
+import { useDashboardStore } from '../stores/useDashboardStore';
+import { useBookHighlights } from '@/app/hooks/useHighlights';
 
 const RecentHighlights = () => {
-  const { books, highlights } = useDashboardStore();
-  const recentHighlights = [...highlights].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
+  const { books } = useDashboardStore();
+  const { recentHighlights, totalHighlights, isLoading, error } = useBookHighlights(books);
+
+  if (isLoading) return <div>Loading highlights...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Quote className="w-5 h-5" />
-          Recent Highlights
+          Recent Highlights ({totalHighlights})
         </CardTitle>
       </CardHeader>
       <CardContent>

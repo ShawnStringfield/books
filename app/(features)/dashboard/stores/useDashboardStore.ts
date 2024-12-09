@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { Book, Highlight, ReadingStatus } from '../types/books';
+import { nanoid } from 'nanoid';
 
 interface DashboardState {
   books: Book[];
@@ -13,7 +14,7 @@ interface DashboardState {
 
 interface DashboardActions {
   addBook: (book: Book) => void;
-  addHighlight: (highlight: Highlight) => void;
+  addHighlight: (bookId: string, highlight: Omit<Highlight, 'id' | 'bookId' | 'createdAt'>) => void;
   toggleFavoriteHighlight: (id: string) => void;
   updateReadingProgress: (bookId: string, currentPage: number) => void;
   setLoading: (loading: boolean) => void;
@@ -49,15 +50,30 @@ export const useDashboardStore = create<DashboardStore>()(
               ...book,
               status: state.books.length === 0 ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED,
               currentPage: 0,
+              highlights: [],
             },
           ],
           error: null,
         })),
 
-      addHighlight: (highlight) =>
+      addHighlight: (bookId, highlight) =>
         set((state) => ({
-          highlights: [...state.highlights, highlight],
-          error: null,
+          books: state.books.map((book) =>
+            book.id === bookId
+              ? {
+                  ...book,
+                  highlights: [
+                    ...(book.highlights || []),
+                    {
+                      id: nanoid(),
+                      bookId,
+                      ...highlight,
+                      createdAt: new Date(),
+                    },
+                  ],
+                }
+              : book
+          ),
         })),
 
       toggleFavoriteHighlight: (id) =>

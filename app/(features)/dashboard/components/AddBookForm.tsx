@@ -88,6 +88,7 @@ export function AddBookForm() {
         completedDate: undefined,
         currentPage: data.currentPage ?? 0,
         status: ReadingStatus.NOT_STARTED,
+        highlights: [],
       };
 
       addBook(newBook);

@@ -31,6 +31,7 @@ export interface Book {
   startDate?: Date;
   completedDate: Date | null | undefined;
   status: ReadingStatus;
+  highlights: Highlight[];
 }
 
 export interface Highlight {
@@ -38,6 +39,6 @@ export interface Highlight {
   bookId: string;
   text: string;
   page: number;
-  isFavorite: boolean;
   createdAt: Date;
+  isFavorite?: boolean;
 }

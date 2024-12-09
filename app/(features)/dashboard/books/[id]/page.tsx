@@ -6,14 +6,17 @@ import { ReadingStatus } from '../../types/books';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import Image from 'next/image';
-// import { BookStatus } from '../../types/books';
+import { useState } from 'react';
+import { Highlight } from '../../types/books';
+import { formatDate } from '../../utils/dateUtils';
 
 export default function BookDetailsPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { books, updateBookStatus, updateReadingProgress } = useDashboardStore();
+  const { books, updateBookStatus, updateReadingProgress, addHighlight } = useDashboardStore();
   const { canChangeStatus, changeBookStatus } = useBookStatus(books);
   const book = books.find((b) => b.id === id);
+  const [newHighlight, setNewHighlight] = useState('');
 
   if (!book) return <div>Book not found</div>;
 
@@ -23,15 +26,21 @@ export default function BookDetailsPage() {
     }
   };
 
-  // const handleStatusChange = (status: ReadingStatus) => {
-  //   updateBookStatus(book.id, status);
-  // };
-
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPage = parseInt(e.target.value);
     if (!isNaN(newPage) && newPage >= 0 && newPage <= book.totalPages) {
       updateReadingProgress(book.id, newPage);
     }
+  };
+
+  const handleAddHighlight = () => {
+    if (!newHighlight.trim()) return;
+
+    addHighlight(book.id, {
+      text: newHighlight,
+      page: book.currentPage,
+    });
+    setNewHighlight('');
   };
 
   return (
@@ -93,6 +102,34 @@ export default function BookDetailsPage() {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div className="mt-8 space-y-4">
+            <h2 className="text-xl font-semibold">Highlights</h2>
+
+            <div className="space-y-2">
+              <textarea
+                value={newHighlight}
+                onChange={(e) => setNewHighlight(e.target.value)}
+                placeholder="Add a new highlight..."
+                className="w-full px-3 py-2 border rounded-md min-h-[100px]"
+                aria-label="New highlight text"
+              />
+              <Button onClick={handleAddHighlight} disabled={!newHighlight.trim()} className="w-full">
+                Add Highlight
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {book.highlights?.map((highlight: Highlight) => (
+                <div key={highlight.id} className="p-4 bg-gray-50 rounded-lg space-y-2">
+                  <p className="text-gray-800">{highlight.text}</p>
+                  <p className="text-sm text-gray-500">
+                    Page {highlight.page} • {formatDate(highlight.createdAt)}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </CardContent>

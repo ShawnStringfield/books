@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDashboardStore } from '../stores/useDashboardStore';
+import { useDashboardStore, selectIsLastBook } from '../stores/useDashboardStore';
 import { DeleteBookDialog } from './DeleteBookDialog';
 import { Button } from '@/app/components/ui/button';
 import { Trash2 } from 'lucide-react';
@@ -8,10 +8,11 @@ import Image from 'next/image';
 
 export function BooksList() {
   const { books, deleteBook } = useDashboardStore();
+  const isLastBook = useDashboardStore(selectIsLastBook);
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
 
   const handleDelete = () => {
-    if (bookToDelete) {
+    if (bookToDelete && !isLastBook) {
       deleteBook(bookToDelete);
       setBookToDelete(null);
     }
@@ -35,12 +36,14 @@ export function BooksList() {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50 disabled:opacity-50"
             onClick={(e) => {
               e.preventDefault();
               setBookToDelete(book.id);
             }}
-            aria-label={`Delete ${book.title}`}
+            disabled={isLastBook}
+            aria-label={`Delete ${book.title}${isLastBook ? ' (Cannot delete last book)' : ''}`}
+            title={isLastBook ? 'Cannot delete the last book' : undefined}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

@@ -12,6 +12,7 @@ import { Highlight } from '../../types/books';
 import { formatDate } from '../../utils/dateUtils';
 import { Trash2 } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
+import { selectIsLastBook } from '../../stores/useDashboardStore';
 
 export default function BookDetailsPage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function BookDetailsPage() {
   const [newHighlight, setNewHighlight] = useState('');
   const [isClient, setIsClient] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const isLastBook = useDashboardStore(selectIsLastBook);
 
   useEffect(() => {
     setIsClient(true);
@@ -54,8 +56,10 @@ export default function BookDetailsPage() {
   };
 
   const handleDeleteBook = () => {
-    deleteBook(book.id);
-    router.push('/dashboard/books');
+    if (!isLastBook) {
+      deleteBook(book.id);
+      router.push('/dashboard/books');
+    }
   };
 
   return (
@@ -79,9 +83,16 @@ export default function BookDetailsPage() {
           Back to Dashboard
         </Button>
 
-        <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => setShowDeleteDialog(true)}>
+        <Button
+          variant="ghost"
+          className="text-red-500 hover:text-red-700 hover:bg-red-50 disabled:opacity-50"
+          onClick={() => setShowDeleteDialog(true)}
+          disabled={isLastBook}
+          title={isLastBook ? 'Cannot delete the last book' : undefined}
+        >
           <Trash2 className="h-4 w-4 mr-2" />
           Delete Book
+          {isLastBook && <span className="ml-2 text-sm">(Cannot delete last book)</span>}
         </Button>
       </div>
 

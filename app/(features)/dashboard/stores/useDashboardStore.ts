@@ -154,3 +154,4 @@ export const selectError = (state: DashboardStore) => state.error;
 export const selectHasHydrated = (state: DashboardStore) => state.hasHydrated;
 export const selectCurrentlyReading = (state: DashboardStore) => state.books.filter((book) => book.status === ReadingStatus.IN_PROGRESS);
 export const selectFirstCurrentlyReading = (state: DashboardStore) => state.books.find((book) => book.status === ReadingStatus.IN_PROGRESS);
+export const selectIsLastBook = (state: DashboardStore) => state.books.length === 1;

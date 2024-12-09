@@ -22,6 +22,7 @@ interface DashboardActions {
   setAddBookDrawerOpen: (isOpen: boolean) => void;
   setHasHydrated: (state: boolean) => void;
   updateBookStatus: (bookId: string, status: ReadingStatus) => void;
+  deleteBook: (bookId: string) => void;
 }
 
 export type DashboardStore = DashboardState & DashboardActions;
@@ -108,6 +109,12 @@ export const useDashboardStore = create<DashboardStore>()(
               : b
           ),
         })),
+
+      deleteBook: (bookId) => {
+        set((state) => ({
+          books: state.books.filter((book) => book.id !== bookId),
+        }));
+      },
     }),
     {
       name: 'dashboard-storage',

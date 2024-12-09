@@ -10,15 +10,18 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Highlight } from '../../types/books';
 import { formatDate } from '../../utils/dateUtils';
+import { Trash2 } from 'lucide-react';
+import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 
 export default function BookDetailsPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { books, updateBookStatus, updateReadingProgress, addHighlight } = useDashboardStore();
+  const { books, updateBookStatus, updateReadingProgress, addHighlight, deleteBook } = useDashboardStore();
   const { canChangeStatus, changeBookStatus } = useBookStatus(books);
   const book = books.find((b) => b.id === id);
   const [newHighlight, setNewHighlight] = useState('');
   const [isClient, setIsClient] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -50,25 +53,37 @@ export default function BookDetailsPage() {
     setNewHighlight('');
   };
 
+  const handleDeleteBook = () => {
+    deleteBook(book.id);
+    router.push('/dashboard/books');
+  };
+
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
-      <Button variant="ghost" className="mb-4 flex items-center gap-2" onClick={() => router.push('/dashboard')}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="w-4 h-4"
-        >
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
-        Back to Dashboard
-      </Button>
+      <div className="flex justify-between items-center">
+        <Button variant="ghost" className="mb-4 flex items-center gap-2" onClick={() => router.push('/dashboard/books')}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-4 h-4"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Back to Dashboard
+        </Button>
+
+        <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => setShowDeleteDialog(true)}>
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete Book
+        </Button>
+      </div>
 
       <Card>
         <CardContent className="p-6">
@@ -141,6 +156,8 @@ export default function BookDetailsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <DeleteBookDialog isOpen={showDeleteDialog} onClose={() => setShowDeleteDialog(false)} onConfirm={handleDeleteBook} bookTitle={book.title} />
     </div>
   );
 }

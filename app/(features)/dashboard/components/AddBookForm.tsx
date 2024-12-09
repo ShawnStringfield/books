@@ -26,7 +26,12 @@ const bookFormSchema = z.object({
 
 type BookFormValues = z.infer<typeof bookFormSchema>;
 
-export function AddBookForm() {
+// Add onSuccess prop to component props
+interface AddBookFormProps {
+  onSuccess?: () => void;
+}
+
+export function AddBookForm({ onSuccess }: AddBookFormProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<GoogleBook[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -94,8 +99,8 @@ export function AddBookForm() {
       };
 
       addBook(newBook);
-      setAddBookDrawerOpen(false);
       form.reset();
+      onSuccess?.(); // Call onSuccess callback after successful submission
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to add book');
       console.error('Failed to add book:', error);

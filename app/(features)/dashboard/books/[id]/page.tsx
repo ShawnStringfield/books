@@ -14,6 +14,16 @@ import { Trash2, Star, StarOff } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/app/components/ui/alert-dialog';
 
 export default function BookDetailsPage() {
   const router = useRouter();
@@ -26,6 +36,8 @@ export default function BookDetailsPage() {
   const [isClient, setIsClient] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const isLastBook = useDashboardStore(selectIsLastBook);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<ReadingStatus | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -34,9 +46,24 @@ export default function BookDetailsPage() {
   if (!book) return <div>Book not found</div>;
 
   const handleStatusChange = async (newStatus: ReadingStatus) => {
+    if (newStatus === ReadingStatus.NOT_STARTED) {
+      setPendingStatus(newStatus);
+      setShowResetDialog(true);
+      return;
+    }
+
     if (await changeBookStatus(book, newStatus)) {
       updateBookStatus(book.id, newStatus);
     }
+  };
+
+  const handleResetConfirm = async () => {
+    if (pendingStatus && (await changeBookStatus(book, pendingStatus))) {
+      updateBookStatus(book.id, pendingStatus);
+      updateReadingProgress(book.id, 0); // Reset progress to 0
+    }
+    setShowResetDialog(false);
+    setPendingStatus(null);
   };
 
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -177,6 +204,21 @@ export default function BookDetailsPage() {
             </div>
           </CardContent>
         </Card>
+
+        <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset Reading Progress?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Changing the status to "Not Started" will reset your reading progress to 0 pages. Are you sure you want to continue?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setPendingStatus(null)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleResetConfirm}>Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <DeleteBookDialog isOpen={showDeleteDialog} onClose={() => setShowDeleteDialog(false)} onConfirm={handleDeleteBook} bookTitle={book.title} />
       </div>

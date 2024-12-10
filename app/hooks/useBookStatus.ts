@@ -1,11 +1,14 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/app/hooks/use-toast';
 import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
+import { useDashboardStore } from '@/app/(features)/dashboard/stores/useDashboardStore';
 
 interface Book {
   id: string;
   title: string;
   status: ReadingStatus;
+  currentPage: number;
+  totalPages: number;
 }
 
 interface UseBookStatusResult {
@@ -17,13 +20,25 @@ interface UseBookStatusResult {
 
 export const useBookStatus = (books: Book[]): UseBookStatusResult => {
   const { toast } = useToast();
+  const { updateReadingProgress } = useDashboardStore();
   const [isChangingStatus, setIsChangingStatus] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const canChangeStatus = useCallback(
     (book: Book, newStatus: ReadingStatus): boolean => {
-      // Don't allow status change if this is the only book and it's in progress
-      if (books.length === 1 && book.status === ReadingStatus.IN_PROGRESS && newStatus !== ReadingStatus.IN_PROGRESS) {
+      // Don't allow changing to the current status
+      if (book.status === newStatus) {
+        return false;
+      }
+
+      // Only restrict status change if this is the only book and moving FROM in_progress
+      // TO anything except completed
+      if (
+        books.length === 1 &&
+        book.status === ReadingStatus.IN_PROGRESS &&
+        newStatus !== ReadingStatus.IN_PROGRESS &&
+        newStatus !== ReadingStatus.COMPLETED
+      ) {
         return false;
       }
 
@@ -42,7 +57,10 @@ export const useBookStatus = (books: Book[]): UseBookStatusResult => {
       if (!canChangeStatus(book, newStatus)) {
         toast({
           title: "Can't Change Book Status",
-          description: books.length === 1 ? 'You need to add another book before changing the status of your only book' : 'Invalid status transition',
+          description:
+            books.length === 1
+              ? "You can't change your only in-progress book to 'not started'. You can mark it as completed."
+              : 'Invalid status transition',
           variant: 'destructive',
         });
         return false;
@@ -52,6 +70,11 @@ export const useBookStatus = (books: Book[]): UseBookStatusResult => {
       setError(null);
 
       try {
+        // If marking as completed, update progress to total pages
+        if (newStatus === ReadingStatus.COMPLETED && book.currentPage !== book.totalPages) {
+          updateReadingProgress(book.id, book.totalPages);
+        }
+
         // Add your API call here to update the book status
         // await updateBookStatus(book.id, newStatus);
 
@@ -76,7 +99,7 @@ export const useBookStatus = (books: Book[]): UseBookStatusResult => {
         setIsChangingStatus(false);
       }
     },
-    [canChangeStatus, toast, books.length]
+    [canChangeStatus, toast, books.length, updateReadingProgress]
   );
 
   return {

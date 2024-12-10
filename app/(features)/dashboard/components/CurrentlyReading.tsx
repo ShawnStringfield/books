@@ -1,50 +1,55 @@
 import { Button } from '@/app/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
+import { Card, CardContent } from '@/app/components/ui/card';
 import { Clock, Library, PlusCircle } from 'lucide-react';
 import Image from 'next/image';
-import { useDashboardStore, selectFirstCurrentlyReading } from '../stores/useDashboardStore';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 import Link from 'next/link';
+import { Book } from '../types/books';
+import { useDashboardStore } from '../stores/useDashboardStore';
 
-const CurrentlyReading = () => {
-  const currentlyReading = useDashboardStore(selectFirstCurrentlyReading);
+interface CurrentlyReadingProps {
+  books: Book[];
+}
 
+const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
   return (
-    <div>
-      {currentlyReading ? (
-        <Link href={`/dashboard/books/${currentlyReading.id}`} className="block">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Currently Reading
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-start gap-4">
-                {currentlyReading.coverUrl && (
-                  <Image src={currentlyReading.coverUrl} alt={currentlyReading.title} width={96} height={144} className="object-cover rounded" />
-                )}
-                <div className="flex-1">
-                  <h3 className="font-semibold">{currentlyReading.title}</h3>
-                  <p className="text-sm text-gray-600">{currentlyReading.author}</p>
-                  <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{
-                        width: `${(currentlyReading.currentPage / currentlyReading.totalPages) * 100}%`,
-                      }}
-                    />
-                  </div>
-                  <p className="text-sm mt-1">
-                    Page {currentlyReading.currentPage} of {currentlyReading.totalPages}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+    <div className="space-y-4">
+      {books.length > 0 ? (
+        <>
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Clock className="w-5 h-5" />
+            Currently Reading
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {books.map((book) => (
+              <Link key={book.id} href={`/dashboard/books/${book.id}`} className="block">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-4">
+                      {book.coverUrl && <Image src={book.coverUrl} alt={book.title} width={96} height={144} className="object-cover rounded" />}
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{book.title}</h3>
+                        <p className="text-sm text-gray-600">{book.author}</p>
+                        <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-blue-600 h-2 rounded-full"
+                            style={{
+                              width: `${(book.currentPage / book.totalPages) * 100}%`,
+                            }}
+                          />
+                        </div>
+                        <p className="text-sm mt-1">
+                          Page {book.currentPage} of {book.totalPages}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </>
       ) : (
         <EmptyReadingState />
       )}

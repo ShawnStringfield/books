@@ -113,7 +113,7 @@ export default function BookDetailsPage() {
                     {Object.values(ReadingStatus).map((status) => (
                       <Button
                         key={status}
-                        disabled={canChangeStatus(book, status)}
+                        disabled={!canChangeStatus(book, status)}
                         variant={book.status === status ? 'default' : 'outline'}
                         onClick={() => handleStatusChange(status)}
                         size="sm"

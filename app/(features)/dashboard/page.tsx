@@ -10,13 +10,16 @@ import FavHighlightsOnboarding from './components/FavHighlightsOnboarding';
 import RecentHighlights from './components/RecentHighlights';
 import { useDashboardStore, selectBooks, selectHighlights, selectHasHydrated } from './stores/useDashboardStore';
 import DashboardLayout from './components/DashboardLayout';
+import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
 
 export default function DashboardPage() {
   useOnboardingCheck();
   const hasHydrated = useDashboardStore(selectHasHydrated);
-
   const books = useDashboardStore(selectBooks);
   const highlights = useDashboardStore(selectHighlights);
+
+  // Add this filter for currently reading books
+  const currentlyReadingBooks = books.filter((book) => book.status === ReadingStatus.IN_PROGRESS);
 
   // Filter out highlights that don't have a corresponding book
   const validHighlights = highlights.filter((highlight) => books.some((book) => book.id === highlight.bookId));
@@ -42,7 +45,8 @@ export default function DashboardPage() {
             />
             <StatCard icon={<Quote className="w-6 h-6" />} title="New Highlights" value={`${highlightsThisMonth} this month`} />
           </div>
-          <CurrentlyReading />
+          {/* Pass the filtered books */}
+          <CurrentlyReading books={currentlyReadingBooks} />
           <WishlistOnboarding />
           <FavHighlightsOnboarding />
           <RecentHighlights highlights={validHighlights} />

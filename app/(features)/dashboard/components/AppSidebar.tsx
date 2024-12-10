@@ -34,24 +34,22 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                {NAV.map((item) => (
-                  <SidebarMenuItem key={item.label}>
-                    <motion.button
-                      key={item.path}
-                      whileHover={{ x: 5 }}
-                      className={cn('w-full flex items-center space-x-2 rounded-lg mb-1', 'hover:bg-gray-100 transition-colors')}
-                    >
-                      <SidebarMenuButton asChild>
-                        <a href={item.path}>
-                          <item.icon />
-                          <span>{item.label}</span>
-                        </a>
-                      </SidebarMenuButton>
-                    </motion.button>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenuItem>
+              {NAV.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <motion.div
+                    key={item.path}
+                    whileHover={{ x: 5 }}
+                    className={cn('w-full flex items-center space-x-2 rounded-lg mb-1', 'hover:bg-gray-100 transition-colors')}
+                  >
+                    <SidebarMenuButton asChild>
+                      <a href={item.path}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </motion.div>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

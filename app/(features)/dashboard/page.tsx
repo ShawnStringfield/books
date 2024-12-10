@@ -46,9 +46,9 @@ export default function DashboardPage() {
             yearlyGoal={bookGoals.yearlyTarget}
           />
           <CurrentlyReading books={currentlyReadingBooks} />
+          <RecentHighlights highlights={validHighlights} />
           <WishlistOnboarding />
           <FavHighlightsOnboarding />
-          <RecentHighlights highlights={validHighlights} />
         </DashboardLayout>
       </div>
     </div>
@@ -65,7 +65,7 @@ interface StateCardsProps {
 
 const StateCards = ({ booksThisMonth, booksThisYear, highlightsThisMonth, monthlyGoal, yearlyGoal }: StateCardsProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-8">
       <StatCard
         icon={<BookOpen className="w-5 h-5" />}
         title="Books Read This Month"

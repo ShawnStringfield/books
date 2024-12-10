@@ -66,7 +66,7 @@ const WishlistOnboarding = () => {
   };
 
   return (
-    <Card>
+    <Card className="my-16">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <List className="w-5 h-5" />

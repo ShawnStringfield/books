@@ -1,12 +1,12 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Clock, Library, PlusCircle } from 'lucide-react';
-import Image from 'next/image';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 import Link from 'next/link';
 import { Book } from '../types/books';
 import { useDashboardStore } from '../stores/useDashboardStore';
+import { Avatar, AvatarFallback, AvatarImage } from '@/app/components/ui/avatar';
 
 interface CurrentlyReadingProps {
   books: Book[];
@@ -14,38 +14,34 @@ interface CurrentlyReadingProps {
 
 const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 my-16">
       {books.length > 0 ? (
         <>
-          <h2 className="text-xl font-semibold flex items-center gap-2">
+          <h2 className="text-xl font-semibold flex items-center gap-2 mb-6">
             <Clock className="w-5 h-5" />
             Currently Reading
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="divide-y">
             {books.map((book) => (
-              <Link key={book.id} href={`/dashboard/books/${book.id}`} className="block">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-4">
-                      {book.coverUrl && <Image src={book.coverUrl} alt={book.title} width={96} height={144} className="object-cover rounded" />}
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{book.title}</h3>
-                        <p className="text-sm text-gray-600">{book.author}</p>
-                        <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-blue-600 h-2 rounded-full"
-                            style={{
-                              width: `${(book.currentPage / book.totalPages) * 100}%`,
-                            }}
-                          />
-                        </div>
-                        <p className="text-sm mt-1">
-                          Page {book.currentPage} of {book.totalPages}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+              <Link key={book.id} href={`/dashboard/books/${book.id}`} className="flex items-center gap-4 py-4 hover:bg-gray-50/50 transition-colors">
+                <Avatar className="h-12 w-12 rounded-full shrink-0">
+                  <AvatarImage src={book.coverUrl} alt={book.title} className="object-cover" />
+                  <AvatarFallback className="text-sm bg-blue-50 text-blue-600">
+                    {book.title
+                      .split(' ')
+                      .map((word) => word[0])
+                      .join('')
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-gray-900 line-clamp-1">{book.title}</h3>
+                  <p className="text-sm text-gray-500 line-clamp-1">{book.author}</p>
+                </div>
+                <div className="text-sm text-gray-500">
+                  Page {book.currentPage} of {book.totalPages}
+                </div>
               </Link>
             ))}
           </div>

@@ -10,14 +10,15 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Highlight } from '../../types/books';
 import { formatDate } from '../../utils/dateUtils';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Star, StarOff } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 
 export default function BookDetailsPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { books, updateBookStatus, updateReadingProgress, addHighlight, deleteBook } = useDashboardStore();
+  const { books, highlights, updateBookStatus, updateReadingProgress, addHighlight, deleteBook, deleteHighlight, toggleFavoriteHighlight } =
+    useDashboardStore();
   const { canChangeStatus, changeBookStatus } = useBookStatus(books);
   const book = books.find((b) => b.id === id);
   const [newHighlight, setNewHighlight] = useState('');
@@ -61,6 +62,9 @@ export default function BookDetailsPage() {
       router.push('/dashboard/books');
     }
   };
+
+  // Get highlights for this book
+  const bookHighlights = highlights.filter((h) => h.bookId === id);
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
@@ -155,9 +159,31 @@ export default function BookDetailsPage() {
             </div>
 
             <div className="space-y-4">
-              {book.highlights?.map((highlight: Highlight) => (
+              {bookHighlights.map((highlight: Highlight) => (
                 <div key={highlight.id} className="p-4 bg-gray-50 rounded-lg space-y-2">
-                  <p className="text-gray-800">{highlight.text}</p>
+                  <div className="flex justify-between items-start">
+                    <p className="text-gray-800">{highlight.text}</p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleFavoriteHighlight(highlight.id)}
+                        className="text-yellow-500 hover:text-yellow-600"
+                        aria-label={highlight.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                      >
+                        {highlight.isFavorite ? <Star className="h-4 w-4" /> : <StarOff className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteHighlight(highlight.id)}
+                        className="text-red-500 hover:text-red-600"
+                        aria-label="Delete highlight"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                   <p className="text-sm text-gray-500">
                     Page {highlight.page} • {isClient ? formatDate(highlight.createdAt) : ''}
                   </p>

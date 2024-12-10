@@ -23,6 +23,7 @@ interface DashboardActions {
   setHasHydrated: (state: boolean) => void;
   updateBookStatus: (bookId: string, status: ReadingStatus) => void;
   deleteBook: (bookId: string) => void;
+  deleteHighlight: (highlightId: string) => void;
 }
 
 export type DashboardStore = DashboardState & DashboardActions;
@@ -58,26 +59,27 @@ export const useDashboardStore = create<DashboardStore>()(
         })),
 
       addHighlight: (bookId, highlight) =>
-        set((state) => ({
-          highlights: [
-            ...state.highlights,
-            {
-              id: uuidv4(),
-              bookId,
-              ...highlight,
-              createdAt: new Date(),
-              isFavorite: false,
-            },
-          ],
-          books: state.books.map((book) =>
-            book.id === bookId
-              ? {
-                  ...book,
-                  highlights: book.highlights || [],
-                }
-              : book
-          ),
-        })),
+        set((state) => {
+          const newHighlight = {
+            id: uuidv4(),
+            bookId,
+            ...highlight,
+            createdAt: new Date(),
+            isFavorite: false,
+          };
+
+          return {
+            highlights: [...state.highlights, newHighlight],
+            books: state.books.map((book) =>
+              book.id === bookId
+                ? {
+                    ...book,
+                    highlights: [...(book.highlights || []), newHighlight],
+                  }
+                : book
+            ),
+          };
+        }),
 
       toggleFavoriteHighlight: (id) =>
         set((state) => ({
@@ -115,6 +117,24 @@ export const useDashboardStore = create<DashboardStore>()(
           books: state.books.filter((book) => book.id !== bookId),
         }));
       },
+
+      deleteHighlight: (highlightId: string) =>
+        set((state) => {
+          const highlight = state.highlights.find((h) => h.id === highlightId);
+          if (!highlight) return state;
+
+          return {
+            highlights: state.highlights.filter((h) => h.id !== highlightId),
+            books: state.books.map((book) =>
+              book.id === highlight.bookId
+                ? {
+                    ...book,
+                    highlights: book.highlights.filter((h) => h.id !== highlightId),
+                  }
+                : book
+            ),
+          };
+        }),
     }),
     {
       name: 'dashboard-storage',

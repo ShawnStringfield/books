@@ -11,6 +11,7 @@ import { useDashboardStore, selectBooks, selectHighlights, selectHasHydrated } f
 import DashboardLayout from './components/DashboardLayout';
 import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
 import { useBookGoals } from '@/app/(features)/profile-onboarding/hooks/useOnboardingStore';
+import { motion } from 'framer-motion';
 
 export default function DashboardPage() {
   useOnboardingCheck();
@@ -103,11 +104,18 @@ function StatCard({ icon, title, value, current, goal, period }: StatCardProps) 
       <p className="text-sm font-medium text-gray-600">{title}</p>
       <p className="font-semibold">{value}</p>
 
-      {/* Progress bar */}
+      {/* Progress bar container */}
       <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all duration-300 ${progress >= 100 ? 'bg-green-500' : 'bg-blue-500'}`}
-          style={{ width: `${progress}%` }}
+        <motion.div
+          key={`progress-${current}-${goal}`}
+          className={`h-full rounded-full ${progress >= 100 ? 'bg-green-500' : 'bg-blue-500'}`}
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{
+            duration: 0.8,
+            ease: 'easeOut',
+            delay: 0.2, // Small delay for better UX when component mounts
+          }}
           role="progressbar"
           aria-valuenow={current}
           aria-valuemin={0}
@@ -116,11 +124,32 @@ function StatCard({ icon, title, value, current, goal, period }: StatCardProps) 
         />
       </div>
 
-      {/* Progress percentage */}
-      <p className="text-xs text-gray-500 mt-1">
-        {progress.toFixed(0)}% complete
-        {progress >= 100 && <span className="ml-2 text-green-500">✓ Goal achieved!</span>}
-      </p>
+      {/* Animated percentage */}
+      <motion.p
+        className="text-xs text-gray-500 mt-1"
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.8 }}
+      >
+        <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 1 }}>
+          {progress.toFixed(0)}% complete
+          {progress >= 100 && (
+            <motion.span
+              className="ml-2 text-green-500"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                duration: 0.3,
+                delay: 1.2,
+                type: 'spring',
+                stiffness: 200,
+              }}
+            >
+              ✓ Goal achieved!
+            </motion.span>
+          )}
+        </motion.span>
+      </motion.p>
     </div>
   );
 }

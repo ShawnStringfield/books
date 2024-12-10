@@ -46,9 +46,11 @@ export default function DashboardPage() {
             yearlyGoal={bookGoals.yearlyTarget}
           />
           <CurrentlyReading books={currentlyReadingBooks} />
-          <RecentHighlights highlights={validHighlights} />
-          <WishlistOnboarding />
-          <FavHighlightsOnboarding />
+          <RecentHighlights highlights={validHighlights} highlightsThisMonth={highlightsThisMonth} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <WishlistOnboarding />
+            <FavHighlightsOnboarding />
+          </div>
         </DashboardLayout>
       </div>
     </div>

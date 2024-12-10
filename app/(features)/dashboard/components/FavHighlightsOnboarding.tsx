@@ -1,6 +1,6 @@
 import { Button } from '@/app/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Heart, Star } from 'lucide-react';
+import { Card, CardContent } from '@/app/components/ui/card';
+import { Heart } from 'lucide-react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -59,12 +59,6 @@ const FavHighlightsOnboarding = () => {
 
   return (
     <Card className="my-16">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Star className="w-5 h-5" />
-          Favorite Highlights
-        </CardTitle>
-      </CardHeader>
       <CardContent>
         {favoriteHighlights.length > 0 ? (
           <div className="space-y-4">
@@ -92,18 +86,15 @@ const FavHighlightsOnboarding = () => {
 
 function EmptyFavoritesState() {
   return (
-    <div className="text-center space-y-4 py-6">
-      <div className="bg-pink-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
-        <Heart className="w-6 h-6 text-pink-600" />
+    <div className="text-center space-y-4 py-16 flex flex-col justify-center min-h-[300px]">
+      <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
+        <Heart className="w-6 h-6 text-gray-600" />
       </div>
       <div className="space-y-2">
         <h3 className="text-lg font-semibold">Save Your Favorite Highlights</h3>
         <p className="text-sm text-gray-600 max-w-xs mx-auto">
           Mark highlights as favorites while reading to keep your most meaningful quotes and insights in one place.
         </p>
-      </div>
-      <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg mx-auto max-w-xs">
-        <p>💡 Tip: Click the heart icon on any highlight to add it to your favorites</p>
       </div>
     </div>
   );

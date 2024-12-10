@@ -1,6 +1,6 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { BookText, Quote } from 'lucide-react';
+import { BookText, Highlighter, Quote } from 'lucide-react';
 import { useDashboardStore } from '../stores/useDashboardStore';
 
 // Define the Highlight type if not already imported
@@ -14,9 +14,10 @@ interface Highlight {
 
 interface RecentHighlightsProps {
   highlights: Highlight[];
+  highlightsThisMonth: number;
 }
 
-const RecentHighlights = ({ highlights }: RecentHighlightsProps) => {
+const RecentHighlights = ({ highlights, highlightsThisMonth }: RecentHighlightsProps) => {
   const { books } = useDashboardStore();
   const recentHighlights = highlights.slice(0, 5); // Get most recent 5 highlights
   const totalHighlights = highlights.length;
@@ -27,6 +28,7 @@ const RecentHighlights = ({ highlights }: RecentHighlightsProps) => {
         <CardTitle className="flex items-center gap-2">
           <Quote className="w-5 h-5" />
           Recent Highlights ({totalHighlights})
+          <Highlighter className="w-5 h-5" /> {highlightsThisMonth} this month
         </CardTitle>
       </CardHeader>
       <CardContent>

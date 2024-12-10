@@ -1,8 +1,7 @@
-import { BookMarked, List, Search } from 'lucide-react';
+import { BookMarked, Plus, Search } from 'lucide-react';
 
 import { Button } from '@/app/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
+import { Card, CardContent } from '@/app/components/ui/card';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -67,12 +66,6 @@ const WishlistOnboarding = () => {
 
   return (
     <Card className="my-16">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <List className="w-5 h-5" />
-          Wishlist
-        </CardTitle>
-      </CardHeader>
       <CardContent>
         {wishlist.length > 0 ? (
           <div className="space-y-3">
@@ -101,9 +94,9 @@ const WishlistOnboarding = () => {
 
 function EmptyWishlistState({ onAddToWishlist }: { onAddToWishlist: () => void }) {
   return (
-    <div className="text-center space-y-4 py-6">
-      <div className="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
-        <Search className="w-6 h-6 text-purple-600" />
+    <div className="text-center space-y-4 h-full flex flex-col justify-center py-12">
+      <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
+        <Search className="w-6 h-6 text-gray-600" />
       </div>
       <div className="space-y-2">
         <h3 className="text-lg font-semibold">Build Your Wishlist</h3>
@@ -111,9 +104,8 @@ function EmptyWishlistState({ onAddToWishlist }: { onAddToWishlist: () => void }
           {`Keep track of books you'd like to read in the future. Add books to your wishlist to never forget your next read.`}
         </p>
       </div>
-      <Button variant="outline" onClick={onAddToWishlist} className="flex items-center gap-2">
-        <PlusCircle className="w-4 h-4" />
-        Add to Wishlist
+      <Button variant="outline" onClick={onAddToWishlist} className="flex items-center justify-center w-10 h-10 rounded-full mx-auto">
+        <Plus className="w-4 h-4" />
       </Button>
     </div>
   );

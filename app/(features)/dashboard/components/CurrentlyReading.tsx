@@ -1,6 +1,6 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
-import { Clock, Library, PlusCircle } from 'lucide-react';
+import { Library, PlusCircle } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 import Link from 'next/link';
@@ -17,10 +17,7 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
     <div className="space-y-4 my-16">
       {books.length > 0 ? (
         <>
-          <h2 className="text-xl font-semibold flex items-center gap-2 mb-6">
-            <Clock className="w-5 h-5" />
-            Currently Reading
-          </h2>
+          <h2 className="text-xl font-semibold flex items-center gap-2 mb-[-12px]">Currently Reading</h2>
           <div className="divide-y">
             {books.map((book) => (
               <Link key={book.id} href={`/dashboard/books/${book.id}`} className="flex items-center gap-4 py-4 hover:bg-gray-50/50 transition-colors">

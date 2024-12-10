@@ -210,7 +210,7 @@ export default function BookDetailsPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Reset Reading Progress?</AlertDialogTitle>
               <AlertDialogDescription>
-                Changing the status to "Not Started" will reset your reading progress to 0 pages. Are you sure you want to continue?
+                Changing the status to &ldquo;Not Started&rdquo; will reset your reading progress to 0 pages. Are you sure you want to continue?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

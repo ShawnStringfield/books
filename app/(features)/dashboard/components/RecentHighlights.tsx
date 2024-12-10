@@ -2,14 +2,24 @@ import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { BookText, Quote } from 'lucide-react';
 import { useDashboardStore } from '../stores/useDashboardStore';
-import { useBookHighlights } from '@/app/hooks/useHighlights';
 
-const RecentHighlights = () => {
+// Define the Highlight type if not already imported
+interface Highlight {
+  id: string;
+  text: string;
+  bookId: string;
+  page: number;
+  // ... any other highlight properties
+}
+
+interface RecentHighlightsProps {
+  highlights: Highlight[];
+}
+
+const RecentHighlights = ({ highlights }: RecentHighlightsProps) => {
   const { books } = useDashboardStore();
-  const { recentHighlights, totalHighlights, isLoading, error } = useBookHighlights(books);
-
-  if (isLoading) return <div>Loading highlights...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  const recentHighlights = highlights.slice(0, 5); // Get most recent 5 highlights
+  const totalHighlights = highlights.length;
 
   return (
     <Card>
@@ -30,7 +40,7 @@ const RecentHighlights = () => {
                 </p>
               </div>
             ))}
-            {recentHighlights.length > 5 && (
+            {highlights.length > 5 && (
               <Button variant="link" className="text-sm w-full text-center">
                 View all highlights
               </Button>

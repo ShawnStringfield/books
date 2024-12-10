@@ -18,13 +18,17 @@ export default function DashboardPage() {
   const books = useDashboardStore(selectBooks);
   const highlights = useDashboardStore(selectHighlights);
 
+  // Filter out highlights that don't have a corresponding book
+  const validHighlights = highlights.filter((highlight) => books.some((book) => book.id === highlight.bookId));
+
   if (!hasHydrated) {
     return null; // or a loading spinner
   }
 
   const booksThisMonth = books.filter((b) => b.completedDate && new Date(b.completedDate).getMonth() === new Date().getMonth()).length;
   const booksThisYear = books.filter((b) => b.completedDate && new Date(b.completedDate).getFullYear() === new Date().getFullYear()).length;
-  const highlightsThisMonth = highlights.filter((h) => new Date(h.createdAt).getMonth() === new Date().getMonth()).length;
+  // Use validHighlights instead of highlights
+  const highlightsThisMonth = validHighlights.filter((h) => new Date(h.createdAt).getMonth() === new Date().getMonth()).length;
 
   return (
     <div className="p-6 space-y-6">
@@ -41,7 +45,7 @@ export default function DashboardPage() {
           <CurrentlyReading />
           <WishlistOnboarding />
           <FavHighlightsOnboarding />
-          <RecentHighlights />
+          <RecentHighlights highlights={validHighlights} />
         </DashboardLayout>
       </div>
     </div>

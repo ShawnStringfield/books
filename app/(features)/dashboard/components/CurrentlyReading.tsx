@@ -6,7 +6,6 @@ import { AddBookForm } from './AddBookForm';
 import Link from 'next/link';
 import { Book } from '../types/books';
 import { useDashboardStore } from '../stores/useDashboardStore';
-import { Avatar, AvatarFallback, AvatarImage } from '@/app/components/ui/avatar';
 
 interface CurrentlyReadingProps {
   books: Book[];
@@ -17,26 +16,19 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
     <div className="space-y-4 my-16">
       {books.length > 0 ? (
         <>
-          <h2 className="text-xl font-semibold flex items-center gap-2 mb-[-12px]">Currently Reading</h2>
+          <h2 className="text-xl font-semibold flex items-center gap-2">Currently Reading</h2>
           <div className="divide-y">
             {books.map((book) => (
-              <Link key={book.id} href={`/dashboard/books/${book.id}`} className="flex items-center gap-4 py-4 hover:bg-gray-50/50 transition-colors">
-                <Avatar className="h-12 w-12 rounded-full shrink-0">
-                  <AvatarImage src={book.coverUrl} alt={book.title} className="object-cover" />
-                  <AvatarFallback className="text-sm bg-blue-50 text-blue-600">
-                    {book.title
-                      .split(' ')
-                      .map((word) => word[0])
-                      .join('')
-                      .slice(0, 2)
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+              <Link
+                key={book.id}
+                href={`/dashboard/books/${book.id}`}
+                className={`flex items-center gap-4 ${books[0].id === book.id ? 'pb-4' : 'py-4'} hover:bg-gray-50/50 transition-colors`}
+              >
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900 line-clamp-1">{book.title}</h3>
+                  <h3 className="text-sm font-medium text-gray-900 line-clamp-1">{book.title}</h3>
                   <p className="text-sm text-gray-500 line-clamp-1">{book.author}</p>
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-xs text-gray-500">
                   Page {book.currentPage} of {book.totalPages}
                 </div>
               </Link>

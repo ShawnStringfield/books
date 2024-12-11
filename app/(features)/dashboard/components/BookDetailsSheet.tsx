@@ -51,10 +51,10 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
               <p className="mt-1 text-lg font-medium capitalize">{book.status.replace('_', ' ').toLowerCase()}</p>
             </div>
 
-            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
+            {/* <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
               <h3 className="text-sm font-medium text-blue-600">ISBN</h3>
               <p className="mt-1 text-lg">{book?.isbn || 'Not available'}</p>
-            </div>
+            </div> */}
 
             {book.description && (
               <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
@@ -63,12 +63,12 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
               </div>
             )}
 
-            {book?.notes && (
+            {/* {book?.notes && (
               <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
                 <h3 className="text-sm font-medium text-blue-600">Notes</h3>
                 <p className="mt-1 text-gray-700 whitespace-pre-wrap">{book?.notes || 'No notes available'}</p>
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </SheetContent>

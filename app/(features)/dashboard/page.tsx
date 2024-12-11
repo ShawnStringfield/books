@@ -27,6 +27,8 @@ export default function DashboardPage() {
 
   const { booksCompletedThisMonth, booksCompletedThisYear, highlightsThisMonth } = calculateReadingStats(books, highlights);
 
+  console.log('books', books);
+
   return (
     <div className="p-6 space-y-6">
       <div className="">

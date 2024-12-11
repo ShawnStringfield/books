@@ -101,17 +101,37 @@ export const useDashboardStore = create<DashboardStore>()(
       setHasHydrated: (state) => set({ hasHydrated: state }),
 
       updateBookStatus: (bookId, status) =>
-        set((state) => ({
-          books: state.books.map((b) =>
-            b.id === bookId
-              ? {
-                  ...b,
-                  status,
-                  completedDate: status === ReadingStatus.COMPLETED ? new Date() : b.completedDate,
-                }
-              : b
-          ),
-        })),
+        set((state) => {
+          const book = state.books.find((b) => b.id === bookId);
+          if (!book) return state;
+
+          // Prevent changing from COMPLETED to NOT_STARTED
+          if (book.status === ReadingStatus.COMPLETED && status === ReadingStatus.NOT_STARTED) {
+            return state;
+          }
+
+          // Only allow NOT_STARTED if current status is IN_PROGRESS
+          if (status === ReadingStatus.NOT_STARTED && book.status !== ReadingStatus.IN_PROGRESS) {
+            return state;
+          }
+
+          return {
+            books: state.books.map((b) =>
+              b.id === bookId
+                ? {
+                    ...b,
+                    status,
+                    completedDate:
+                      status === ReadingStatus.COMPLETED
+                        ? new Date()
+                        : status === ReadingStatus.IN_PROGRESS || status === ReadingStatus.NOT_STARTED
+                        ? null
+                        : b.completedDate,
+                  }
+                : b
+            ),
+          };
+        }),
 
       deleteBook: (bookId) => {
         set((state) => ({

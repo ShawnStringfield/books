@@ -1,7 +1,8 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
-import { Library, PlusCircle, Plus } from 'lucide-react';
+import { Library, PlusCircle, Plus, Eye } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/app/components/ui/sheet';
 import { AddBookForm } from './AddBookForm';
 import Link from 'next/link';
 import { Book, ReadingStatus } from '../types/books';
@@ -35,6 +36,41 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
                     {/* Bottom Actions */}
                     <div className="flex justify-between items-center mt-auto">
                       <div className="flex items-center gap-2">
+                        <Sheet>
+                          <SheetTrigger asChild>
+                            <button
+                              className="p-1.5 rounded-full bg-gray-50 hover:bg-gray-100 
+                                  transition-colors duration-200 text-gray-600 hover:text-gray-800"
+                              aria-label={`Quick view ${book.title}`}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          </SheetTrigger>
+                          <SheetContent side="right" className="w-[400px] sm:w-[540px] md:min-w-[500px] lg:min-w-[600px] m-4 h-auto rounded-lg">
+                            <SheetHeader>
+                              <SheetTitle>{book.title}</SheetTitle>
+                            </SheetHeader>
+                            <div className="mt-6">
+                              <div className="space-y-6">
+                                <div>
+                                  <h3 className="text-sm font-medium text-gray-500">Author</h3>
+                                  <p className="mt-1 text-lg">{book.author}</p>
+                                </div>
+                                <div>
+                                  <h3 className="text-sm font-medium text-gray-500">Progress</h3>
+                                  <p className="mt-1 text-lg">
+                                    Page {book.currentPage} of {book.totalPages} ({Math.round((book.currentPage / book.totalPages) * 100)}%)
+                                  </p>
+                                </div>
+                                <div>
+                                  <h3 className="text-sm font-medium text-gray-500">Status</h3>
+                                  <p className="mt-1 text-lg capitalize">{book.status.replace('_', ' ').toLowerCase()}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </SheetContent>
+                        </Sheet>
+
                         <button
                           onClick={(e) => {
                             e.preventDefault();

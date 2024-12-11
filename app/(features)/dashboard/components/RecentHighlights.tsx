@@ -1,16 +1,8 @@
 import { Button } from '@/app/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { BookText, Highlighter, Quote } from 'lucide-react';
+import { BookText, Highlighter } from 'lucide-react';
 import { useDashboardStore } from '../stores/useDashboardStore';
-
-// Define the Highlight type if not already imported
-interface Highlight {
-  id: string;
-  text: string;
-  bookId: string;
-  page: number;
-  // ... any other highlight properties
-}
+import { formatDistanceToNow } from 'date-fns';
+import { Highlight } from '../types/books';
 
 interface RecentHighlightsProps {
   highlights: Highlight[];
@@ -19,40 +11,55 @@ interface RecentHighlightsProps {
 
 const RecentHighlights = ({ highlights, highlightsThisMonth }: RecentHighlightsProps) => {
   const { books } = useDashboardStore();
-  const recentHighlights = highlights.slice(0, 5); // Get most recent 5 highlights
-  const totalHighlights = highlights.length;
+  const recentHighlights = highlights.slice(0, 5);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Quote className="w-5 h-5" />
-          Recent Highlights ({totalHighlights})
-          <Highlighter className="w-5 h-5" /> {highlightsThisMonth} this month
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="my-16">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
+        <h2 className="text-lg font-semibold">Recent Highlights ({highlights.length})</h2>
+        <div className="flex items-center gap-1.5 text-sm text-gray-500">
+          <Highlighter className="w-4 h-4" />
+          <span>{highlightsThisMonth} highlights this month</span>
+        </div>
+      </div>
+
+      <div>
         {recentHighlights.length > 0 ? (
-          <div className="space-y-4">
-            {recentHighlights.map((highlight) => (
-              <div key={highlight.id} className="border-l-2 border-gray-200 pl-4">
-                <p>{highlight.text}</p>
-                <p className="text-sm text-gray-600 mt-1">
-                  {books.find((b) => b.id === highlight.bookId)?.title} - Page {highlight.page}
-                </p>
-              </div>
-            ))}
+          <div>
+            <div className="grid gap-4">
+              {recentHighlights.map((highlight) => (
+                <div key={highlight.id} className="group rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+                  <div className="flex flex-col h-full">
+                    <div className="flex flex-col sm:flex-row justify-between items-start mb-3 gap-2">
+                      <time
+                        dateTime={new Date(highlight.createdAt).toISOString()}
+                        className="text-xs text-gray-500 font-medium order-first sm:order-last"
+                      >
+                        {formatDistanceToNow(new Date(highlight.createdAt), { addSuffix: true })}
+                      </time>
+                      <p className="text-gray-900 text-sm leading-normal flex-1">&ldquo;{highlight.text}&rdquo;</p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-gray-500 pt-2 border-t border-gray-50 gap-2">
+                      <span className="text-gray-500 font-medium w-full sm:w-auto">{books.find((b) => b.id === highlight.bookId)?.title}</span>
+                      <span className="bg-gray-50 px-2 py-1 rounded-full w-full sm:w-auto text-center">Page {highlight.page}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
             {highlights.length > 5 && (
-              <Button variant="link" className="text-sm w-full text-center">
-                View all highlights
-              </Button>
+              <div className="mt-6">
+                <Button variant="outline" className="w-full text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  View all highlights
+                </Button>
+              </div>
             )}
           </div>
         ) : (
           <EmptyRecentHighlightsState />
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

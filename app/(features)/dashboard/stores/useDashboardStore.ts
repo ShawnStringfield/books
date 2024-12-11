@@ -50,6 +50,7 @@ export const useDashboardStore = create<DashboardStore>()(
             ...state.books,
             {
               ...book,
+              description: book?.description || '',
               status: state.books.length === 0 ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED,
               currentPage: 0,
               highlights: [],

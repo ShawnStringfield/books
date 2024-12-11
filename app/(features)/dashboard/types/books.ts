@@ -1,13 +1,6 @@
 export interface GoogleBook {
   id: string;
-  volumeInfo: {
-    title: string;
-    authors?: string[];
-    pageCount?: number;
-    imageLinks?: {
-      thumbnail?: string;
-    };
-  };
+  volumeInfo: GoogleBookVolumeInfo;
 }
 
 export interface GoogleBooksResponse {
@@ -32,6 +25,7 @@ export interface Book {
   completedDate: Date | null | undefined;
   status: ReadingStatus;
   highlights: Highlight[];
+  description?: string;
 }
 
 export interface Highlight {
@@ -50,4 +44,14 @@ export interface BookHighlight {
   page: number;
   isFavorite?: boolean;
   createdAt: Date;
+}
+
+interface GoogleBookVolumeInfo {
+  title: string;
+  authors?: string[];
+  pageCount?: number;
+  imageLinks?: {
+    thumbnail?: string;
+  };
+  description?: string;
 }

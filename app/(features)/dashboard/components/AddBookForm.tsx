@@ -22,6 +22,7 @@ const bookFormSchema = z.object({
   totalPages: z.number().min(1, 'Pages must be greater than 0'),
   coverUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
   currentPage: z.number().min(0).optional(),
+  description: z.string().optional(),
 });
 
 type BookFormValues = z.infer<typeof bookFormSchema>;
@@ -78,11 +79,13 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
     form.setValue('author', book.volumeInfo.authors?.[0] || '');
     form.setValue('totalPages', book.volumeInfo.pageCount || 0);
     form.setValue('coverUrl', book.volumeInfo.imageLinks?.thumbnail || '');
+    form.setValue('description', book.volumeInfo.description || '');
     setSearchQuery('');
     setSearchResults([]);
   };
 
   const onSubmit = async (data: BookFormValues) => {
+    console.log(data);
     try {
       setLoading(true);
       setError(null);
@@ -91,6 +94,7 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
         id: uuidv4(),
         ...data,
         coverUrl: data.coverUrl || undefined,
+        description: data.description || '',
         createdAt: new Date().toISOString(),
         completedDate: undefined,
         currentPage: data.currentPage ?? 0,
@@ -198,6 +202,25 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <textarea
+                  {...field}
+                  className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Book description..."
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="flex justify-end gap-3 pt-4">
           <Button type="button" variant="outline" onClick={() => setAddBookDrawerOpen(false)} disabled={isLoading}>
             Cancel

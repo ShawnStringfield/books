@@ -1,6 +1,6 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
-import { Library, PlusCircle } from 'lucide-react';
+import { Library, PlusCircle, Plus } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 import Link from 'next/link';
@@ -16,21 +16,37 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
     <div className="space-y-4 my-16">
       {books.length > 0 ? (
         <>
-          <h2 className="text-xl font-semibold flex items-center gap-2">Currently Reading</h2>
-          <div className="divide-y">
+          <h2 className="text-lg font-semibold flex items-center gap-2">Currently Reading</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {books.map((book) => (
-              <Link
-                key={book.id}
-                href={`/dashboard/books/${book.id}`}
-                className={`flex items-center gap-4 ${books[0].id === book.id ? 'pb-4' : 'py-4'} hover:bg-gray-50/50 transition-colors`}
-              >
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-gray-900 line-clamp-1">{book.title}</h3>
-                  <p className="text-sm text-gray-500 line-clamp-1">{book.author}</p>
-                </div>
-                <div className="text-xs text-gray-500">
-                  Page {book.currentPage} of {book.totalPages}
-                </div>
+              <Link key={book.id} href={`/dashboard/books/${book.id}`} className="block group">
+                <Card className="bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 h-[215px]">
+                  <CardContent className="p-6 h-full">
+                    <div className="flex flex-col h-full">
+                      {/* Book Title Header */}
+                      <div>
+                        <h4 className="font-semibold text-md group-hover:text-blue-600 transition-colors">{book.title}</h4>
+                        <p className="text-xs text-gray-600 py-1">@{book.author}</p>
+                      </div>
+
+                      {/* Bottom Actions */}
+                      <div className="flex justify-between items-center mt-auto">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                          }}
+                          className="p-1.5 rounded-full bg-gray-50 hover:bg-gray-100 
+                            transition-colors duration-200 text-gray-600 hover:text-gray-800"
+                          aria-label={`Add highlight to ${book.title}`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+
+                        <span className="text-sm text-gray-600">{Math.round((book.currentPage / book.totalPages) * 100)}%</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
             ))}
           </div>

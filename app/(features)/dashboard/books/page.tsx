@@ -5,7 +5,7 @@ import DashboardLayout from '../components/DashboardLayout';
 import { BooksList } from '../components/BooksList';
 import { Button } from '@/app/components/ui/button';
 import { PlusCircle } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
 import { AddBookForm } from '../components/AddBookForm';
 import { useDashboardStore } from '../stores/useDashboardStore';
 
@@ -38,6 +38,7 @@ export default function BooksPage() {
             <DrawerContent>
               <DrawerHeader>
                 <DrawerTitle>Add New Book</DrawerTitle>
+                <DrawerDescription>Fill out the form below to add a new book to your collection.</DrawerDescription>
               </DrawerHeader>
               <div className="p-4">
                 <AddBookForm onSuccess={() => setIsDrawerOpen(false)} />

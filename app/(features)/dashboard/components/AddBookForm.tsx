@@ -113,6 +113,8 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
     }
   };
 
+  console.log('searchResults', searchResults);
+
   // Rest of the component remains the same, just update the submit button to use isLoading from store
   return (
     <Form {...form}>

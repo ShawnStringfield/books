@@ -1,7 +1,7 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Library, PlusCircle } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 import Link from 'next/link';
 import { Book } from '../types/books';
@@ -78,6 +78,7 @@ function EmptyReadingState() {
             <DrawerContent>
               <DrawerHeader>
                 <DrawerTitle>Add New Book</DrawerTitle>
+                <DrawerDescription>Start your reading journey by adding your first book to your collection.</DrawerDescription>
               </DrawerHeader>
               <div className="p-4">
                 <AddBookForm />

@@ -4,7 +4,7 @@ import { Library, PlusCircle, Plus } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 import Link from 'next/link';
-import { Book } from '../types/books';
+import { Book, ReadingStatus } from '../types/books';
 import { useDashboardStore } from '../stores/useDashboardStore';
 
 interface CurrentlyReadingProps {
@@ -12,6 +12,8 @@ interface CurrentlyReadingProps {
 }
 
 const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
+  const { updateBookStatus } = useDashboardStore();
+
   return (
     <div className="space-y-4 my-16">
       {books.length > 0 ? (
@@ -19,35 +21,56 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
           <h2 className="text-lg font-semibold flex items-center gap-2">Currently Reading</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {books.map((book) => (
-              <Link key={book.id} href={`/dashboard/books/${book.id}`} className="block group">
-                <Card className="bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 h-[215px]">
-                  <CardContent className="p-6 h-full">
-                    <div className="flex flex-col h-full">
-                      {/* Book Title Header */}
-                      <div>
+              <Card key={book.id} className="bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 h-[215px]">
+                <CardContent className="p-6 h-full">
+                  <div className="flex flex-col h-full">
+                    {/* Book Title Header */}
+                    <div>
+                      <Link key={book.id} href={`/dashboard/books/${book.id}`} className="block group">
                         <h4 className="font-semibold text-md group-hover:text-blue-600 transition-colors">{book.title}</h4>
-                        <p className="text-xs text-gray-600 py-1">@{book.author}</p>
-                      </div>
+                      </Link>
+                      <p className="text-xs text-gray-600 py-1">@{book.author}</p>
+                    </div>
 
-                      {/* Bottom Actions */}
-                      <div className="flex justify-between items-center mt-auto">
+                    {/* Bottom Actions */}
+                    <div className="flex justify-between items-center mt-auto">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={(e) => {
                             e.preventDefault();
                           }}
                           className="p-1.5 rounded-full bg-gray-50 hover:bg-gray-100 
-                            transition-colors duration-200 text-gray-600 hover:text-gray-800"
+                              transition-colors duration-200 text-gray-600 hover:text-gray-800"
                           aria-label={`Add highlight to ${book.title}`}
                         >
                           <Plus className="w-4 h-4" />
                         </button>
 
-                        <span className="text-sm text-gray-600">{Math.round((book.currentPage / book.totalPages) * 100)}%</span>
+                        <select
+                          value={book.status}
+                          onChange={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            updateBookStatus(book.id, e.target.value as ReadingStatus);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full border border-blue-100 
+                              hover:bg-blue-100 transition-colors cursor-pointer"
+                          aria-label="Change reading status"
+                        >
+                          {Object.values(ReadingStatus).map((status) => (
+                            <option key={status} value={status}>
+                              {status.replace('_', ' ').toLowerCase()}
+                            </option>
+                          ))}
+                        </select>
                       </div>
+
+                      <span className="text-xs text-gray-400">{Math.round((book.currentPage / book.totalPages) * 100)}%</span>
                     </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </>

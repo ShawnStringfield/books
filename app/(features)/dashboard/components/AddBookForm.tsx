@@ -18,11 +18,16 @@ import Image from 'next/image';
 // Validation schema remains the same
 const bookFormSchema = z.object({
   title: z.string().min(1, 'Title is required'),
+  subtitle: z.string().optional(),
   author: z.string().min(1, 'Author is required'),
   totalPages: z.number().min(1, 'Pages must be greater than 0'),
   coverUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
   currentPage: z.number().min(0).optional(),
   description: z.string().optional(),
+  publisher: z.string().optional(),
+  previewLink: z.string().url('Invalid preview URL').optional().or(z.literal('')),
+  infoLink: z.string().url('Invalid info URL').optional().or(z.literal('')),
+  categories: z.array(z.string()).optional(),
 });
 
 type BookFormValues = z.infer<typeof bookFormSchema>;
@@ -76,10 +81,15 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
 
   const handleBookSelect = (book: GoogleBook) => {
     form.setValue('title', book.volumeInfo.title);
+    form.setValue('subtitle', book.volumeInfo.subtitle || '');
     form.setValue('author', book.volumeInfo.authors?.[0] || '');
     form.setValue('totalPages', book.volumeInfo.pageCount || 0);
     form.setValue('coverUrl', book.volumeInfo.imageLinks?.thumbnail || '');
     form.setValue('description', book.volumeInfo.description || '');
+    form.setValue('publisher', book.volumeInfo.publisher || '');
+    form.setValue('previewLink', book.volumeInfo.previewLink || '');
+    form.setValue('infoLink', book.volumeInfo.infoLink || '');
+    form.setValue('categories', book.volumeInfo.categories || []);
     setSearchQuery('');
     setSearchResults([]);
   };
@@ -165,6 +175,20 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
 
         <FormField
           control={form.control}
+          name="subtitle"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Subtitle (optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter book subtitle" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="author"
           render={({ field }) => (
             <FormItem>
@@ -216,6 +240,72 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
                   {...field}
                   className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="Book description..."
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="publisher"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Publisher (optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter publisher name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="previewLink"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Preview Link (optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter preview link URL" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="infoLink"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Book Info Link (optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter book info URL" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="categories"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Categories (optional)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter categories separated by commas"
+                  value={field.value?.join(', ') || ''}
+                  onChange={(e) => {
+                    const categories = e.target.value
+                      .split(',')
+                      .map((cat) => cat.trim())
+                      .filter(Boolean);
+                    field.onChange(categories);
+                  }}
                 />
               </FormControl>
               <FormMessage />

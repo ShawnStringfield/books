@@ -17,6 +17,7 @@ export enum ReadingStatus {
 export interface Book {
   id: string;
   title: string;
+  subtitle?: string;
   author: string;
   coverUrl?: string;
   totalPages: number;
@@ -26,6 +27,10 @@ export interface Book {
   status: ReadingStatus;
   highlights: Highlight[];
   description?: string;
+  publisher?: string;
+  previewLink?: string;
+  infoLink?: string;
+  categories?: string[];
 }
 
 export interface Highlight {
@@ -48,10 +53,15 @@ export interface BookHighlight {
 
 interface GoogleBookVolumeInfo {
   title: string;
+  subtitle?: string;
   authors?: string[];
   pageCount?: number;
   imageLinks?: {
     thumbnail?: string;
   };
   description?: string;
+  publisher?: string;
+  previewLink?: string;
+  infoLink?: string;
+  categories?: string[];
 }

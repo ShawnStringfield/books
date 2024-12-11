@@ -24,7 +24,7 @@ export const StatCard = ({ icon, title, value, current, goal, period }: StatCard
           <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
             <motion.div
               key={`progress-${current}-${goal}`}
-              className={`h-full rounded-full ${progress >= 100 ? 'bg-green-500' : 'bg-blue-500'}`}
+              className={`h-full rounded-full ${progress >= 100 ? 'bg-blue-400' : 'bg-blue-200'}`}
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{

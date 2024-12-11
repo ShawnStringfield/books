@@ -58,7 +58,7 @@ const FavHighlightsOnboarding = () => {
   const favoriteHighlights = highlights.filter((h) => h.isFavorite);
 
   return (
-    <Card className="my-16">
+    <Card className="my-4">
       <CardContent>
         {favoriteHighlights.length > 0 ? (
           <div className="space-y-4">

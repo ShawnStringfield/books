@@ -1,12 +1,13 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
-import { Library, PlusCircle, Eye } from 'lucide-react';
+import { Library, PlusCircle } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/app/components/ui/sheet';
 import { AddBookForm } from './AddBookForm';
 import Link from 'next/link';
-import { Book, ReadingStatus } from '../types/books';
+import { Book } from '../types/books';
 import { useDashboardStore } from '../stores/useDashboardStore';
+import StatusButtons from './StatusOptions';
+import BookDetailsSheet from './BookDetailsSheet';
 
 interface CurrentlyReadingProps {
   books: Book[];
@@ -15,88 +16,29 @@ interface CurrentlyReadingProps {
 const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
   const { updateBookStatus } = useDashboardStore();
 
-  console.log(books);
-
   return (
     <div className="space-y-4 my-16">
       {books.length > 0 ? (
         <>
           <h2 className="text-lg font-semibold flex items-center gap-2">Currently Reading</h2>
-          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {books.map((book) => (
               <Card key={book.id} className="bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 h-[215px]">
-                <CardContent className="p-6 h-full">
-                  <div className="flex flex-col h-full">
-                    {/* Book Title Header */}
-                    <div>
-                      <Link key={book.id} href={`/dashboard/books/${book.id}`} className="block group">
-                        <h4 className="font-semibold text-md group-hover:text-blue-600 transition-colors">{book.title}</h4>
-                      </Link>
-                      <p className="text-xs text-gray-600 py-1">@{book.author}</p>
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div>
+                    <Link href={`/dashboard/books/${book.id}`} className="block group" aria-label={`View details for ${book.title}`}>
+                      <h4 className="font-semibold text-md group-hover:text-blue-600 transition-colors leading-tight">{book.title}</h4>
+                    </Link>
+                    <p className="text-xs text-gray-600 py-1">by {book.author}</p>
+                  </div>
+
+                  <div className="flex justify-between items-center mt-auto">
+                    <div className="flex items-center gap-2">
+                      <BookDetailsSheet book={book} />
+                      <StatusButtons bookId={book.id} currentStatus={book.status} onStatusChange={updateBookStatus} />
                     </div>
 
-                    {/* Bottom Actions */}
-                    <div className="flex justify-between items-center mt-auto">
-                      <div className="flex items-center gap-2">
-                        <Sheet>
-                          <SheetTrigger asChild>
-                            <button
-                              className=" hover:bg-gray-100 
-                                  transition-colors duration-200 text-gray-600 hover:text-gray-800"
-                              aria-label={`Quick view ${book.title}`}
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                          </SheetTrigger>
-                          <SheetContent side="right" className="w-3/4 sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] m-4 h-auto rounded-lg">
-                            <SheetHeader>
-                              <SheetTitle>{book.title}</SheetTitle>
-                            </SheetHeader>
-                            <div className="mt-6">
-                              <div className="space-y-6">
-                                <div>
-                                  <h3 className="text-sm font-medium text-gray-500">Author</h3>
-                                  <p className="mt-1 text-lg">{book.author}</p>
-                                </div>
-                                <div>
-                                  <h3 className="text-sm font-medium text-gray-500">Progress</h3>
-                                  <p className="mt-1 text-lg">
-                                    Page {book.currentPage} of {book.totalPages} ({Math.round((book.currentPage / book.totalPages) * 100)}%)
-                                  </p>
-                                </div>
-                                <div>
-                                  <h3 className="text-sm font-medium text-gray-500">Status</h3>
-                                  <p className="mt-1 text-lg capitalize">{book.status.replace('_', ' ').toLowerCase()}</p>
-                                </div>
-                              </div>
-                            </div>
-                          </SheetContent>
-                        </Sheet>
-
-                        <div className="flex items-center gap-1">
-                          {Object.values(ReadingStatus).map((status) => (
-                            <button
-                              key={status}
-                              onClick={() => updateBookStatus(book.id, status)}
-                              className={`px-2 py-1 text-[12px] rounded-full transition-colors ${
-                                book.status === status
-                                  ? 'bg-blue-100 text-blue-700'
-                                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800'
-                              }`}
-                              aria-label={`Set status to ${status.replace('_', ' ').toLowerCase()}`}
-                            >
-                              {status
-                                .replace('_', ' ')
-                                .split(' ')
-                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                                .join(' ')}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <span className="text-xs text-gray-400">{Math.round((book.currentPage / book.totalPages) * 100)}%</span>
-                    </div>
+                    <span className="text-xs text-gray-400">{Math.round((book.currentPage / book.totalPages) * 100)}%</span>
                   </div>
                 </CardContent>
               </Card>

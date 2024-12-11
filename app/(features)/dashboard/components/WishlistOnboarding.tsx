@@ -65,7 +65,7 @@ const WishlistOnboarding = () => {
   };
 
   return (
-    <Card className="my-16">
+    <Card className="my-4">
       <CardContent>
         {wishlist.length > 0 ? (
           <div className="space-y-3">

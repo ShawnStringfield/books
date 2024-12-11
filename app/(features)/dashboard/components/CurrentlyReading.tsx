@@ -1,6 +1,6 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
-import { Library, PlusCircle, Plus, Eye } from 'lucide-react';
+import { Library, PlusCircle, Eye } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/app/components/ui/drawer';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/app/components/ui/sheet';
 import { AddBookForm } from './AddBookForm';
@@ -15,12 +15,14 @@ interface CurrentlyReadingProps {
 const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
   const { updateBookStatus } = useDashboardStore();
 
+  console.log(books);
+
   return (
     <div className="space-y-4 my-16">
       {books.length > 0 ? (
         <>
           <h2 className="text-lg font-semibold flex items-center gap-2">Currently Reading</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
             {books.map((book) => (
               <Card key={book.id} className="bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 h-[215px]">
                 <CardContent className="p-6 h-full">
@@ -39,14 +41,14 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
                         <Sheet>
                           <SheetTrigger asChild>
                             <button
-                              className="p-1.5 rounded-full bg-gray-50 hover:bg-gray-100 
+                              className=" hover:bg-gray-100 
                                   transition-colors duration-200 text-gray-600 hover:text-gray-800"
                               aria-label={`Quick view ${book.title}`}
                             >
                               <Eye className="w-4 h-4" />
                             </button>
                           </SheetTrigger>
-                          <SheetContent side="right" className="w-[400px] sm:w-[540px] md:min-w-[500px] lg:min-w-[600px] m-4 h-auto rounded-lg">
+                          <SheetContent side="right" className="w-3/4 sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] m-4 h-auto rounded-lg">
                             <SheetHeader>
                               <SheetTitle>{book.title}</SheetTitle>
                             </SheetHeader>
@@ -71,35 +73,26 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
                           </SheetContent>
                         </Sheet>
 
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                          }}
-                          className="p-1.5 rounded-full bg-gray-50 hover:bg-gray-100 
-                              transition-colors duration-200 text-gray-600 hover:text-gray-800"
-                          aria-label={`Add highlight to ${book.title}`}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-
-                        <select
-                          value={book.status}
-                          onChange={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            updateBookStatus(book.id, e.target.value as ReadingStatus);
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full border border-blue-100 
-                              hover:bg-blue-100 transition-colors cursor-pointer"
-                          aria-label="Change reading status"
-                        >
+                        <div className="flex items-center gap-1">
                           {Object.values(ReadingStatus).map((status) => (
-                            <option key={status} value={status}>
-                              {status.replace('_', ' ').toLowerCase()}
-                            </option>
+                            <button
+                              key={status}
+                              onClick={() => updateBookStatus(book.id, status)}
+                              className={`px-2 py-1 text-[12px] rounded-full transition-colors ${
+                                book.status === status
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                              }`}
+                              aria-label={`Set status to ${status.replace('_', ' ').toLowerCase()}`}
+                            >
+                              {status
+                                .replace('_', ' ')
+                                .split(' ')
+                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                                .join(' ')}
+                            </button>
                           ))}
-                        </select>
+                        </div>
                       </div>
 
                       <span className="text-xs text-gray-400">{Math.round((book.currentPage / book.totalPages) * 100)}%</span>

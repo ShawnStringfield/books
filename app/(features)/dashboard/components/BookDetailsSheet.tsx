@@ -1,5 +1,5 @@
 import { Eye, Calendar, Link as LinkIcon, BookOpen, Tag } from 'lucide-react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from '@/app/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetDescription } from '@/app/components/ui/sheet';
 import { Book } from '../types/books';
 import { format } from 'date-fns';
 import Image from 'next/image';
@@ -10,7 +10,6 @@ interface BookDetailsSheetProps {
 }
 
 const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
-  // Generate unique IDs for accessibility using React's useId
   const uniqueId = useId();
   const sheetDescriptionId = `book-details-desc-${uniqueId}`;
   const progressLabelId = `progress-label-${uniqueId}`;
@@ -32,147 +31,173 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
         className="w-3/4 sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] m-4 h-auto rounded-lg bg-gradient-to-br from-white to-blue-50 overflow-y-auto"
         aria-describedby={sheetDescriptionId}
       >
-        <div aria-hidden="true">
-          <SheetHeader className="border-b pb-4">
-            <SheetTitle className="text-2xl font-bold text-blue-900">{book.title}</SheetTitle>
-            <div id={sheetDescriptionId} className="text-lg text-blue-700 mt-2">
-              {description}
-            </div>
-          </SheetHeader>
-        </div>
         <SheetDescription className="sr-only">{description}</SheetDescription>
-        <div className="mt-6 animate-fadeIn">
-          <div className="space-y-8">
-            {book.coverUrl && (
-              <div className="flex justify-center">
-                <Image
-                  src={book.coverUrl}
-                  alt={`Cover of ${book.title}`}
-                  width={200}
-                  height={300}
-                  className="rounded-lg shadow-lg object-contain"
-                  priority
-                />
-              </div>
-            )}
 
-            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600">Author</h3>
-              <p className="mt-1 text-lg font-semibold">{book.author}</p>
-            </div>
-
-            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600" id={progressLabelId}>
-                Reading Progress
-              </h3>
-              <div className="mt-2">
-                <div
-                  className="w-full bg-gray-200 rounded-full h-2.5"
-                  role="progressbar"
-                  aria-labelledby={progressLabelId}
-                  aria-valuenow={Math.round((book.currentPage / book.totalPages) * 100)}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                >
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
-                    style={{ width: `${Math.round((book.currentPage / book.totalPages) * 100)}%` }}
-                  />
-                </div>
-                <p className="mt-2 text-lg">
-                  Page {book.currentPage} of {book.totalPages} ({Math.round((book.currentPage / book.totalPages) * 100)}%)
-                </p>
-              </div>
-            </div>
-
-            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600">Status</h3>
-              <p className="mt-1 text-lg font-medium capitalize">{book.status.replace('_', ' ').toLowerCase()}</p>
-            </div>
-
-            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600">Reading Dates</h3>
-              <div className="mt-2 space-y-2">
-                {book.startDate && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-blue-600" />
-                    <span>Started: {format(new Date(book.startDate), 'PPP')}</span>
-                  </div>
-                )}
-                {book.completedDate && (
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-green-600" />
-                    <span>Completed: {format(new Date(book.completedDate), 'PPP')}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {book.publisher && (
-              <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-600">Publisher</h3>
-                <p className="mt-1 text-gray-700">{book.publisher}</p>
-              </div>
-            )}
-
-            {book.categories && book.categories.length > 0 && (
-              <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-600">Categories</h3>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {book.categories.map((category, index) => (
-                    <div key={index} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-                      <Tag className="w-3 h-3" />
-                      <span className="text-sm">{category}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {(book.previewLink || book.infoLink) && (
-              <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-600">External Links</h3>
-                <div className="mt-2 space-y-2">
-                  {book.previewLink && (
-                    <a
-                      href={book.previewLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                    >
-                      <LinkIcon className="w-4 h-4" />
-                      <span>Preview Book</span>
-                    </a>
-                  )}
-                  {book.infoLink && (
-                    <a
-                      href={book.infoLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                    >
-                      <LinkIcon className="w-4 h-4" />
-                      <span>More Information</span>
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {book.highlights && book.highlights.length > 0 && (
-              <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-600">Highlights</h3>
-                <p className="mt-1 text-gray-700">{book.highlights.length} highlights saved</p>
-              </div>
-            )}
-
-            {book.description && (
-              <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-600">Description</h3>
-                <p className="mt-1 text-gray-700 line-clamp-4">{book.description}</p>
+        <div className="flex flex-col md:flex-row gap-6 pb-6 border-b">
+          <div className="md:w-1/3 flex-shrink-0">
+            {book.coverUrl ? (
+              <Image
+                src={book.highResCoverUrl || book.coverUrl}
+                alt={`Cover of ${book.title}`}
+                width={400}
+                height={600}
+                className="rounded-lg shadow-lg object-contain w-full"
+                priority
+              />
+            ) : (
+              <div className="w-full aspect-[2/3] bg-gray-100 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-12 h-12 text-gray-400" />
               </div>
             )}
           </div>
+
+          <div className="md:w-2/3 space-y-4">
+            <div>
+              <SheetTitle className="text-2xl font-bold text-blue-900">{book.title}</SheetTitle>
+              <div id={sheetDescriptionId} className="text-lg text-blue-700 mt-2">
+                {description}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-blue-600">Author</h3>
+              <p className="text-lg font-semibold">{book.author}</p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-blue-600" id={progressLabelId}>
+                Reading Progress
+              </h3>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <div
+                    className="w-full bg-gray-200 rounded-full h-2.5"
+                    role="progressbar"
+                    aria-labelledby={progressLabelId}
+                    aria-valuenow={Math.round((book.currentPage / book.totalPages) * 100)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${Math.round((book.currentPage / book.totalPages) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+                <span className="text-lg font-medium text-blue-900">{Math.round((book.currentPage / book.totalPages) * 100)}%</span>
+              </div>
+              <p className="text-sm text-gray-600">
+                Page {book.currentPage} of {book.totalPages}
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                {book.status.replace('_', ' ').toLowerCase()}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-8">
+          <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
+            <h3 className="text-sm font-medium text-blue-600">Status</h3>
+            <p className="mt-1 text-lg font-medium capitalize">{book.status.replace('_', ' ').toLowerCase()}</p>
+          </div>
+
+          <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
+            <h3 className="text-sm font-medium text-blue-600">Reading Dates</h3>
+            <div className="mt-2 space-y-2">
+              {book.startDate && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-blue-600" />
+                  <span>Started: {format(new Date(book.startDate), 'PPP')}</span>
+                </div>
+              )}
+              {book.completedDate && (
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-green-600" />
+                  <span>Completed: {format(new Date(book.completedDate), 'PPP')}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {book.publisher && (
+            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-600">Publisher</h3>
+              <p className="mt-1 text-gray-700">{book.publisher}</p>
+            </div>
+          )}
+
+          {book.categories && book.categories.length > 0 && (
+            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-600">Categories</h3>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {book.categories.map((category, index) => (
+                  <div key={index} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                    <Tag className="w-3 h-3" />
+                    <span className="text-sm">{category}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {book.isbn && (
+            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-600">ISBN</h3>
+              <div className="flex items-center space-x-2">
+                <BookOpen className="w-4 h-4 text-blue-600" />
+                <span className="text-gray-800 font-medium">ISBN:</span>
+                <span className="text-gray-600">{book.isbn}</span>
+              </div>
+            </div>
+          )}
+
+          {(book.previewLink || book.infoLink) && (
+            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-600">External Links</h3>
+              <div className="mt-2 space-y-2">
+                {book.previewLink && (
+                  <a
+                    href={book.previewLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                  >
+                    <LinkIcon className="w-4 h-4" />
+                    <span>Preview Book</span>
+                  </a>
+                )}
+                {book.infoLink && (
+                  <a
+                    href={book.infoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                  >
+                    <LinkIcon className="w-4 h-4" />
+                    <span>More Information</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {book.highlights && book.highlights.length > 0 && (
+            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-600">Highlights</h3>
+              <p className="mt-1 text-gray-700">{book.highlights.length} highlights saved</p>
+            </div>
+          )}
+
+          {book.description && (
+            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-600">Description</h3>
+              <p className="mt-1 text-gray-700 line-clamp-4">{book.description}</p>
+            </div>
+          )}
         </div>
       </SheetContent>
     </Sheet>

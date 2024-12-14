@@ -20,6 +20,7 @@ export interface Book {
   subtitle?: string;
   author: string;
   coverUrl?: string;
+  highResCoverUrl?: string;
   totalPages: number;
   currentPage: number;
   startDate?: Date;
@@ -31,6 +32,7 @@ export interface Book {
   previewLink?: string;
   infoLink?: string;
   categories?: string[];
+  isbn?: string;
 }
 
 export interface Highlight {
@@ -58,10 +60,19 @@ interface GoogleBookVolumeInfo {
   pageCount?: number;
   imageLinks?: {
     thumbnail?: string;
+    smallThumbnail?: string;
+    small?: string;
+    medium?: string;
+    large?: string;
+    extraLarge?: string;
   };
   description?: string;
   publisher?: string;
   previewLink?: string;
   infoLink?: string;
   categories?: string[];
+  industryIdentifiers?: Array<{
+    type: string;
+    identifier: string;
+  }>;
 }

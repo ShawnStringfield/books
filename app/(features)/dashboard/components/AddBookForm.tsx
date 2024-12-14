@@ -28,6 +28,7 @@ const bookFormSchema = z.object({
   previewLink: z.string().url('Invalid preview URL').optional().or(z.literal('')),
   infoLink: z.string().url('Invalid info URL').optional().or(z.literal('')),
   categories: z.array(z.string()).optional(),
+  isbn: z.string().optional(),
 });
 
 type BookFormValues = z.infer<typeof bookFormSchema>;
@@ -53,6 +54,7 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
       totalPages: undefined,
       coverUrl: '',
       currentPage: 0,
+      isbn: '',
     },
   });
 
@@ -90,6 +92,7 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
     form.setValue('previewLink', book.volumeInfo.previewLink || '');
     form.setValue('infoLink', book.volumeInfo.infoLink || '');
     form.setValue('categories', book.volumeInfo.categories || []);
+    form.setValue('isbn', book.volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier || book.volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_10')?.identifier || '');
     setSearchQuery('');
     setSearchResults([]);
   };
@@ -103,6 +106,7 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
       const newBook = {
         id: uuidv4(),
         ...data,
+        isbn: data.isbn || undefined,
         coverUrl: data.coverUrl || undefined,
         description: data.description || '',
         createdAt: new Date().toISOString(),
@@ -307,6 +311,20 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
                     field.onChange(categories);
                   }}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="isbn"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>ISBN (optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter ISBN" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

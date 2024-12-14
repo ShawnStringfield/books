@@ -114,7 +114,18 @@ export default function BookDetailsPage() {
         <Card>
           <CardContent className="p-6">
             <div className="flex gap-6">
-              {book.coverUrl && <Image src={book.coverUrl} alt={book.title} width={150} height={225} className="object-cover rounded-lg" />}
+              {book.coverUrl && (
+                <Image
+                  src={book.coverUrl}
+                  alt={book.title}
+                  width={200}
+                  height={300}
+                  className="object-cover rounded-lg w-auto h-[225px]
+                    sm:h-[262px] 
+                    md:h-[300px]"
+                  priority
+                />
+              )}
               <div className="space-y-4">
                 <h1 className="text-2xl font-bold">{book.title}</h1>
                 <p className="text-gray-600">{book.author}</p>

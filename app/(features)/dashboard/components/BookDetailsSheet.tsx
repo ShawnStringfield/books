@@ -1,13 +1,22 @@
 import { Eye, Calendar, Link as LinkIcon, BookOpen, Tag } from 'lucide-react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/app/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from '@/app/components/ui/sheet';
 import { Book } from '../types/books';
 import { format } from 'date-fns';
+import Image from 'next/image';
+import { useId } from 'react';
 
 interface BookDetailsSheetProps {
   book: Book;
 }
 
 const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
+  // Generate unique IDs for accessibility using React's useId
+  const uniqueId = useId();
+  const sheetDescriptionId = `book-details-desc-${uniqueId}`;
+  const progressLabelId = `progress-label-${uniqueId}`;
+
+  const description = book.subtitle || `Details for ${book.title}`;
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -21,16 +30,29 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
       <SheetContent
         side="right"
         className="w-3/4 sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] m-4 h-auto rounded-lg bg-gradient-to-br from-white to-blue-50 overflow-y-auto"
+        aria-describedby={sheetDescriptionId}
       >
-        <SheetHeader className="border-b pb-4">
-          <SheetTitle className="text-2xl font-bold text-blue-900">{book.title}</SheetTitle>
-          {book.subtitle && <p className="text-lg text-blue-700 mt-2">{book.subtitle}</p>}
-        </SheetHeader>
+        <div aria-hidden="true">
+          <SheetHeader className="border-b pb-4">
+            <SheetTitle className="text-2xl font-bold text-blue-900">{book.title}</SheetTitle>
+            <div id={sheetDescriptionId} className="text-lg text-blue-700 mt-2">
+              {description}
+            </div>
+          </SheetHeader>
+        </div>
+        <SheetDescription className="sr-only">{description}</SheetDescription>
         <div className="mt-6 animate-fadeIn">
           <div className="space-y-8">
             {book.coverUrl && (
               <div className="flex justify-center">
-                <img src={book.coverUrl} alt={`Cover of ${book.title}`} className="rounded-lg shadow-lg max-h-[300px] object-contain" />
+                <Image
+                  src={book.coverUrl}
+                  alt={`Cover of ${book.title}`}
+                  width={200}
+                  height={300}
+                  className="rounded-lg shadow-lg object-contain"
+                  priority
+                />
               </div>
             )}
 
@@ -40,9 +62,18 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
             </div>
 
             <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600">Progress</h3>
+              <h3 className="text-sm font-medium text-blue-600" id={progressLabelId}>
+                Reading Progress
+              </h3>
               <div className="mt-2">
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="w-full bg-gray-200 rounded-full h-2.5"
+                  role="progressbar"
+                  aria-labelledby={progressLabelId}
+                  aria-valuenow={Math.round((book.currentPage / book.totalPages) * 100)}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
                   <div
                     className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${Math.round((book.currentPage / book.totalPages) * 100)}%` }}

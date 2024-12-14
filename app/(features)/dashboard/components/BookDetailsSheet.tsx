@@ -4,6 +4,7 @@ import { Book } from '../types/books';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import { useId } from 'react';
+import ReadingProgressBar from './ReadingProgressBar';
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -12,7 +13,6 @@ interface BookDetailsSheetProps {
 const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
   const uniqueId = useId();
   const sheetDescriptionId = `book-details-desc-${uniqueId}`;
-  const progressLabelId = `progress-label-${uniqueId}`;
 
   const description = book.subtitle || `Details for ${book.title}`;
 
@@ -53,38 +53,12 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
           <div className="md:w-2/3 space-y-4">
             <div>
-              <h2 className="text-3xl font-bold">{book.title}</h2>
-              {book.subtitle && <p className="text-xl mt-2">{book.subtitle}</p>}
+              <h2 className="text-2xl font-bold">{book.title}</h2>
+              {book.subtitle && <p className="leading-tight mt-2">{book.subtitle}</p>}
+              <p className="my-2">by {book.author}</p>
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground">Author</h3>
-              <p className="text-lg font-semibold">{book.author}</p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <div
-                    className="w-full bg-gray-200 rounded-full h-2.5"
-                    role="progressbar"
-                    aria-labelledby={progressLabelId}
-                    aria-valuenow={Math.round((book.currentPage / book.totalPages) * 100)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  >
-                    <div
-                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${Math.round((book.currentPage / book.totalPages) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="text-lg font-medium text-blue-900">{Math.round((book.currentPage / book.totalPages) * 100)}%</span>
-              </div>
-              <p className="text-sm text-gray-600">
-                Page {book.currentPage} of {book.totalPages}
-              </p>
-            </div>
+            <ReadingProgressBar currentPage={book.currentPage} totalPages={book.totalPages} />
 
             <div className="pt-2">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">

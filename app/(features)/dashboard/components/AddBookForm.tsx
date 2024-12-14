@@ -36,15 +36,17 @@ type BookFormValues = z.infer<typeof bookFormSchema>;
 // Add onSuccess prop to component props
 interface AddBookFormProps {
   onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export function AddBookForm({ onSuccess }: AddBookFormProps) {
+export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<GoogleBook[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const debouncedSearch = useDebounce(searchQuery, 500);
 
-  const { addBook, setAddBookDrawerOpen, setLoading, setError, isLoading } = useDashboardStore();
+  const { addBook, setAddBookDrawerOpen, setLoading, isLoading, books } = useDashboardStore();
 
   const form = useForm<BookFormValues>({
     resolver: zodResolver(bookFormSchema),
@@ -92,16 +94,36 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
     form.setValue('previewLink', book.volumeInfo.previewLink || '');
     form.setValue('infoLink', book.volumeInfo.infoLink || '');
     form.setValue('categories', book.volumeInfo.categories || []);
-    form.setValue('isbn', book.volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier || book.volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_10')?.identifier || '');
+    form.setValue(
+      'isbn',
+      book.volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_13')?.identifier ||
+        book.volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_10')?.identifier ||
+        ''
+    );
     setSearchQuery('');
     setSearchResults([]);
   };
 
   const onSubmit = async (data: BookFormValues) => {
-    console.log(data);
     try {
       setLoading(true);
-      setError(null);
+      setFormError(null);
+
+      // Check for duplicate books
+      const isDuplicate = books.some((book) => {
+        // If ISBN is available, check for duplicate ISBN
+        if (data.isbn && book.isbn) {
+          return data.isbn === book.isbn;
+        }
+        // Otherwise, check for duplicate title and author combination
+        return book.title.toLowerCase() === data.title.toLowerCase() && book.author.toLowerCase() === data.author.toLowerCase();
+      });
+
+      if (isDuplicate) {
+        setFormError('This book already exists in your collection');
+        setLoading(false);
+        return;
+      }
 
       const newBook = {
         id: uuidv4(),
@@ -118,9 +140,10 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
 
       addBook(newBook);
       form.reset();
-      onSuccess?.(); // Call onSuccess callback after successful submission
+      setAddBookDrawerOpen(false);
+      onSuccess?.();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to add book');
+      setFormError(error instanceof Error ? error.message : 'Failed to add book');
       console.error('Failed to add book:', error);
     } finally {
       setLoading(false);
@@ -133,6 +156,7 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {formError && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-4">{formError}</div>}
         <div className="relative">
           <Input placeholder="Search for a book..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pr-10" />
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -332,7 +356,7 @@ export function AddBookForm({ onSuccess }: AddBookFormProps) {
         />
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="outline" onClick={() => setAddBookDrawerOpen(false)} disabled={isLoading}>
+          <Button type="button" variant="outline" onClick={onCancel || (() => setAddBookDrawerOpen(false))} disabled={isLoading}>
             Cancel
           </Button>
           <Button type="submit" disabled={isLoading}>

@@ -81,7 +81,7 @@ function EmptyReadingState() {
                 <DrawerDescription>Start your reading journey by adding your first book to your collection.</DrawerDescription>
               </DrawerHeader>
               <div className="p-4">
-                <AddBookForm />
+                <AddBookForm onCancel={() => setAddBookDrawerOpen(false)} />
               </div>
             </DrawerContent>
           </Drawer>

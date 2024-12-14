@@ -41,7 +41,7 @@ export default function BooksPage() {
                 <DrawerDescription>Fill out the form below to add a new book to your collection.</DrawerDescription>
               </DrawerHeader>
               <div className="p-4">
-                <AddBookForm onSuccess={() => setIsDrawerOpen(false)} />
+                <AddBookForm onSuccess={() => setIsDrawerOpen(false)} onCancel={() => setIsDrawerOpen(false)} />
               </div>
             </DrawerContent>
           </Drawer>

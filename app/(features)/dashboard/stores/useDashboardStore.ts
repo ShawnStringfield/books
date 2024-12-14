@@ -28,10 +28,6 @@ interface DashboardActions {
 
 export type DashboardStore = DashboardState & DashboardActions;
 
-interface VersionedState extends DashboardState {
-  version?: number;
-}
-
 export const useDashboardStore = create<DashboardStore>()(
   persist(
     (set) => ({
@@ -57,6 +53,7 @@ export const useDashboardStore = create<DashboardStore>()(
             },
           ],
           error: null,
+          isAddBookDrawerOpen: false,
         })),
 
       addHighlight: (bookId, highlight) =>
@@ -159,29 +156,12 @@ export const useDashboardStore = create<DashboardStore>()(
     }),
     {
       name: 'dashboard-storage',
-      // Add migration configuration
-      migrate: (persistedState: unknown): VersionedState => {
-        // If it's an older version or undefined, migrate to new structure
-        if (!(persistedState as VersionedState)?.version) {
-          return {
-            books: [],
-            highlights: [],
-            isLoading: false,
-            error: null,
-            isAddBookDrawerOpen: false,
-            hasHydrated: false,
-            version: 1,
-          };
-        }
-        return persistedState as VersionedState;
-      },
-      version: 1, // Current version number
       storage: createJSONStorage(() => localStorage),
-      onRehydrateStorage: () => () => {
-        // Set hasHydrated to true after rehydration
-        setTimeout(() => {
-          useDashboardStore.getState().setHasHydrated(true);
-        }, 0);
+      version: 1,
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHasHydrated(true);
+        }
       },
     }
   )

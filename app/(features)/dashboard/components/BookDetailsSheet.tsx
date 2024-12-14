@@ -9,6 +9,7 @@ import { useId } from 'react';
 import ReadingProgressBar from './ReadingProgressBar';
 import { cleanDescription, toTitleCase } from '@/app/utils/textUtils';
 import { useDashboardStore } from '../stores/useDashboardStore';
+import { Input } from '@/app/components/ui/input';
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -18,11 +19,38 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
   const uniqueId = useId();
   const sheetDescriptionId = `book-details-desc-${uniqueId}`;
   const updateBookStatus = useDashboardStore((state) => state.updateBookStatus);
+  const updateReadingProgress = useDashboardStore((state) => state.updateReadingProgress);
 
   const description = book.subtitle || `Details for ${book.title}`;
 
   const handleStatusChange = (value: string) => {
     updateBookStatus(book.id, value as ReadingStatus);
+  };
+
+  const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPage = parseInt(e.target.value);
+    if (!isNaN(newPage) && newPage >= 0 && newPage <= book.totalPages) {
+      updateReadingProgress(book.id, newPage);
+
+      // Automatically update status based on pages read
+      if (newPage === 0) {
+        updateBookStatus(book.id, ReadingStatus.NOT_STARTED);
+      } else if (newPage === book.totalPages) {
+        updateBookStatus(book.id, ReadingStatus.COMPLETED);
+      } else if (newPage > 0) {
+        updateBookStatus(book.id, ReadingStatus.IN_PROGRESS);
+      }
+    }
+  };
+
+  const calculateProgress = () => {
+    if (book.status === ReadingStatus.COMPLETED) {
+      return 100;
+    }
+    if (!book.currentPage || book.currentPage === 0) {
+      return 0;
+    }
+    return Math.min(Math.round((book.currentPage / book.totalPages) * 100), 99);
   };
 
   return (
@@ -41,24 +69,65 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
         aria-describedby={sheetDescriptionId}
       >
         <div className="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-6 mt-8 sm:mt-12">
-          <div className="block sm:hidden w-full">
-            {book.coverUrl ? (
-              <Image
-                src={book.coverUrl}
-                alt={`Cover of ${book.title}`}
-                width={120}
-                height={180}
-                className="rounded-lg shadow-md object-cover mx-auto"
-                priority
-              />
-            ) : (
-              <div className="w-[120px] aspect-[2/3] bg-gray-100 rounded-lg flex items-center justify-center mx-auto">
-                <BookOpen className="w-8 h-8 text-gray-400" />
+          <div className="flex gap-4 sm:hidden">
+            <div className="flex-shrink-0">
+              {book.coverUrl ? (
+                <Image
+                  src={book.coverUrl}
+                  alt={`Cover of ${book.title}`}
+                  width={80}
+                  height={120}
+                  className="rounded-md shadow-sm object-cover border border-gray-200"
+                  priority
+                />
+              ) : (
+                <div className="w-[80px] aspect-[2/3] bg-gray-100 rounded-md flex items-center justify-center shadow-sm border border-gray-200">
+                  <BookOpen className="w-6 h-6 text-gray-400" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 -mt-1">
+              <SheetTitle className="text-lg font-semibold sm:text-2xl sm:font-bold">{book.title}</SheetTitle>
+              {book.subtitle && <p className="text-xs sm:text-sm leading-tight mt-1 sm:mt-2 text-gray-600">{book.subtitle}</p>}
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500 mt-1">
+                <span>by {book.author}</span>
+                <span className="text-slate-300">•</span>
+                <span>{book.totalPages} pages</span>
               </div>
-            )}
+            </div>
           </div>
 
-          <div className="flex-grow">
+          <div className="sm:hidden mt-6">
+            <div className="space-y-4">
+              <div>
+                <label htmlFor={`mobile-pages-${uniqueId}`} className="block text-sm font-medium text-gray-700 mb-1">
+                  Current Page
+                </label>
+                <Input
+                  id={`mobile-pages-${uniqueId}`}
+                  type="number"
+                  min={0}
+                  max={book.totalPages}
+                  value={book.currentPage || 0}
+                  onChange={handlePageChange}
+                  className="w-full"
+                />
+              </div>
+              <Select value={book.status} onValueChange={handleStatusChange}>
+                <SelectTrigger className="w-full bg-blue-300/20 border-blue-300 hover:bg-blue-300/30 transition-colors">
+                  <SelectValue placeholder="Select status">{toTitleCase(book.status)}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ReadingStatus.NOT_STARTED}>Not Started</SelectItem>
+                  <SelectItem value={ReadingStatus.IN_PROGRESS}>In Progress</SelectItem>
+                  <SelectItem value={ReadingStatus.COMPLETED}>Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="hidden sm:block flex-grow">
             <SheetTitle className="text-xl sm:text-2xl font-bold">{book.title}</SheetTitle>
             <SheetDescription className="sr-only">{description}</SheetDescription>
 
@@ -69,17 +138,33 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                 <p className="text-sm text-slate-500">{book.totalPages} pages</p>
               </div>
 
-              <div className="pt-2">
-                <Select value={book.status} onValueChange={handleStatusChange}>
-                  <SelectTrigger className="w-full sm:w-[180px] bg-blue-300/20 border-blue-300 hover:bg-blue-300/30 transition-colors">
-                    <SelectValue placeholder="Select status">{toTitleCase(book.status)}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={ReadingStatus.NOT_STARTED}>Not Started</SelectItem>
-                    <SelectItem value={ReadingStatus.IN_PROGRESS}>In Progress</SelectItem>
-                    <SelectItem value={ReadingStatus.COMPLETED}>Completed</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor={`desktop-pages-${uniqueId}`} className="block text-sm font-medium text-gray-700 mb-1">
+                    Current Page
+                  </label>
+                  <Input
+                    id={`desktop-pages-${uniqueId}`}
+                    type="number"
+                    min={0}
+                    max={book.totalPages}
+                    value={book.currentPage || 0}
+                    onChange={handlePageChange}
+                    className="w-[180px]"
+                  />
+                </div>
+                <div className="pt-2">
+                  <Select value={book.status} onValueChange={handleStatusChange}>
+                    <SelectTrigger className="w-full sm:w-[180px] bg-blue-300/20 border-blue-300 hover:bg-blue-300/30 transition-colors">
+                      <SelectValue placeholder="Select status">{toTitleCase(book.status)}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ReadingStatus.NOT_STARTED}>Not Started</SelectItem>
+                      <SelectItem value={ReadingStatus.IN_PROGRESS}>In Progress</SelectItem>
+                      <SelectItem value={ReadingStatus.COMPLETED}>Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </div>
@@ -102,13 +187,15 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
           </div>
         </div>
 
-        <div className="mt-4 sm:mt-6 space-y-4 sm:space-y-8">
+        <div className="my-8">
           {book.description && (
             <div className="my-4 sm:my-8">
               <h3 className="text-muted-foreground">About This Book</h3>
               <p className="text-sm mt-1 text-gray-700 line-clamp-6 sm:line-clamp-none">{cleanDescription(book.description)}</p>
             </div>
           )}
+        </div>
+        <div className="my-16 space-y-4 sm:space-y-8">
           <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
             <h3 className="text-sm font-medium text-muted-foreground">Current Progress</h3>
             <div className="mt-2 flex items-center gap-2">
@@ -206,7 +293,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
         </div>
 
         <div className="fixed bottom-0 left-0 right-0 sm:relative bg-white sm:bg-transparent p-4 sm:p-0">
-          <ReadingProgressBar currentPage={book.currentPage} totalPages={book.totalPages} />
+          <ReadingProgressBar currentPage={book.currentPage} totalPages={book.totalPages} progress={calculateProgress()} />
         </div>
       </SheetContent>
     </Sheet>

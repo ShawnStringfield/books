@@ -1,4 +1,4 @@
-import { Eye, Calendar, Link as LinkIcon, BookOpen, Tag } from 'lucide-react';
+import { Eye, Calendar, Link as LinkIcon, BookOpen, Tag, Circle, PlayCircle, CheckCircle2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle } from '@/app/components/ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Book } from '../types/books';
@@ -65,7 +65,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="w-full sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] p-4 sm:p-6 m-0 sm:m-4 h-[100dvh] sm:h-auto rounded-none sm:rounded-lg bg-gradient-to-br from-white to-blue-50 overflow-y-auto [&>button]:!ring-0 [&>button]:!outline-none [&>button]:focus:!ring-0 [&>button]:focus:!outline-none [&>button]:focus-visible:!ring-0 [&>button]:focus-visible:!outline-none [&>button]:focus-visible:!ring-offset-0"
+        className="w-full sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] p-4 sm:p-6 pb-32 m-0 sm:m-4 h-[100dvh] rounded-none sm:rounded-lg bg-gradient-to-br from-white to-blue-50 overflow-y-auto [&>button]:!ring-0 [&>button]:!outline-none [&>button]:focus:!ring-0 [&>button]:focus:!outline-none [&>button]:focus-visible:!ring-0 [&>button]:focus-visible:!outline-none [&>button]:focus-visible:!ring-offset-0"
         aria-describedby={sheetDescriptionId}
       >
         <div className="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-6 mt-8 sm:mt-12">
@@ -99,71 +99,107 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
           </div>
 
           <div className="sm:hidden mt-6">
-            <div className="space-y-4">
-              <div>
-                <label htmlFor={`mobile-pages-${uniqueId}`} className="block text-sm font-medium text-gray-700 mb-1">
-                  Current Page
-                </label>
-                <Input
-                  id={`mobile-pages-${uniqueId}`}
-                  type="number"
-                  min={0}
-                  max={book.totalPages}
-                  value={book.currentPage || 0}
-                  onChange={handlePageChange}
-                  className="w-full"
-                />
+            <div className="space-y-6">
+              <div className="w-full">
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={() => handleStatusChange(ReadingStatus.NOT_STARTED)}
+                    className={`flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs transition-colors ${
+                      book.status === ReadingStatus.NOT_STARTED
+                        ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                        : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+                    }`}
+                    aria-label="Set status to not started"
+                  >
+                    <Circle className="w-4 h-4" />
+                    <span>To Read</span>
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(ReadingStatus.IN_PROGRESS)}
+                    className={`flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs transition-colors ${
+                      book.status === ReadingStatus.IN_PROGRESS
+                        ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                        : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+                    }`}
+                    aria-label="Set status to in progress"
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    <span>Reading</span>
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(ReadingStatus.COMPLETED)}
+                    className={`flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs transition-colors ${
+                      book.status === ReadingStatus.COMPLETED
+                        ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                        : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+                    }`}
+                    aria-label="Set status to completed"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Done</span>
+                  </button>
+                </div>
               </div>
-              <Select value={book.status} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-full bg-blue-300/20 border-blue-300 hover:bg-blue-300/30 transition-colors">
-                  <SelectValue placeholder="Select status">{toTitleCase(book.status)}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ReadingStatus.NOT_STARTED}>Not Started</SelectItem>
-                  <SelectItem value={ReadingStatus.IN_PROGRESS}>In Progress</SelectItem>
-                  <SelectItem value={ReadingStatus.COMPLETED}>Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="hidden sm:block flex-grow">
-            <SheetTitle className="text-xl sm:text-2xl font-bold">{book.title}</SheetTitle>
-            <SheetDescription className="sr-only">{description}</SheetDescription>
-
-            <div className="space-y-4 mt-4 mb-8 sm:mb-32">
-              <div>
-                {book.subtitle && <p className="text-sm sm:text-base leading-tight mt-2">{book.subtitle}</p>}
-                <p className="text-sm my-2 text-slate-500">by {book.author}</p>
-                <p className="text-sm text-slate-500">{book.totalPages} pages</p>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor={`desktop-pages-${uniqueId}`} className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="w-full">
+                <div className="flex items-center justify-between gap-2">
+                  <label htmlFor={`mobile-pages-${uniqueId}`} className="flex items-center gap-2 text-xs font-medium text-gray-700">
+                    <BookOpen className="w-4 h-4" />
                     Current Page
                   </label>
                   <Input
-                    id={`desktop-pages-${uniqueId}`}
+                    id={`mobile-pages-${uniqueId}`}
                     type="number"
                     min={0}
                     max={book.totalPages}
                     value={book.currentPage || 0}
                     onChange={handlePageChange}
-                    className="w-[180px]"
+                    className="w-2/4 h-8 text-sm"
                   />
                 </div>
-                <div className="pt-2">
-                  <Select value={book.status} onValueChange={handleStatusChange}>
-                    <SelectTrigger className="w-full sm:w-[180px] bg-blue-300/20 border-blue-300 hover:bg-blue-300/30 transition-colors">
-                      <SelectValue placeholder="Select status">{toTitleCase(book.status)}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ReadingStatus.NOT_STARTED}>Not Started</SelectItem>
-                      <SelectItem value={ReadingStatus.IN_PROGRESS}>In Progress</SelectItem>
-                      <SelectItem value={ReadingStatus.COMPLETED}>Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
+              </div>
+            </div>
+          </div>
+
+          <div className="hidden sm:block flex-grow">
+            <div className="flex flex-col h-full">
+              <SheetTitle className="text-xl sm:text-2xl font-bold -mt-2">{book.title}</SheetTitle>
+              <SheetDescription className="sr-only">{description}</SheetDescription>
+
+              <div className="space-y-4 mt-4 mb-8 sm:mb-32">
+                <div>
+                  {book.subtitle && <p className="text-sm sm:text-base leading-tight mt-2">{book.subtitle}</p>}
+                  <p className="text-sm my-2 text-slate-500">by {book.author}</p>
+                  <p className="text-sm text-slate-500">{book.totalPages} pages</p>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div>
+                    <label htmlFor={`desktop-pages-${uniqueId}`} className="block text-sm font-medium text-gray-700 mb-1">
+                      Current Page
+                    </label>
+                    <Input
+                      id={`desktop-pages-${uniqueId}`}
+                      type="number"
+                      min={0}
+                      max={book.totalPages}
+                      value={book.currentPage || 0}
+                      onChange={handlePageChange}
+                      className="w-[180px]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <Select value={book.status} onValueChange={handleStatusChange}>
+                      <SelectTrigger className="w-[180px] bg-blue-300/20 border-blue-300 hover:bg-blue-300/30 transition-colors">
+                        <SelectValue placeholder="Select status">{toTitleCase(book.status)}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={ReadingStatus.NOT_STARTED}>Not Started</SelectItem>
+                        <SelectItem value={ReadingStatus.IN_PROGRESS}>In Progress</SelectItem>
+                        <SelectItem value={ReadingStatus.COMPLETED}>Completed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -176,22 +212,22 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                 alt={`Cover of ${book.title}`}
                 width={140}
                 height={210}
-                className="rounded-lg shadow-[0_10px_20px_-3px_rgba(0,0,0,0.15)] object-cover ml-auto transform -translate-y-4 hover:-translate-y-5 transition-all duration-300 hover:shadow-[0_15px_25px_-3px_rgba(0,0,0,0.2)]"
+                className="rounded-lg shadow-[0_10px_20px_-3px_rgba(0,0,0,0.15)] object-cover ml-auto hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_15px_25px_-3px_rgba(0,0,0,0.2)]"
                 priority
               />
             ) : (
-              <div className="w-[140px] aspect-[2/3] bg-gray-100 rounded-lg flex items-center justify-center ml-auto transform -translate-y-4 hover:-translate-y-5 transition-all duration-300">
+              <div className="w-[140px] aspect-[2/3] bg-gray-100 rounded-lg flex items-center justify-center ml-auto hover:-translate-y-1 transition-all duration-300">
                 <BookOpen className="w-10 h-10 text-gray-400" />
               </div>
             )}
           </div>
         </div>
 
-        <div className="my-8">
+        <div className="my-16">
           {book.description && (
-            <div className="my-4 sm:my-8">
+            <div className="">
               <h3 className="text-muted-foreground">About This Book</h3>
-              <p className="text-sm mt-1 text-gray-700 line-clamp-6 sm:line-clamp-none">{cleanDescription(book.description)}</p>
+              <p className="text-xs mt-1 text-gray-700 line-clamp-6 sm:line-clamp-none">{cleanDescription(book.description)}</p>
             </div>
           )}
         </div>
@@ -292,7 +328,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
           )}
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 sm:relative bg-white sm:bg-transparent p-4 sm:p-0">
+        <div className="absolute bottom-0 inset-x-0 bg-white/80 backdrop-blur-sm px-4 sm:px-6 py-4 sm:pb-6">
           <ReadingProgressBar currentPage={book.currentPage} totalPages={book.totalPages} progress={calculateProgress()} />
         </div>
       </SheetContent>

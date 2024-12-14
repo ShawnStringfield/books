@@ -1,5 +1,5 @@
 import { Eye, Calendar, Link as LinkIcon, BookOpen, Tag } from 'lucide-react';
-import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetDescription } from '@/app/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetDescription } from '@/app/components/ui/sheet';
 import { Book } from '../types/books';
 import { format } from 'date-fns';
 import Image from 'next/image';
@@ -37,11 +37,11 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
           <div className="md:w-1/3 flex-shrink-0">
             {book.coverUrl ? (
               <Image
-                src={book.highResCoverUrl || book.coverUrl}
+                src={book.coverUrl}
                 alt={`Cover of ${book.title}`}
-                width={400}
-                height={600}
-                className="rounded-lg shadow-lg object-contain w-full"
+                width={180}
+                height={270}
+                className="rounded-lg shadow-md object-cover"
                 priority
               />
             ) : (
@@ -53,21 +53,16 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
           <div className="md:w-2/3 space-y-4">
             <div>
-              <SheetTitle className="text-2xl font-bold text-blue-900">{book.title}</SheetTitle>
-              <div id={sheetDescriptionId} className="text-lg text-blue-700 mt-2">
-                {description}
-              </div>
+              <h2 className="text-3xl font-bold">{book.title}</h2>
+              {book.subtitle && <p className="text-xl mt-2">{book.subtitle}</p>}
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-blue-600">Author</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Author</h3>
               <p className="text-lg font-semibold">{book.author}</p>
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-blue-600" id={progressLabelId}>
-                Reading Progress
-              </h3>
               <div className="flex items-center gap-4">
                 <div className="flex-1">
                   <div
@@ -101,12 +96,12 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
         <div className="mt-6 space-y-8">
           <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-600">Status</h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
             <p className="mt-1 text-lg font-medium capitalize">{book.status.replace('_', ' ').toLowerCase()}</p>
           </div>
 
           <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-600">Reading Dates</h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Reading Dates</h3>
             <div className="mt-2 space-y-2">
               {book.startDate && (
                 <div className="flex items-center gap-2">
@@ -125,14 +120,14 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
           {book.publisher && (
             <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600">Publisher</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Publisher</h3>
               <p className="mt-1 text-gray-700">{book.publisher}</p>
             </div>
           )}
 
           {book.categories && book.categories.length > 0 && (
             <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600">Categories</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Categories</h3>
               <div className="mt-2 flex flex-wrap gap-2">
                 {book.categories.map((category, index) => (
                   <div key={index} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
@@ -146,7 +141,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
           {book.isbn && (
             <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600">ISBN</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">ISBN</h3>
               <div className="flex items-center space-x-2">
                 <BookOpen className="w-4 h-4 text-blue-600" />
                 <span className="text-gray-800 font-medium">ISBN:</span>
@@ -157,7 +152,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
           {(book.previewLink || book.infoLink) && (
             <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600">External Links</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">External Links</h3>
               <div className="mt-2 space-y-2">
                 {book.previewLink && (
                   <a
@@ -187,14 +182,14 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
           {book.highlights && book.highlights.length > 0 && (
             <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600">Highlights</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Highlights</h3>
               <p className="mt-1 text-gray-700">{book.highlights.length} highlights saved</p>
             </div>
           )}
 
           {book.description && (
             <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-600">Description</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Description</h3>
               <p className="mt-1 text-gray-700 line-clamp-4">{book.description}</p>
             </div>
           )}

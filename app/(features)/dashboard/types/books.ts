@@ -18,21 +18,20 @@ export interface Book {
   id: string;
   title: string;
   subtitle?: string;
-  author: string;
+  author?: string;
+  description?: string;
+  status: string;
   coverUrl?: string;
-  highResCoverUrl?: string;
   totalPages: number;
   currentPage: number;
   startDate?: Date;
-  completedDate: Date | null | undefined;
-  status: ReadingStatus;
-  highlights: Highlight[];
-  description?: string;
+  completedDate?: Date;
   publisher?: string;
   previewLink?: string;
   infoLink?: string;
   categories?: string[];
   isbn?: string;
+  highlights?: Highlight[];
 }
 
 export interface Highlight {

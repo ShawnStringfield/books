@@ -75,16 +75,6 @@ function EmptyRecentHighlightsState() {
           Save memorable quotes, insights, and passages from your books. They&apos;ll appear here for easy reference.
         </p>
       </div>
-      <div className="flex flex-col gap-2 items-center">
-        <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg mx-auto max-w-xs space-y-2">
-          <p className="font-medium">How to add highlights:</p>
-          <ul className="text-left space-y-1">
-            <li>1. Open a book you&apos;re reading</li>
-            <li>2. Select the text you want to save</li>
-            <li>3. Add any notes or tags</li>
-          </ul>
-        </div>
-      </div>
     </div>
   );
 }

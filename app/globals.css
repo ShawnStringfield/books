@@ -6,6 +6,15 @@
   @apply border-[#e5e7eb];
 }
 
+/* Remove focus rings for mouse users but keep for keyboard navigation */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
 body {
   @apply bg-background text-foreground antialiased;
 }

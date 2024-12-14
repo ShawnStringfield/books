@@ -1,5 +1,6 @@
 import React from 'react';
 import { Book } from '../types/books';
+import { toTitleCase } from '@/app/utils/textUtils';
 
 // Utility function to determine status color
 const getStatusColor = (status: string): string => {
@@ -24,7 +25,7 @@ function BookDetails({ book }: { book: Book }) {
 
       <div className="flex items-center gap-2">
         <span className="text-sm text-gray-500">Status:</span>
-        <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(book.status)}`}>{book.status}</span>
+        <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(book.status)}`}>{toTitleCase(book.status)}</span>
       </div>
     </div>
   );

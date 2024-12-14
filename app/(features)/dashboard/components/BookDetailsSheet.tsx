@@ -1,10 +1,14 @@
 import { Eye, Calendar, Link as LinkIcon, BookOpen, Tag } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger, SheetDescription } from '@/app/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle } from '@/app/components/ui/sheet';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Book } from '../types/books';
+import { ReadingStatus } from '../types/books';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import { useId } from 'react';
 import ReadingProgressBar from './ReadingProgressBar';
+import { cleanDescription, toTitleCase } from '@/app/utils/textUtils';
+import { useDashboardStore } from '../stores/useDashboardStore';
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -13,8 +17,13 @@ interface BookDetailsSheetProps {
 const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
   const uniqueId = useId();
   const sheetDescriptionId = `book-details-desc-${uniqueId}`;
+  const updateBookStatus = useDashboardStore((state) => state.updateBookStatus);
 
   const description = book.subtitle || `Details for ${book.title}`;
+
+  const handleStatusChange = (value: string) => {
+    updateBookStatus(book.id, value as ReadingStatus);
+  };
 
   return (
     <Sheet>
@@ -28,50 +37,67 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="w-3/4 sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] m-4 h-auto rounded-lg bg-gradient-to-br from-white to-blue-50 overflow-y-auto"
+        className="w-3/4 sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] m-4 h-auto rounded-lg bg-gradient-to-br from-white to-blue-50 overflow-y-auto [&>button]:!ring-0 [&>button]:!outline-none [&>button]:focus:!ring-0 [&>button]:focus:!outline-none [&>button]:focus-visible:!ring-0 [&>button]:focus-visible:!outline-none [&>button]:focus-visible:!ring-offset-0"
         aria-describedby={sheetDescriptionId}
       >
-        <SheetDescription className="sr-only">{description}</SheetDescription>
+        <div className="flex flex-col md:flex-row md:justify-between gap-6 mt-12">
+          <div className="flex-grow max-w-[calc(100%-180px)]">
+            <SheetTitle className="text-2xl font-bold">{book.title}</SheetTitle>
+            <SheetDescription className="sr-only">{description}</SheetDescription>
 
-        <div className="flex flex-col md:flex-row gap-6 pb-6 border-b">
-          <div className="md:w-1/3 flex-shrink-0">
+            <div className="space-y-4 mt-4 mb-32">
+              <div>
+                {book.subtitle && <p className="leading-tight mt-2">{book.subtitle}</p>}
+                <p className="text-sm my-2 text-slate-500">by {book.author}</p>
+                <p className="text-sm text-slate-500">{book.totalPages} pages</p>
+              </div>
+
+              <div className="pt-2">
+                <Select value={book.status} onValueChange={handleStatusChange}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select status">{toTitleCase(book.status)}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ReadingStatus.NOT_STARTED}>Not Started</SelectItem>
+                    <SelectItem value={ReadingStatus.IN_PROGRESS}>In Progress</SelectItem>
+                    <SelectItem value={ReadingStatus.COMPLETED}>Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-shrink-0 md:w-[140px]">
             {book.coverUrl ? (
               <Image
                 src={book.coverUrl}
                 alt={`Cover of ${book.title}`}
-                width={180}
-                height={270}
-                className="rounded-lg shadow-md object-cover"
+                width={140}
+                height={210}
+                className="rounded-lg shadow-[0_10px_20px_-3px_rgba(0,0,0,0.15)] object-cover ml-auto transform -translate-y-4 hover:-translate-y-5 transition-all duration-300 hover:shadow-[0_15px_25px_-3px_rgba(0,0,0,0.2)]"
                 priority
               />
             ) : (
-              <div className="w-full aspect-[2/3] bg-gray-100 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-12 h-12 text-gray-400" />
+              <div className="w-[140px] aspect-[2/3] bg-gray-100 rounded-lg flex items-center justify-center ml-auto transform -translate-y-4 hover:-translate-y-5 transition-all duration-300 shadow-[0_10px_20px_-3px_rgba(0,0,0,0.15)] hover:shadow-[0_15px_25px_-3px_rgba(0,0,0,0.2)]">
+                <BookOpen className="w-10 h-10 text-gray-400" />
               </div>
             )}
-          </div>
-
-          <div className="md:w-2/3 space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold">{book.title}</h2>
-              {book.subtitle && <p className="leading-tight mt-2">{book.subtitle}</p>}
-              <p className="my-2">by {book.author}</p>
-            </div>
-
-            <ReadingProgressBar currentPage={book.currentPage} totalPages={book.totalPages} />
-
-            <div className="pt-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                {book.status.replace('_', ' ').toLowerCase()}
-              </span>
-            </div>
           </div>
         </div>
 
         <div className="mt-6 space-y-8">
+          {book.description && (
+            <div className="my-8">
+              <h3 className="text-muted-foreground">About This Book</h3>
+              <p className="text-sm mt-1 text-gray-700">{cleanDescription(book.description)}</p>
+            </div>
+          )}
           <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
-            <p className="mt-1 text-lg font-medium capitalize">{book.status.replace('_', ' ').toLowerCase()}</p>
+            <h3 className="text-sm font-medium text-muted-foreground">Current Progress</h3>
+            <div className="mt-2 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-blue-600" />
+              <span className="text-lg font-medium">{toTitleCase(book.status)}</span>
+            </div>
           </div>
 
           <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
@@ -160,14 +186,9 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
               <p className="mt-1 text-gray-700">{book.highlights.length} highlights saved</p>
             </div>
           )}
-
-          {book.description && (
-            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-muted-foreground">Description</h3>
-              <p className="mt-1 text-gray-700 line-clamp-4">{book.description}</p>
-            </div>
-          )}
         </div>
+
+        <ReadingProgressBar currentPage={book.currentPage} totalPages={book.totalPages} />
       </SheetContent>
     </Sheet>
   );

@@ -28,7 +28,6 @@ const ReadingProgressBar = ({ currentPage, totalPages, className = '' }: Reading
         </div>
         <span className="text-lg font-medium text-blue-900">{progressPercentage}%</span>
       </div>
-      <p className="text-sm text-gray-600">{totalPages} pages</p>
     </div>
   );
 };

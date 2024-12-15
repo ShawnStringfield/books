@@ -1,6 +1,4 @@
 import React from 'react';
-import { AppSidebar } from './AppSidebar';
-import { SidebarProvider } from '@/app/components/ui/sidebar';
 import TopNav from './TopNav';
 
 interface DashboardLayoutProps {
@@ -10,11 +8,8 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <div>
-      <SidebarProvider defaultOpen={false}>
-        <TopNav />
-        <AppSidebar />
-        <main className="mt-8 md:p-4 w-full">{children}</main>
-      </SidebarProvider>
+      <TopNav />
+      <main className="mt-8 md:p-4 w-full">{children}</main>
     </div>
   );
 };

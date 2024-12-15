@@ -1,6 +1,5 @@
 'use client';
 
-import { SidebarTrigger } from '@/app/components/ui/sidebar';
 import { motion } from 'framer-motion';
 import { UserMenu } from '@/app/components/menus/UserMenu';
 import { usePathname } from 'next/navigation';
@@ -74,13 +73,8 @@ const TopNav = () => {
   if (!config) return null;
 
   return (
-    <header className="h-16 border-b bg-white fixed top-0 right-0 left-0 z-30 pr-8">
-      <div className="h-full flex items-center">
-        <div className="flex-1">
-          <motion.div whileTap={{ scale: 0.95 }} className="p-2 hover:bg-gray-100 rounded-lg">
-            <SidebarTrigger />
-          </motion.div>
-        </div>
+    <header className="h-16 border-b bg-white fixed top-0 right-0 left-0 z-30 px-8">
+      <div className="h-full flex items-center justify-between">
         <div className="flex-end">
           {config.actions?.map((action, index) =>
             action.href ? (

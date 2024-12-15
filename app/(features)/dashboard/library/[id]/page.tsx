@@ -6,12 +6,11 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
-import { DashboardStats } from '../../components/stats/DashboardStats';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,6 +43,7 @@ function BookDetailsContent() {
   const { showEditControls, toggleEditControls } = useEditMode();
   const [editedDescription, setEditedDescription] = useState('');
   const [editedGenre, setEditedGenre] = useState('');
+  const [showHighlights, setShowHighlights] = useState(false);
 
   // Redirect if no id is provided
   useEffect(() => {
@@ -189,6 +189,7 @@ function BookDetailsContent() {
 
         {/* About Section */}
         <div className="space-y-4">
+          <h2 className="text-lg font-semibold leading-tight text-slate-500">About This Book</h2>
           <EditableBookDescription
             description={book.description || ''}
             bookId={book.id}
@@ -211,7 +212,19 @@ function BookDetailsContent() {
 
         {/* Book Highlights */}
         <div className="space-y-4">
-          <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} />
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setShowHighlights(!showHighlights)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {showHighlights ? 'Hide Form' : 'Add Highlight'}
+          </Button>
+
+          <div className="space-y-4">
+            <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={showHighlights} />
+          </div>
         </div>
 
         {/* Keep existing dialogs */}
@@ -231,7 +244,6 @@ function BookDetailsContent() {
         </AlertDialog>
 
         <DeleteBookDialog isOpen={showDeleteDialog} onClose={() => setShowDeleteDialog(false)} onConfirm={handleDeleteBook} bookTitle={book.title} />
-        <DashboardStats />
       </div>
 
       {/* Sticky Footer */}

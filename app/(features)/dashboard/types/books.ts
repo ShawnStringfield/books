@@ -51,7 +51,8 @@ export interface BookHighlight {
   bookId: string;
   text: string;
   page: number;
-  isFavorite?: boolean;
+  note?: string;
+  isFavorite: boolean;
   createdAt: string;
 }
 

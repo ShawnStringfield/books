@@ -1,13 +1,14 @@
-import { Eye, Link as LinkIcon, X } from 'lucide-react';
+import { Eye, Link as LinkIcon, X, Plus } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle, SheetClose } from '@/app/components/ui/sheet';
 import { Book } from '../types/books';
 import { ReadingStatus } from '../types/books';
-import { useId, useCallback } from 'react';
+import { useId, useCallback, useState } from 'react';
 import ReadingProgressBar from './ReadingProgressBar';
 import { useDashboardStore } from '../stores/useDashboardStore';
 import ReadingControls from './ReadingControls';
 import BookHighlights from './BookHighlights';
 import Link from 'next/link';
+import { Button } from '@/app/components/ui/button';
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -18,6 +19,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
   const sheetDescriptionId = `book-details-desc-${uniqueId}`;
   const updateBookStatus = useDashboardStore((state) => state.updateBookStatus);
   const updateReadingProgress = useDashboardStore((state) => state.updateReadingProgress);
+  const [showHighlights, setShowHighlights] = useState(false);
 
   const description = book.subtitle || `Details for ${book.title}`;
 
@@ -183,7 +185,16 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
           </div>
 
           <div className="my-8">
-            <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowHighlights(!showHighlights)}
+              className="w-full flex items-center justify-center gap-2 mb-4"
+            >
+              <Plus className="h-4 w-4" />
+              {showHighlights ? 'Hide Form' : 'Add Highlight'}
+            </Button>
+            <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={showHighlights} />
           </div>
         </div>
 

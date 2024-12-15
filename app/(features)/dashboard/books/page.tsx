@@ -6,6 +6,8 @@ import { BooksList } from '../components/BooksList';
 import { Button } from '@/app/components/ui/button';
 import { AddBookForm } from '../components/AddBookForm';
 import { useDashboardStore } from '../stores/useDashboardStore';
+import { Library, LayoutDashboard } from 'lucide-react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export default function BooksPage() {
   const [mounted, setMounted] = useState(false);
@@ -24,6 +26,12 @@ export default function BooksPage() {
   return (
     <DashboardLayout>
       <div className="p-6">
+        <Breadcrumbs
+          items={[
+            { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
+            { label: 'Books', path: '/dashboard/books', icon: <Library className="h-4 w-4" /> },
+          ]}
+        />
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold">Books</h1>
           <Button onClick={() => setIsAddingBook(true)} disabled={isAddingBook}>

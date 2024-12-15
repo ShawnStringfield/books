@@ -6,12 +6,13 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Trash2, Library, ChevronRight, BookOpen } from 'lucide-react';
+import { Trash2, Library, BookOpen, LayoutDashboard } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
 import { DashboardStats } from '../../components/stats/DashboardStats';
+import { Breadcrumbs } from '../../components/Breadcrumbs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -138,22 +139,17 @@ function BookDetailsContent() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             {/* Left side - Breadcrumbs */}
-            <div className="flex items-center gap-2 text-sm -ml-1 pl-[2px] mt-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push('/dashboard/books')}
-                className="text-gray-500 hover:text-gray-700 -ml-[9px] flex items-center gap-1.5"
-              >
-                <Library className="h-4 w-4" />
-                Library
-              </Button>
-              <ChevronRight className="h-4 w-4 text-gray-400" />
-              <div className="flex items-center gap-1.5 text-gray-600">
-                <BookOpen className="h-4 w-4" />
-                <span className="truncate max-w-[200px]">{book.title}</span>
-              </div>
-            </div>
+            <Breadcrumbs
+              items={[
+                { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
+                { label: 'Books', path: '/dashboard/books', icon: <Library className="h-4 w-4" /> },
+                {
+                  label: book?.title || 'Book Details',
+                  path: `/dashboard/books/${id}`,
+                  icon: <BookOpen className="h-4 w-4" />,
+                },
+              ]}
+            />
 
             {/* Right side - Controls */}
             <div className="flex items-center gap-2">

@@ -23,6 +23,7 @@ export function AddBookForm({ onSuccess, onClose }: AddBookFormProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const debouncedSearch = useDebounce(searchQuery, 500);
+  const [addAsInProgress, setAddAsInProgress] = useState(false);
 
   const { addBook, setLoading, isLoading, books } = useDashboardStore();
 
@@ -98,8 +99,8 @@ export function AddBookForm({ onSuccess, onClose }: AddBookFormProps) {
         createdAt: new Date().toISOString(),
         completedDate: undefined,
         currentPage: 0,
-        status: ReadingStatus.NOT_STARTED,
-        startDate: undefined,
+        status: addAsInProgress ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED,
+        startDate: addAsInProgress ? new Date().toISOString() : undefined,
         highlights: [],
         genre: (bookData.categories && bookData.categories[0]) || 'Unknown',
       };
@@ -185,6 +186,19 @@ export function AddBookForm({ onSuccess, onClose }: AddBookFormProps) {
             </div>
           )}
 
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="addAsInProgress"
+              checked={addAsInProgress}
+              onChange={(e) => setAddAsInProgress(e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label htmlFor="addAsInProgress" className="text-sm text-gray-600">
+              Add as &ldquo;Currently Reading&rdquo;
+            </label>
+          </div>
+
           <div className="flex justify-end gap-2">
             <Button
               type="button"
@@ -193,6 +207,7 @@ export function AddBookForm({ onSuccess, onClose }: AddBookFormProps) {
               onClick={() => {
                 setSelectedBook(null);
                 setSearchQuery('');
+                setAddAsInProgress(false);
               }}
               disabled={isLoading}
             >

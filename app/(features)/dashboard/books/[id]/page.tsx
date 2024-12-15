@@ -11,7 +11,6 @@ import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
-import { format } from 'date-fns';
 import { DashboardStats } from '../../components/stats/DashboardStats';
 import {
   AlertDialog,
@@ -139,37 +138,21 @@ export default function BookDetailsPage() {
           </div>
 
           <h1 className="text-3xl font-bold">{book.title}</h1>
-          <h2 className="text-xl font-semibold">{book.subtitle}</h2>
+          <h2 className="text-xl font-semibold leading-none">{book.subtitle}</h2>
+          <div className="space-y-0.5">
+            <p className="text-sm text-gray-600">
+              By: {book.author} • {book.totalPages} pages
+            </p>
+            <p className="text-sm text-gray-600">
+              {book.genre ? <span>Genre: {book.genre} • </span> : null}
+              {book.isbn ? <span>ISBN: {book.isbn}</span> : null}
+              {!book.genre && !book.isbn && <span className="text-gray-400 italic">No additional details available</span>}
+            </p>
+          </div>
 
           {/* About Section */}
           <div className="space-y-4">
             <EditableBookDescription description={book.description || ''} bookId={book.id} />
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h3 className="font-medium">Genre</h3>
-                <p className="text-gray-600">{book.genre || 'Unknown'}</p>
-              </div>
-              <div>
-                <h3 className="font-medium">ISBN</h3>
-                <p className="text-gray-600">{book.isbn || 'Unknown'}</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Publisher</h3>
-                <p className="text-gray-600">{book.publisher || 'Unknown'}</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Language</h3>
-                <p className="text-gray-600">{book.language || 'Unknown'}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Basic Info */}
-        <div className="flex flex-col items-start space-y-4">
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold">{book.author}</h2>
-            <p className="text-sm text-gray-600">Published: {book.publishDate ? format(new Date(book.publishDate), 'MMMM yyyy') : 'Unknown'}</p>
           </div>
         </div>
 

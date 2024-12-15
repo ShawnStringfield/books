@@ -3,15 +3,16 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useDashboardStore } from '../../stores/useDashboardStore';
 import { Button } from '@/app/components/ui/button';
-import { Book, ReadingStatus } from '../../types/books';
+import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
-import { useState, useEffect, useMemo } from 'react';
-import { Trash2, Clock, BookOpen, Calendar, BarChart3 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Trash2 } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
 import { format } from 'date-fns';
+import { DashboardStats } from '../../components/stats/DashboardStats';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,29 +24,7 @@ import {
   AlertDialogTitle,
 } from '@/app/components/ui/alert-dialog';
 import ReadingProgressBar from '../../components/ReadingProgressBar';
-
-interface ReadingStats {
-  averagePagesPerDay: number;
-  daysReading: number;
-  estimatedTimeLeft: number;
-  completionPercentage: number;
-}
-
-function calculateReadingStats(book: Book, startDate: Date): ReadingStats {
-  const currentDate = new Date();
-  const daysReading = Math.ceil((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-  const averagePagesPerDay = daysReading > 0 ? book.currentPage / daysReading : 0;
-  const pagesLeft = book.totalPages - book.currentPage;
-  const estimatedTimeLeft = averagePagesPerDay > 0 ? Math.ceil(pagesLeft / averagePagesPerDay) : 0;
-  const completionPercentage = (book.currentPage / book.totalPages) * 100;
-
-  return {
-    averagePagesPerDay: Math.round(averagePagesPerDay),
-    daysReading,
-    estimatedTimeLeft,
-    completionPercentage: Math.round(completionPercentage),
-  };
-}
+import EditableBookDescription from '../../components/EditableBookDescription';
 
 export default function BookDetailsPage() {
   const router = useRouter();
@@ -67,12 +46,6 @@ export default function BookDetailsPage() {
       router.push('/dashboard/books');
     }
   }, [id, router]);
-
-  // Calculate reading stats
-  const readingStats = useMemo(() => {
-    if (!book) return null;
-    return calculateReadingStats(book, book.startDate ? new Date(book.startDate) : new Date());
-  }, [book]);
 
   if (isLoading) {
     return (
@@ -149,7 +122,32 @@ export default function BookDetailsPage() {
               Delete
             </Button>
           </div>
+
+          <DashboardStats />
           <h1 className="text-3xl font-bold">{book.title}</h1>
+
+          {/* About Section */}
+          <div className="space-y-4">
+            <EditableBookDescription description={book.description || ''} bookId={book.id} />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-medium">Genre</h3>
+                <p className="text-gray-600">{book.genre || 'Unknown'}</p>
+              </div>
+              <div>
+                <h3 className="font-medium">ISBN</h3>
+                <p className="text-gray-600">{book.isbn || 'Unknown'}</p>
+              </div>
+              <div>
+                <h3 className="font-medium">Publisher</h3>
+                <p className="text-gray-600">{book.publisher || 'Unknown'}</p>
+              </div>
+              <div>
+                <h3 className="font-medium">Language</h3>
+                <p className="text-gray-600">{book.language || 'Unknown'}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Basic Info */}
@@ -178,47 +176,9 @@ export default function BookDetailsPage() {
           </div>
         </div>
 
-        {/* Reading Progress */}
-        <div className="space-y-4">
-          <ReadingProgressBar currentPage={book.currentPage} totalPages={book.totalPages} progress={readingStats?.completionPercentage || 0} />
-        </div>
-
-        {/* Reading Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <StatCard icon={<Clock />} title="Reading Time" value={`${readingStats?.daysReading} days`} />
-          <StatCard icon={<BookOpen />} title="Pages per Day" value={`${readingStats?.averagePagesPerDay}`} />
-          <StatCard icon={<Calendar />} title="Est. Completion" value={`${readingStats?.estimatedTimeLeft} days`} />
-          <StatCard icon={<BarChart3 />} title="Completion" value={`${readingStats?.completionPercentage}%`} />
-        </div>
-
         {/* Book Highlights */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Highlights</h2>
           <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} />
-        </div>
-
-        {/* About Section */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">About the Book</h2>
-          <p className="text-gray-700">{book.description || 'No description available'}</p>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h3 className="font-medium">Genre</h3>
-              <p className="text-gray-600">{book.genre || 'Unknown'}</p>
-            </div>
-            <div>
-              <h3 className="font-medium">ISBN</h3>
-              <p className="text-gray-600">{book.isbn || 'Unknown'}</p>
-            </div>
-            <div>
-              <h3 className="font-medium">Publisher</h3>
-              <p className="text-gray-600">{book.publisher || 'Unknown'}</p>
-            </div>
-            <div>
-              <h3 className="font-medium">Language</h3>
-              <p className="text-gray-600">{book.language || 'Unknown'}</p>
-            </div>
-          </div>
         </div>
 
         {/* Keep existing dialogs */}
@@ -246,25 +206,16 @@ export default function BookDetailsPage() {
           <div className="flex justify-between items-center text-sm text-gray-600">
             <span>Progress</span>
             <span>
-              {book.currentPage} of {book.totalPages} pages
+              {book.currentPage || 0} of {book.totalPages || 0} pages
             </span>
           </div>
-          <ReadingProgressBar currentPage={book.currentPage} totalPages={book.totalPages} progress={readingStats?.completionPercentage || 0} />
+          <ReadingProgressBar
+            currentPage={book.currentPage || 0}
+            totalPages={book.totalPages || 0}
+            progress={book.totalPages ? Math.round(((book.currentPage || 0) / book.totalPages) * 100) : 0}
+          />
         </div>
       </div>
     </DashboardLayout>
-  );
-}
-
-// Update StatCard to remove border
-function StatCard({ icon, title, value }: { icon: React.ReactNode; title: string; value: string }) {
-  return (
-    <div className="p-4 rounded-lg bg-gray-50">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-gray-600">{icon}</span>
-        <h3 className="text-sm font-medium text-gray-600">{title}</h3>
-      </div>
-      <p className="text-2xl font-semibold">{value}</p>
-    </div>
   );
 }

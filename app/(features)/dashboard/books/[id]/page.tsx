@@ -25,8 +25,10 @@ import {
 import ReadingProgressBar from '../../components/ReadingProgressBar';
 import EditableBookDescription from '../../components/EditableBookDescription';
 import ReadingControls from '../../components/ReadingControls';
+import EditableGenre from '../../components/EditableGenre';
+import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
 
-export default function BookDetailsPage() {
+function BookDetailsContent() {
   const router = useRouter();
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
@@ -39,6 +41,7 @@ export default function BookDetailsPage() {
   const isLastBook = useDashboardStore(selectIsLastBook);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<ReadingStatus | null>(null);
+  const { showEditControls, toggleEditControls } = useEditMode();
 
   // Redirect if no id is provided
   useEffect(() => {
@@ -122,6 +125,9 @@ export default function BookDetailsPage() {
         {/* Header Section */}
         <div className="space-y-4">
           <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={toggleEditControls}>
+              {showEditControls ? 'Hide Edit Controls' : 'Show Edit Controls'}
+            </Button>
             <Button variant="outline" onClick={() => router.back()}>
               Back
             </Button>
@@ -143,11 +149,16 @@ export default function BookDetailsPage() {
             <p className="text-sm text-gray-600">
               By: {book.author} • {book.totalPages} pages
             </p>
-            <p className="text-sm text-gray-600">
-              {book.genre ? <span>Genre: {book.genre} • </span> : null}
-              {book.isbn ? <span>ISBN: {book.isbn}</span> : null}
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <EditableGenre genre={book.genre || ''} bookId={book.id} />
+              {book.isbn && (
+                <>
+                  <span className="text-gray-400">•</span>
+                  <span>ISBN: {book.isbn}</span>
+                </>
+              )}
               {!book.genre && !book.isbn && <span className="text-gray-400 italic">No additional details available</span>}
-            </p>
+            </div>
           </div>
 
           {/* About Section */}
@@ -210,5 +221,13 @@ export default function BookDetailsPage() {
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function BookDetailsPage() {
+  return (
+    <EditModeProvider>
+      <BookDetailsContent />
+    </EditModeProvider>
   );
 }

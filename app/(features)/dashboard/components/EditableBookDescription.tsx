@@ -3,6 +3,7 @@ import { Pencil } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { cleanDescription } from '@/app/utils/textUtils';
 import { useDashboardStore } from '../stores/useDashboardStore';
+import { useEditMode } from '../contexts/EditModeContext';
 
 interface EditableBookDescriptionProps {
   description: string;
@@ -13,6 +14,7 @@ const EditableBookDescription = ({ description, bookId }: EditableBookDescriptio
   const [isEditing, setIsEditing] = useState(false);
   const [editedDescription, setEditedDescription] = useState(description);
   const updateBookDescription = useDashboardStore((state) => state.updateBookDescription);
+  const { showEditControls } = useEditMode();
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -30,12 +32,14 @@ const EditableBookDescription = ({ description, bookId }: EditableBookDescriptio
   };
 
   return (
-    <div className="">
-      <div className="flex items-center justify-between mb-2">
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        {showEditControls && (
+          <button onClick={handleEdit} className="p-1 rounded-full hover:bg-gray-100 transition-colors" aria-label="Edit description">
+            <Pencil className="w-4 h-4 text-slate-400" />
+          </button>
+        )}
         <h3 className="text-muted-foreground">About This Book</h3>
-        <button onClick={handleEdit} className="p-1 rounded-full hover:bg-gray-100 transition-colors" aria-label="Edit description">
-          <Pencil className="w-4 h-4 text-slate-400" />
-        </button>
       </div>
       {isEditing ? (
         <div className="space-y-2">

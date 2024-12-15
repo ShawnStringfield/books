@@ -23,6 +23,7 @@ interface DashboardActions {
   setHasHydrated: (state: boolean) => void;
   updateBookStatus: (bookId: string, status: ReadingStatus) => void;
   updateBookDescription: (bookId: string, description: string) => void;
+  updateBookGenre: (bookId: string, genre: string) => void;
   deleteBook: (bookId: string) => void;
   deleteHighlight: (highlightId: string) => void;
 }
@@ -182,6 +183,18 @@ export const useDashboardStore = create<DashboardStore>()(
               ? {
                   ...b,
                   description,
+                }
+              : b
+          ),
+        })),
+
+      updateBookGenre: (bookId, genre) =>
+        set((state) => ({
+          books: state.books.map((b) =>
+            b.id === bookId
+              ? {
+                  ...b,
+                  genre,
                 }
               : b
           ),

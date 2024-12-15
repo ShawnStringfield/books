@@ -6,7 +6,7 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Library, ChevronRight, BookOpen } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
@@ -123,24 +123,42 @@ function BookDetailsContent() {
     <DashboardLayout>
       <div className="p-6 pb-24 max-w-3xl mx-auto space-y-8">
         {/* Header Section */}
-        <div>
-          <div className="flex justify-end gap-2 mb-6">
-            <Button variant="outline" onClick={toggleEditControls}>
-              {showEditControls ? 'Hide Edit Controls' : 'Show Edit Controls'}
-            </Button>
-            <Button variant="outline" onClick={() => router.back()}>
-              Back
-            </Button>
-            <Button
-              variant="ghost"
-              className="text-red-500 hover:text-red-700 hover:bg-red-50 disabled:opacity-50"
-              onClick={() => setShowDeleteDialog(true)}
-              disabled={isLastBook}
-              title={isLastBook ? 'Cannot delete the last book' : undefined}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </Button>
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            {/* Left side - Breadcrumbs */}
+            <div className="flex items-center gap-2 text-sm -ml-1 pl-[2px]">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/dashboard/books')}
+                className="text-gray-500 hover:text-gray-700 -ml-[9px] flex items-center gap-1.5"
+              >
+                <Library className="h-4 w-4" />
+                Library
+              </Button>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+              <div className="flex items-center gap-1.5 text-gray-600">
+                <BookOpen className="h-4 w-4" />
+                <span className="truncate max-w-[200px]">{book.title}</span>
+              </div>
+            </div>
+
+            {/* Right side - Controls */}
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={toggleEditControls} className="text-gray-500 hover:text-gray-700">
+                {showEditControls ? 'Hide Edit' : 'Edit'}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={isLastBook}
+                title={isLastBook ? 'Cannot delete the last book' : undefined}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">

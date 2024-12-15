@@ -3,7 +3,7 @@
 import { UserMenu } from '@/app/components/menus/UserMenu';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/app/components/ui/button';
-import { HomeIcon } from 'lucide-react';
+import { HomeIcon, PlusIcon } from 'lucide-react';
 import Link from 'next/link';
 
 interface NavAction {
@@ -12,6 +12,7 @@ interface NavAction {
   onClick?: () => void;
   variant?: 'default' | 'outline' | 'ghost';
   icon?: React.ReactNode;
+  iconOnly?: boolean;
 }
 
 interface RouteConfig {
@@ -26,7 +27,9 @@ const routeConfig: RouteConfig = {
       {
         label: 'Add Book',
         href: '/dashboard/library/new',
-        variant: 'default',
+        variant: 'ghost',
+        icon: <PlusIcon className="w-4 h-4" />,
+        iconOnly: false,
       },
     ],
   },
@@ -35,7 +38,9 @@ const routeConfig: RouteConfig = {
       {
         label: 'Add Book',
         href: '/dashboard/library/new',
-        variant: 'default',
+        variant: 'ghost',
+        icon: <PlusIcon className="w-4 h-4" />,
+        iconOnly: false,
       },
       {
         label: 'Import Books',
@@ -49,7 +54,9 @@ const routeConfig: RouteConfig = {
       {
         label: 'Add Book',
         href: '/dashboard/library/new',
-        variant: 'default',
+        variant: 'ghost',
+        icon: <PlusIcon className="w-4 h-4" />,
+        iconOnly: false,
       },
     ],
   },
@@ -82,15 +89,35 @@ const TopNav = () => {
           {config?.actions?.map((action, index) =>
             action.href ? (
               <Link key={index} href={action.href}>
-                <Button variant={action.variant || 'default'} size="sm" className="mx-2">
-                  {action.icon && <span className="mr-2">{action.icon}</span>}
-                  {action.label}
+                <Button
+                  variant={action.variant || 'default'}
+                  size="sm"
+                  className="flex items-center space-x-1.5 text-sm py-1.5"
+                  aria-label={action.iconOnly ? action.label : undefined}
+                >
+                  {action.icon && action.label === 'Add Book' && (
+                    <span className="bg-slate-300 p-1.5 rounded-full hover:bg-slate-600 hover:text-white text-slate-600 transition-colors">
+                      {action.icon}
+                    </span>
+                  )}
+                  {(!action.iconOnly || action.label === 'Add Book') && <span>{action.label}</span>}
                 </Button>
               </Link>
             ) : (
-              <Button key={index} variant={action.variant || 'default'} onClick={action.onClick} size="sm">
-                {action.icon && <span className="mr-2">{action.icon}</span>}
-                {action.label}
+              <Button
+                key={index}
+                variant={action.variant || 'default'}
+                onClick={action.onClick}
+                size="sm"
+                className="flex items-center space-x-1.5 text-sm py-1.5"
+                aria-label={action.iconOnly ? action.label : undefined}
+              >
+                {action.icon && action.label === 'Add Book' && (
+                  <span className="bg-slate-300 p-1.5 rounded-full hover:bg-slate-600 hover:text-white text-slate-600 transition-colors">
+                    {action.icon}
+                  </span>
+                )}
+                {(!action.iconOnly || action.label === 'Add Book') && <span>{action.label}</span>}
               </Button>
             )
           )}

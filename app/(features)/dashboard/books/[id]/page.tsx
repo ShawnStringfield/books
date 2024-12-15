@@ -32,7 +32,7 @@ function BookDetailsContent() {
   const router = useRouter();
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
-  const { books: rawBooks = [], updateBookStatus, updateReadingProgress, deleteBook } = useDashboardStore();
+  const { books: rawBooks = [], updateBookStatus, updateReadingProgress, deleteBook, updateBookDescription, updateBookGenre } = useDashboardStore();
   const isLoading = useDashboardStore((state) => state.isLoading);
   const books = rawBooks.map((b) => ({ ...b, status: b.status as ReadingStatus }));
   const { changeBookStatus, isChangingStatus } = useBookStatus(books);
@@ -42,6 +42,8 @@ function BookDetailsContent() {
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<ReadingStatus | null>(null);
   const { showEditControls, toggleEditControls } = useEditMode();
+  const [editedDescription, setEditedDescription] = useState('');
+  const [editedGenre, setEditedGenre] = useState('');
 
   // Redirect if no id is provided
   useEffect(() => {
@@ -119,6 +121,16 @@ function BookDetailsContent() {
     }
   };
 
+  const handleSaveChanges = () => {
+    if (editedDescription) {
+      updateBookDescription(book.id, editedDescription);
+    }
+    if (editedGenre) {
+      updateBookGenre(book.id, editedGenre);
+    }
+    toggleEditControls(); // Exit edit mode after saving
+  };
+
   return (
     <DashboardLayout>
       <div className="p-6 pb-24 max-w-3xl mx-auto space-y-8">
@@ -145,9 +157,20 @@ function BookDetailsContent() {
 
             {/* Right side - Controls */}
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={toggleEditControls} className="text-gray-500 hover:text-gray-700">
-                {showEditControls ? 'Hide Edit' : 'Edit'}
-              </Button>
+              {showEditControls ? (
+                <>
+                  <Button variant="outline" size="sm" onClick={toggleEditControls}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" onClick={handleSaveChanges}>
+                    Save Changes
+                  </Button>
+                </>
+              ) : (
+                <Button variant="ghost" size="sm" onClick={toggleEditControls}>
+                  Edit
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -169,7 +192,7 @@ function BookDetailsContent() {
                 By: {book.author} • {book.totalPages} pages
               </p>
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <EditableGenre genre={book.genre || ''} bookId={book.id} />
+                <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
                 {book.isbn && (
                   <>
                     <span className="text-gray-400">•</span>
@@ -184,7 +207,12 @@ function BookDetailsContent() {
 
         {/* About Section */}
         <div className="space-y-4">
-          <EditableBookDescription description={book.description || ''} bookId={book.id} />
+          <EditableBookDescription
+            description={book.description || ''}
+            bookId={book.id}
+            isEditing={showEditControls}
+            onChange={setEditedDescription}
+          />
         </div>
 
         {/* Reading Controls */}

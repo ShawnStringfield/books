@@ -1,68 +1,33 @@
 import { useState } from 'react';
-import { Pencil } from 'lucide-react';
-import { Button } from '@/app/components/ui/button';
-import { cleanDescription } from '@/app/utils/textUtils';
-import { useDashboardStore } from '../stores/useDashboardStore';
-import { useEditMode } from '../contexts/EditModeContext';
 
 interface EditableBookDescriptionProps {
   description: string;
   bookId: string;
+  isEditing: boolean;
+  onChange: (value: string) => void;
 }
 
-const EditableBookDescription = ({ description, bookId }: EditableBookDescriptionProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedDescription, setEditedDescription] = useState(description);
-  const updateBookDescription = useDashboardStore((state) => state.updateBookDescription);
-  const { showEditControls } = useEditMode();
+export default function EditableBookDescription({ description, isEditing, onChange }: EditableBookDescriptionProps) {
+  const [value, setValue] = useState(description);
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setEditedDescription(description);
-  };
-
-  const handleCancel = () => {
-    setEditedDescription(description);
-    setIsEditing(false);
-  };
-
-  const handleSave = () => {
-    updateBookDescription(bookId, editedDescription);
-    setIsEditing(false);
+  const handleChange = (newValue: string) => {
+    setValue(newValue);
+    onChange(newValue);
   };
 
   return (
-    <div>
-      <div className="flex items-center gap-2 mb-2">
-        {showEditControls && (
-          <button onClick={handleEdit} className="p-1 rounded-full hover:bg-gray-100 transition-colors" aria-label="Edit description">
-            <Pencil className="w-4 h-4 text-slate-400" />
-          </button>
-        )}
-        <h3 className="text-muted-foreground">About This Book</h3>
-      </div>
+    <div className="space-y-2">
+      <h3 className="font-semibold">About</h3>
       {isEditing ? (
-        <div className="space-y-2">
-          <textarea
-            value={editedDescription}
-            onChange={(e) => setEditedDescription(e.target.value)}
-            className="w-full min-h-[200px] p-2 text-xs text-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter book description..."
-          />
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={handleCancel} className="text-xs">
-              Cancel
-            </Button>
-            <Button size="sm" onClick={handleSave} className="text-xs">
-              Save
-            </Button>
-          </div>
-        </div>
+        <textarea
+          value={value}
+          onChange={(e) => handleChange(e.target.value)}
+          className="w-full min-h-[200px] p-2 border rounded-md"
+          placeholder="Add a description..."
+        />
       ) : (
-        <p className="text-xs mt-1 text-gray-700 line-clamp-6 sm:line-clamp-none">{cleanDescription(description)}</p>
+        <p className="text-gray-600">{description || 'No description available'}</p>
       )}
     </div>
   );
-};
-
-export default EditableBookDescription;
+}

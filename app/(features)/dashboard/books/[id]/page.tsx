@@ -123,8 +123,8 @@ function BookDetailsContent() {
     <DashboardLayout>
       <div className="p-6 pb-24 max-w-3xl mx-auto space-y-8">
         {/* Header Section */}
-        <div className="space-y-4">
-          <div className="flex justify-end gap-2">
+        <div>
+          <div className="flex justify-end gap-2 mb-6">
             <Button variant="outline" onClick={toggleEditControls}>
               {showEditControls ? 'Hide Edit Controls' : 'Show Edit Controls'}
             </Button>
@@ -143,28 +143,30 @@ function BookDetailsContent() {
             </Button>
           </div>
 
-          <h1 className="text-3xl font-bold">{book.title}</h1>
-          <h2 className="text-xl font-semibold leading-none">{book.subtitle}</h2>
-          <div className="space-y-0.5">
-            <p className="text-sm text-gray-600">
-              By: {book.author} • {book.totalPages} pages
-            </p>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <EditableGenre genre={book.genre || ''} bookId={book.id} />
-              {book.isbn && (
-                <>
-                  <span className="text-gray-400">•</span>
-                  <span>ISBN: {book.isbn}</span>
-                </>
-              )}
-              {!book.genre && !book.isbn && <span className="text-gray-400 italic">No additional details available</span>}
+          <div className="flex flex-col gap-2">
+            <h1 className="text-3xl font-bold">{book.title}</h1>
+            <h2 className="text-xl font-semibold -mt-2">{book.subtitle}</h2>
+            <div className="mt-2">
+              <p className="text-sm text-gray-600">
+                By: {book.author} • {book.totalPages} pages
+              </p>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <EditableGenre genre={book.genre || ''} bookId={book.id} />
+                {book.isbn && (
+                  <>
+                    <span className="text-gray-400">•</span>
+                    <span>ISBN: {book.isbn}</span>
+                  </>
+                )}
+                {!book.genre && !book.isbn && <span className="text-gray-400 italic">No additional details available</span>}
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* About Section */}
-          <div className="space-y-4">
-            <EditableBookDescription description={book.description || ''} bookId={book.id} />
-          </div>
+        {/* About Section */}
+        <div className="space-y-4">
+          <EditableBookDescription description={book.description || ''} bookId={book.id} />
         </div>
 
         {/* Reading Controls */}

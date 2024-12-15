@@ -31,18 +31,22 @@ export function BooksList() {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2" role="list" aria-label="Books list">
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2" role="list" aria-label="Books list">
       {books.map((book) => (
-        <div key={book.id} className="relative group" role="listitem">
-          <BookCard book={book} onStatusChange={handleStatusChange} className="group-hover:border-blue-200" />
+        <div key={book.id} className="relative group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200" role="listitem">
+          <BookCard
+            book={book}
+            onStatusChange={handleStatusChange}
+            progressDisplay="compact"
+            className="group-hover:border-blue-200 transition-colors duration-200"
+          />
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 
-              /* Show by default on mobile, use opacity for larger screens */
-              md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100
-              text-red-500 hover:text-red-700 hover:bg-red-50 
-              disabled:opacity-50 z-10"
+            className="absolute top-3 right-3 
+              opacity-0 group-hover:opacity-100 focus:opacity-100
+              text-red-500 hover:text-red-700 hover:bg-red-50/80 
+              disabled:opacity-50 transition-opacity duration-200 z-10"
             onClick={() => setBookToDelete(book.id)}
             disabled={isLastBook}
             aria-label={`Delete ${book.title}${isLastBook ? ' (Cannot delete last book)' : ''}`}

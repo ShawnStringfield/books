@@ -1,21 +1,28 @@
 import { Card, CardContent } from '@/app/components/ui/card';
+import { Progress } from '@/app/components/ui/progress';
 import { Book, ReadingStatus } from '../types/books';
 import Link from 'next/link';
 import StatusButtons from './StatusOptions';
 import BookDetailsSheet from './BookDetailsSheet';
 
+type ProgressDisplayVariant = 'hidden' | 'compact' | 'detailed';
+
 interface BookCardProps {
   book: Book;
   onStatusChange: (bookId: string, status: ReadingStatus) => void;
-  showProgress?: boolean;
+  progressDisplay?: ProgressDisplayVariant;
   className?: string;
 }
 
-const BookCard = ({ book, onStatusChange, showProgress = true, className = '' }: BookCardProps) => {
+const BookCard = ({ book, onStatusChange, progressDisplay = 'hidden', className = '' }: BookCardProps) => {
   const progress = Math.round((book.currentPage / book.totalPages) * 100);
 
   return (
-    <Card className={`bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 h-[215px] focus:outline-none ${className}`}>
+    <Card
+      className={`bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 ${
+        progressDisplay === 'detailed' ? 'h-[240px]' : 'h-[215px]'
+      } focus:outline-none ${className}`}
+    >
       <CardContent className="p-6 flex flex-col h-full">
         <div>
           <Link
@@ -39,13 +46,19 @@ const BookCard = ({ book, onStatusChange, showProgress = true, className = '' }:
               roundedVariant="compact"
             />
           </div>
-
-          {showProgress && (
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-xs text-gray-400">{progress}%</span>
-            </div>
-          )}
         </div>
+
+        {progressDisplay === 'detailed' && (
+          <div className="mt-4 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-400">
+                Page {book.currentPage} of {book.totalPages}
+              </span>
+              <span className="text-xs text-gray-500">{progress}%</span>
+            </div>
+            <Progress value={progress} className="h-1.5" aria-label={`Reading progress: ${progress}%`} />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

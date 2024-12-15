@@ -35,7 +35,6 @@ export default function LibraryPage() {
             <AddBookForm
               onSuccess={() => {
                 setIsAddingBook(false);
-                // Any other success handling
               }}
               onClose={() => setIsAddingBook(false)}
             />

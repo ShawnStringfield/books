@@ -29,11 +29,11 @@ export default function BooksPage() {
         <Breadcrumbs
           items={[
             { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
-            { label: 'Books', path: '/dashboard/books', icon: <Library className="h-4 w-4" /> },
+            { label: 'Library', path: '/dashboard/library', icon: <Library className="h-4 w-4" /> },
           ]}
         />
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold">Books</h1>
+          <h1 className="text-2xl font-semibold">My Library</h1>
           <Button onClick={() => setIsAddingBook(true)} disabled={isAddingBook}>
             Add Book
           </Button>

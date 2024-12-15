@@ -23,7 +23,7 @@ import { BarChart2, Book, Settings } from 'lucide-react';
 export function AppSidebar() {
   const NAV: NavItem[] = [
     { label: 'Home', path: '/dashboard', icon: Home },
-    { label: 'Books', path: '/dashboard/books', icon: Book },
+    { label: 'Library', path: '/dashboard/library', icon: Book },
     { label: 'Statistics', path: '/dashboard/stats', icon: BarChart2 },
     { label: 'Settings', path: '/dashboard/settings', icon: Settings },
   ];

@@ -62,7 +62,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
             <div className="flex gap-4 sm:hidden">
               <div className="flex-1 -mt-1">
                 <SheetTitle className="text-2xl font-semibold">
-                  <Link href={`/dashboard/books/${book.id}`} className="hover:text-blue-600 transition-colors cursor-pointer">
+                  <Link href={`/dashboard/library/${book.id}`} className="hover:text-blue-600 transition-colors cursor-pointer">
                     {book.title}
                   </Link>
                 </SheetTitle>
@@ -127,7 +127,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
             <div className="hidden sm:block flex-grow">
               <div className="flex flex-col h-full">
                 <SheetTitle className="text-xl sm:text-2xl font-bold -mt-2">
-                  <Link href={`/dashboard/books/${book.id}`} className="hover:text-blue-600 transition-colors cursor-pointer">
+                  <Link href={`/dashboard/library/${book.id}`} className="hover:text-blue-600 transition-colors cursor-pointer">
                     {book.title}
                   </Link>
                 </SheetTitle>

@@ -49,7 +49,7 @@ function BookDetailsContent() {
   // Redirect if no id is provided
   useEffect(() => {
     if (!id) {
-      router.push('/dashboard/books');
+      router.push('/dashboard/library');
     }
   }, [id, router]);
 
@@ -68,7 +68,7 @@ function BookDetailsContent() {
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
           <h1 className="text-2xl font-bold">Book not found</h1>
-          <Button variant="outline" onClick={() => router.push('/dashboard/books')}>
+          <Button variant="outline" onClick={() => router.push('/dashboard/library')}>
             Return to Library
           </Button>
         </div>
@@ -104,7 +104,7 @@ function BookDetailsContent() {
   const handleDeleteBook = () => {
     if (!isLastBook) {
       deleteBook(book.id);
-      router.push('/dashboard/books');
+      router.push('/dashboard/library');
     }
   };
 
@@ -142,10 +142,10 @@ function BookDetailsContent() {
             <Breadcrumbs
               items={[
                 { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
-                { label: 'Books', path: '/dashboard/books', icon: <Library className="h-4 w-4" /> },
+                { label: 'Library', path: '/dashboard/library', icon: <Library className="h-4 w-4" /> },
                 {
                   label: book?.title || 'Book Details',
-                  path: `/dashboard/books/${id}`,
+                  path: `/dashboard/library/${id}`,
                   icon: <BookOpen className="h-4 w-4" />,
                 },
               ]}

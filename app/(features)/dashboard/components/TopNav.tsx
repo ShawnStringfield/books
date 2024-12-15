@@ -28,23 +28,33 @@ const routeConfig: RouteConfig = {
     actions: [
       {
         label: 'Add Book',
-        href: '/books/new',
+        href: '/dashboard/library/new',
         variant: 'default',
       },
     ],
   },
-  '/dashboard/books': {
+  '/dashboard/library': {
     title: 'My Library',
     actions: [
       {
         label: 'Add Book',
-        href: '/books/new',
+        href: '/dashboard/library/new',
         variant: 'default',
       },
       {
         label: 'Import Books',
-        href: '/books/import',
+        href: '/dashboard/library/import',
         variant: 'outline',
+      },
+    ],
+  },
+  '/dashboard/library/': {
+    title: 'Book Details',
+    actions: [
+      {
+        label: 'Add Book',
+        href: '/dashboard/library/new',
+        variant: 'default',
       },
     ],
   },

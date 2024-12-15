@@ -19,7 +19,7 @@ const BookCard = ({ book, onStatusChange, showProgress = true, className = '' }:
       <CardContent className="p-6 flex flex-col h-full">
         <div>
           <Link
-            href={`/dashboard/books/${book.id}`}
+            href={`/dashboard/library/${book.id}`}
             className="block group focus:outline-none focus-visible:outline-none"
             aria-label={`View details for ${book.title}`}
           >

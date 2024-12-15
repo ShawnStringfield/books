@@ -25,8 +25,7 @@ import {
 } from '@/app/components/ui/alert-dialog';
 import ReadingProgressBar from '../../components/ReadingProgressBar';
 import EditableBookDescription from '../../components/EditableBookDescription';
-import StatusButtons from '../../components/StatusOptions';
-import BookProgressSlider from '../../components/BookProgressSlider';
+import ReadingControls from '../../components/ReadingControls';
 
 export default function BookDetailsPage() {
   const router = useRouter();
@@ -174,30 +173,17 @@ export default function BookDetailsPage() {
           </div>
         </div>
 
-        {/* Reading Status */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium">Reading Status</label>
-          <StatusButtons
-            bookId={book.id}
-            currentStatus={book.status}
-            onStatusChange={handleStatusChange}
-            variant="full-width"
-            roundedVariant="compact"
-          />
-        </div>
-
-        {/* Reading Progress */}
-        <div className="space-y-4">
-          <label className="block text-sm font-medium">Reading Progress</label>
-          <BookProgressSlider
-            currentPage={book.currentPage || 0}
-            totalPages={book.totalPages}
-            onPageChange={handleProgressChange}
-            uniqueId={book.id}
-            variant="desktop"
-            showSlider={true}
-          />
-        </div>
+        {/* Reading Controls */}
+        <ReadingControls
+          bookId={book.id}
+          currentPage={book.currentPage || 0}
+          totalPages={book.totalPages}
+          status={book.status}
+          uniqueId={book.id}
+          variant="desktop"
+          onStatusChange={handleStatusChange}
+          onProgressChange={handleProgressChange}
+        />
 
         {/* Book Highlights */}
         <div className="space-y-4">

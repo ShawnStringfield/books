@@ -35,7 +35,13 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
                   <div className="flex justify-between items-center mt-auto">
                     <div className="flex items-center gap-2">
                       <BookDetailsSheet book={book} />
-                      <StatusButtons bookId={book.id} currentStatus={book.status as ReadingStatus} onStatusChange={updateBookStatus} />
+                      <StatusButtons
+                        bookId={book.id}
+                        currentStatus={book.status as ReadingStatus}
+                        onStatusChange={updateBookStatus}
+                        size="small"
+                        roundedVariant="compact"
+                      />
                     </div>
 
                     <span className="text-xs text-gray-400">{Math.round((book.currentPage / book.totalPages) * 100)}%</span>

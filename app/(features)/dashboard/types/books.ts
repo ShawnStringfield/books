@@ -24,8 +24,8 @@ export interface Book {
   coverUrl?: string;
   totalPages: number;
   currentPage: number;
-  startDate?: Date;
-  completedDate?: Date;
+  startDate?: string;
+  completedDate?: string;
   publisher?: string;
   previewLink?: string;
   infoLink?: string;
@@ -40,7 +40,7 @@ export interface Highlight {
   text: string;
   page: number;
   isFavorite: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface BookHighlight {
@@ -49,7 +49,7 @@ export interface BookHighlight {
   text: string;
   page: number;
   isFavorite?: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
 
 interface GoogleBookVolumeInfo {

@@ -42,20 +42,28 @@ export const useDashboardStore = create<DashboardStore>()(
 
       // Actions
       addBook: (book) =>
-        set((state) => ({
-          books: [
-            ...state.books,
-            {
-              ...book,
-              description: book?.description || '',
-              status: state.books.length === 0 ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED,
-              currentPage: 0,
-              highlights: [],
-            },
-          ],
-          error: null,
-          isAddBookDrawerOpen: false,
-        })),
+        set((state) => {
+          const isFirstBook = state.books.length === 0;
+          const status = isFirstBook ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED;
+          const startDate = isFirstBook ? new Date().toISOString() : undefined;
+          const currentPage = isFirstBook ? 1 : 0;
+
+          return {
+            books: [
+              ...state.books,
+              {
+                ...book,
+                description: book?.description || '',
+                status,
+                currentPage,
+                highlights: [],
+                startDate,
+              },
+            ],
+            error: null,
+            isAddBookDrawerOpen: false,
+          };
+        }),
 
       addHighlight: (bookId, highlight) =>
         set((state) => {
@@ -63,7 +71,7 @@ export const useDashboardStore = create<DashboardStore>()(
             id: uuidv4(),
             bookId,
             ...highlight,
-            createdAt: new Date(),
+            createdAt: new Date().toISOString(),
             isFavorite: false,
           };
 
@@ -86,9 +94,43 @@ export const useDashboardStore = create<DashboardStore>()(
         })),
 
       updateReadingProgress: (bookId, currentPage) =>
-        set((state) => ({
-          books: state.books.map((b) => (b.id === bookId ? { ...b, currentPage } : b)),
-        })),
+        set((state) => {
+          const book = state.books.find((b) => b.id === bookId);
+          if (!book) return state;
+
+          let status = book.status;
+          let startDate = book.startDate;
+          let completedDate = book.completedDate;
+
+          // Update status and dates based on progress
+          if (currentPage === 0) {
+            status = ReadingStatus.NOT_STARTED;
+            startDate = undefined;
+            completedDate = undefined;
+          } else if (currentPage === book.totalPages) {
+            status = ReadingStatus.COMPLETED;
+            startDate = startDate || new Date().toISOString();
+            completedDate = new Date().toISOString();
+          } else if (currentPage > 0) {
+            status = ReadingStatus.IN_PROGRESS;
+            startDate = startDate || new Date().toISOString();
+            completedDate = undefined;
+          }
+
+          return {
+            books: state.books.map((b) =>
+              b.id === bookId
+                ? {
+                    ...b,
+                    currentPage,
+                    status,
+                    startDate,
+                    completedDate,
+                  }
+                : b
+            ),
+          };
+        }),
 
       setLoading: (loading) => set({ isLoading: loading }),
 
@@ -113,7 +155,8 @@ export const useDashboardStore = create<DashboardStore>()(
             return state;
           }
 
-          const completedDate = status === ReadingStatus.COMPLETED ? new Date() : undefined;
+          const completedDate = status === ReadingStatus.COMPLETED ? new Date().toISOString() : undefined;
+          const startDate = status === ReadingStatus.IN_PROGRESS && !book.startDate ? new Date().toISOString() : book.startDate;
 
           return {
             books: state.books.map((b) =>
@@ -122,6 +165,7 @@ export const useDashboardStore = create<DashboardStore>()(
                     ...b,
                     status,
                     completedDate,
+                    startDate,
                   }
                 : b
             ),

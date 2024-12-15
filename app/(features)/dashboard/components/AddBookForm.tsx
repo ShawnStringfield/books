@@ -116,7 +116,9 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
           return data.isbn === book.isbn;
         }
         // Otherwise, check for duplicate title and author combination
-        return book.title.toLowerCase() === data.title.toLowerCase() && book.author.toLowerCase() === data.author.toLowerCase();
+        const bookAuthor = book.author?.toLowerCase() || '';
+        const dataAuthor = data.author.toLowerCase();
+        return book.title.toLowerCase() === data.title.toLowerCase() && bookAuthor === dataAuthor;
       });
 
       if (isDuplicate) {
@@ -135,6 +137,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         completedDate: undefined,
         currentPage: data.currentPage ?? 0,
         status: ReadingStatus.NOT_STARTED,
+        startDate: undefined,
         highlights: [],
       };
 

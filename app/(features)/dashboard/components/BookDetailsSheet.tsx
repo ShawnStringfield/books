@@ -1,14 +1,11 @@
-import { Eye, Calendar, Link as LinkIcon, BookOpen, Tag, X } from 'lucide-react';
+import { Eye, Link as LinkIcon, X } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle, SheetClose } from '@/app/components/ui/sheet';
 import { Book } from '../types/books';
 import { ReadingStatus } from '../types/books';
-import { format } from 'date-fns';
 import { useId } from 'react';
 import ReadingProgressBar from './ReadingProgressBar';
-import { toTitleCase } from '@/app/utils/textUtils';
 import { useDashboardStore } from '../stores/useDashboardStore';
 import ReadingControls from './ReadingControls';
-import EditableBookDescription from './EditableBookDescription';
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -66,10 +63,46 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                   <span className="text-slate-300">•</span>
                   <span>{book.totalPages} pages</span>
                 </div>
+                <div className="my-4 text-slate-500">
+                  {book.categories && book.categories.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {book.categories.map((category, index) => (
+                        <span key={index} className="flex items-center gap-1">
+                          <span className="text-sm">{category}</span>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="sm:hidden my-8">
+            <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:gap-4">
+              {book.previewLink && (
+                <a
+                  href={book.previewLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-slate-700 text-white hover:bg-slate-800 transition-colors duration-200 flex-1"
+                >
+                  <LinkIcon className="w-3.5 h-3.5" />
+                  <span>Preview Book</span>
+                </a>
+              )}
+              {book.infoLink && (
+                <a
+                  href={book.infoLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors duration-200 flex-1"
+                >
+                  <LinkIcon className="w-3.5 h-3.5" />
+                  <span>More Information</span>
+                </a>
+              )}
+            </div>
+
+            <div className="sm:hidden my-4">
               <ReadingControls
                 bookId={book.id}
                 currentPage={book.currentPage || 0}
@@ -109,96 +142,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
             </div>
           </div>
 
-          <div>{book.description && <EditableBookDescription description={book.description} bookId={book.id} />}</div>
           <div className="my-16 space-y-4 sm:space-y-8">
-            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-muted-foreground">Current Progress</h3>
-              <div className="mt-2 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-blue-600" />
-                <span className="text-lg font-medium">{toTitleCase(book.status)}</span>
-              </div>
-            </div>
-
-            <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-muted-foreground">Reading Dates</h3>
-              <div className="mt-2 space-y-2">
-                {book.startDate && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-blue-600" />
-                    <span>Started: {format(new Date(book.startDate), 'PPP')}</span>
-                  </div>
-                )}
-                {book.completedDate && (
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-green-600" />
-                    <span>Completed: {format(new Date(book.completedDate), 'PPP')}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {book.publisher && (
-              <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-muted-foreground">Publisher</h3>
-                <p className="mt-1 text-gray-700">{book.publisher}</p>
-              </div>
-            )}
-
-            {book.categories && book.categories.length > 0 && (
-              <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-muted-foreground">Categories</h3>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {book.categories.map((category, index) => (
-                    <div key={index} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-                      <Tag className="w-3 h-3" />
-                      <span className="text-sm">{category}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {book.isbn && (
-              <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-muted-foreground">ISBN</h3>
-                <div className="flex items-center space-x-2">
-                  <BookOpen className="w-4 h-4 text-blue-600" />
-                  <span className="text-gray-800 font-medium">ISBN:</span>
-                  <span className="text-gray-600">{book.isbn}</span>
-                </div>
-              </div>
-            )}
-
-            {(book.previewLink || book.infoLink) && (
-              <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-muted-foreground">External Links</h3>
-                <div className="mt-2 space-y-2">
-                  {book.previewLink && (
-                    <a
-                      href={book.previewLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                    >
-                      <LinkIcon className="w-4 h-4" />
-                      <span>Preview Book</span>
-                    </a>
-                  )}
-                  {book.infoLink && (
-                    <a
-                      href={book.infoLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                    >
-                      <LinkIcon className="w-4 h-4" />
-                      <span>More Information</span>
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
-
             {book.highlights && book.highlights.length > 0 && (
               <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
                 <h3 className="text-sm font-medium text-muted-foreground">Highlights</h3>

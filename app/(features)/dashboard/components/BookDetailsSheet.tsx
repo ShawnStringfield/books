@@ -1,14 +1,14 @@
-import { Eye, Calendar, Link as LinkIcon, BookOpen, Tag, X, ChevronDown, Settings2 } from 'lucide-react';
+import { Eye, Calendar, Link as LinkIcon, BookOpen, Tag, X } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle, SheetClose } from '@/app/components/ui/sheet';
 import { Book } from '../types/books';
 import { ReadingStatus } from '../types/books';
 import { format } from 'date-fns';
-import { useId, useState } from 'react';
+import { useId } from 'react';
 import ReadingProgressBar from './ReadingProgressBar';
-import { cleanDescription, toTitleCase } from '@/app/utils/textUtils';
+import { toTitleCase } from '@/app/utils/textUtils';
 import { useDashboardStore } from '../stores/useDashboardStore';
-import BookProgressSlider from './BookProgressSlider';
-import StatusButtons from './StatusOptions';
+import ReadingControls from './ReadingControls';
+import EditableBookDescription from './EditableBookDescription';
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -19,8 +19,6 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
   const sheetDescriptionId = `book-details-desc-${uniqueId}`;
   const updateBookStatus = useDashboardStore((state) => state.updateBookStatus);
   const updateReadingProgress = useDashboardStore((state) => state.updateReadingProgress);
-  const [showProgress, setShowProgress] = useState(false);
-  const [showMobileControls, setShowMobileControls] = useState(false);
 
   const description = book.subtitle || `Details for ${book.title}`;
 
@@ -37,9 +35,6 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
       updateBookStatus(book.id, ReadingStatus.IN_PROGRESS);
     }
   };
-
-  const toggleProgress = () => setShowProgress((prev) => !prev);
-  const toggleMobileControls = () => setShowMobileControls((prev) => !prev);
 
   return (
     <Sheet>
@@ -75,35 +70,16 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
             </div>
 
             <div className="sm:hidden my-8">
-              <button
-                onClick={toggleMobileControls}
-                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-100 transition-colors"
-                aria-expanded={showMobileControls}
-                aria-controls="mobile-reading-controls"
-              >
-                <div className="flex items-center gap-2 text-slate-500">
-                  <Settings2 className="w-4 h-4" />
-                  <span className="font-medium">Reading Controls</span>
-                </div>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showMobileControls ? 'rotate-180' : ''}`} />
-              </button>
-
-              <div
-                id="mobile-reading-controls"
-                className={`space-y-8 mt-8 transition-all duration-200 ${
-                  showMobileControls ? 'opacity-100 max-h-[500px]' : 'opacity-0 max-h-0 overflow-hidden'
-                }`}
-              >
-                <StatusButtons bookId={book.id} currentStatus={book.status as ReadingStatus} onStatusChange={updateBookStatus} variant="full-width" />
-                <BookProgressSlider
-                  currentPage={book.currentPage || 0}
-                  totalPages={book.totalPages}
-                  onPageChange={handleProgressChange}
-                  uniqueId={uniqueId}
-                  variant="mobile"
-                  showSlider={true}
-                />
-              </div>
+              <ReadingControls
+                bookId={book.id}
+                currentPage={book.currentPage || 0}
+                totalPages={book.totalPages}
+                status={book.status as ReadingStatus}
+                uniqueId={uniqueId}
+                variant="mobile"
+                onStatusChange={updateBookStatus}
+                onProgressChange={handleProgressChange}
+              />
             </div>
 
             <div className="hidden sm:block flex-grow">
@@ -111,62 +87,29 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                 <SheetTitle className="text-xl sm:text-2xl font-bold -mt-2">{book.title}</SheetTitle>
                 <SheetDescription className="sr-only">{description}</SheetDescription>
 
-                <div className="space-y-4 mt-4 mb-8 sm:mb-32">
+                <div className="space-y-4 mt-4 mb-8">
                   <div>
                     {book.subtitle && <p className="text-sm sm:text-base leading-tight mt-2">{book.subtitle}</p>}
                     <p className="text-sm my-2 text-slate-500">by {book.author}</p>
                     <p className="text-sm text-slate-500">{book.totalPages} pages</p>
                   </div>
 
-                  <div className="space-y-2">
-                    <button
-                      onClick={toggleProgress}
-                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-100 transition-colors"
-                      aria-expanded={showProgress}
-                      aria-controls={`progress-section-${uniqueId}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Settings2 className="w-4 h-4" />
-                        <span className="font-medium text-slate-500">Reading Controls</span>
-                      </div>
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showProgress ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    <div
-                      id={`progress-section-${uniqueId}`}
-                      className={`transition-all duration-200 ${showProgress ? 'opacity-100 h-auto' : 'opacity-0 h-0 overflow-hidden'}`}
-                    >
-                      <div className="space-y-8 pt-4">
-                        <StatusButtons
-                          bookId={book.id}
-                          currentStatus={book.status as ReadingStatus}
-                          onStatusChange={updateBookStatus}
-                          variant="full-width"
-                        />
-                        <BookProgressSlider
-                          currentPage={book.currentPage || 0}
-                          totalPages={book.totalPages}
-                          onPageChange={handleProgressChange}
-                          uniqueId={uniqueId}
-                          variant="desktop"
-                          showSlider={true}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <ReadingControls
+                    bookId={book.id}
+                    currentPage={book.currentPage || 0}
+                    totalPages={book.totalPages}
+                    status={book.status as ReadingStatus}
+                    uniqueId={uniqueId}
+                    variant="desktop"
+                    onStatusChange={updateBookStatus}
+                    onProgressChange={handleProgressChange}
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="my-16">
-            {book.description && (
-              <div className="">
-                <h3 className="text-muted-foreground">About This Book</h3>
-                <p className="text-xs mt-1 text-gray-700 line-clamp-6 sm:line-clamp-none">{cleanDescription(book.description)}</p>
-              </div>
-            )}
-          </div>
+          <div>{book.description && <EditableBookDescription description={book.description} bookId={book.id} />}</div>
           <div className="my-16 space-y-4 sm:space-y-8">
             <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
               <h3 className="text-sm font-medium text-muted-foreground">Current Progress</h3>

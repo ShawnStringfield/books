@@ -13,10 +13,10 @@ import { Separator } from '@/app/components/ui/separator';
 
 interface AddBookFormProps {
   onSuccess?: () => void;
-  onClose?: () => void;
+  onCancel: () => void;
 }
 
-export function AddBookForm({ onSuccess, onClose }: AddBookFormProps) {
+export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<GoogleBook[]>([]);
   const [selectedBook, setSelectedBook] = useState<GoogleBook | null>(null);
@@ -118,7 +118,7 @@ export function AddBookForm({ onSuccess, onClose }: AddBookFormProps) {
     <div className="w-full bg-white rounded-lg shadow-lg border border-gray-200 p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold">Add New Book</h3>
-        <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close">
+        <button onClick={onCancel} className="text-gray-500 hover:text-gray-700" aria-label="Close">
           <X className="h-4 w-4" />
         </button>
       </div>

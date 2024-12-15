@@ -25,6 +25,8 @@ import {
 } from '@/app/components/ui/alert-dialog';
 import ReadingProgressBar from '../../components/ReadingProgressBar';
 import EditableBookDescription from '../../components/EditableBookDescription';
+import StatusButtons from '../../components/StatusOptions';
+import BookProgressSlider from '../../components/BookProgressSlider';
 
 export default function BookDetailsPage() {
   const router = useRouter();
@@ -33,7 +35,7 @@ export default function BookDetailsPage() {
   const { books: rawBooks = [], updateBookStatus, updateReadingProgress, deleteBook } = useDashboardStore();
   const isLoading = useDashboardStore((state) => state.isLoading);
   const books = rawBooks.map((b) => ({ ...b, status: b.status as ReadingStatus }));
-  const { canChangeStatus, changeBookStatus, isChangingStatus } = useBookStatus(books);
+  const { changeBookStatus, isChangingStatus } = useBookStatus(books);
   const book = books.find((b) => b.id === id);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const isLastBook = useDashboardStore(selectIsLastBook);
@@ -70,7 +72,7 @@ export default function BookDetailsPage() {
     );
   }
 
-  const handleStatusChange = async (newStatus: ReadingStatus) => {
+  const handleStatusChange = async (bookId: string, newStatus: ReadingStatus) => {
     if (isChangingStatus) return;
 
     if (newStatus === ReadingStatus.NOT_STARTED) {
@@ -80,7 +82,7 @@ export default function BookDetailsPage() {
     }
 
     if (await changeBookStatus(book, newStatus)) {
-      updateBookStatus(book.id, newStatus);
+      updateBookStatus(bookId, newStatus);
     }
   };
 
@@ -99,6 +101,20 @@ export default function BookDetailsPage() {
     if (!isLastBook) {
       deleteBook(book.id);
       router.push('/dashboard/books');
+    }
+  };
+
+  const handleProgressChange = (value: number[]) => {
+    const newPage = value[0];
+    updateReadingProgress(book.id, newPage);
+
+    // Automatically update status based on pages read
+    if (newPage === 0) {
+      updateBookStatus(book.id, ReadingStatus.NOT_STARTED);
+    } else if (newPage === book.totalPages) {
+      updateBookStatus(book.id, ReadingStatus.COMPLETED);
+    } else if (newPage > 0) {
+      updateBookStatus(book.id, ReadingStatus.IN_PROGRESS);
     }
   };
 
@@ -123,8 +139,8 @@ export default function BookDetailsPage() {
             </Button>
           </div>
 
-          <DashboardStats />
           <h1 className="text-3xl font-bold">{book.title}</h1>
+          <h2 className="text-xl font-semibold">{book.subtitle}</h2>
 
           {/* About Section */}
           <div className="space-y-4">
@@ -161,19 +177,26 @@ export default function BookDetailsPage() {
         {/* Reading Status */}
         <div className="space-y-2">
           <label className="block text-sm font-medium">Reading Status</label>
-          <div className="flex flex-wrap gap-2">
-            {Object.values(ReadingStatus).map((status) => (
-              <Button
-                key={status}
-                disabled={!canChangeStatus(book, status)}
-                variant={book.status === status ? 'default' : 'outline'}
-                onClick={() => handleStatusChange(status)}
-                size="sm"
-              >
-                {status}
-              </Button>
-            ))}
-          </div>
+          <StatusButtons
+            bookId={book.id}
+            currentStatus={book.status}
+            onStatusChange={handleStatusChange}
+            variant="full-width"
+            roundedVariant="compact"
+          />
+        </div>
+
+        {/* Reading Progress */}
+        <div className="space-y-4">
+          <label className="block text-sm font-medium">Reading Progress</label>
+          <BookProgressSlider
+            currentPage={book.currentPage || 0}
+            totalPages={book.totalPages}
+            onPageChange={handleProgressChange}
+            uniqueId={book.id}
+            variant="desktop"
+            showSlider={true}
+          />
         </div>
 
         {/* Book Highlights */}
@@ -198,6 +221,7 @@ export default function BookDetailsPage() {
         </AlertDialog>
 
         <DeleteBookDialog isOpen={showDeleteDialog} onClose={() => setShowDeleteDialog(false)} onConfirm={handleDeleteBook} bookTitle={book.title} />
+        <DashboardStats />
       </div>
 
       {/* Sticky Footer */}

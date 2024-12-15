@@ -5,9 +5,10 @@ interface StatusButtonsProps {
   currentStatus: ReadingStatus;
   onStatusChange: (bookId: string, status: ReadingStatus) => void;
   variant?: 'default' | 'full-width';
+  roundedVariant?: 'default' | 'compact';
 }
 
-const StatusButtons = ({ bookId, currentStatus, onStatusChange, variant = 'default' }: StatusButtonsProps) => {
+const StatusButtons = ({ bookId, currentStatus, onStatusChange, variant = 'default', roundedVariant = 'default' }: StatusButtonsProps) => {
   return (
     <div className={`flex ${variant === 'full-width' ? 'w-full gap-3' : 'gap-2'}`}>
       {Object.values(ReadingStatus).map((status) => {
@@ -19,9 +20,10 @@ const StatusButtons = ({ bookId, currentStatus, onStatusChange, variant = 'defau
           .join(' ');
 
         const isActive = currentStatus === status;
+        const roundedClass = roundedVariant === 'compact' ? 'rounded-md' : 'rounded-full';
 
         const buttonClasses = `
-          px-2 py-1 text-[12px] rounded-full transition-colors
+          px-4 py-2 text-sm font-medium ${roundedClass} transition-colors
           ${variant === 'full-width' ? 'flex-1' : ''}
           ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800'}
         `;

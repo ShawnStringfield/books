@@ -38,7 +38,11 @@ export function BooksList() {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 z-10"
+            className="absolute top-2 right-2 
+              /* Show by default on mobile, use opacity for larger screens */
+              md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100
+              text-red-500 hover:text-red-700 hover:bg-red-50 
+              disabled:opacity-50 z-10"
             onClick={() => setBookToDelete(book.id)}
             disabled={isLastBook}
             aria-label={`Delete ${book.title}${isLastBook ? ' (Cannot delete last book)' : ''}`}

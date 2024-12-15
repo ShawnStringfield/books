@@ -23,7 +23,7 @@ const ReadingControls = ({ bookId, currentPage, totalPages, status, uniqueId, va
     <div className="space-y-2">
       <button
         onClick={toggleControls}
-        className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors"
+        className="w-full flex items-center justify-between p-3 rounded-lg bg-white border border-slate-100 hover:bg-slate-50 transition-colors"
         aria-expanded={showControls}
         aria-controls={`reading-controls-${uniqueId}`}
       >
@@ -38,8 +38,10 @@ const ReadingControls = ({ bookId, currentPage, totalPages, status, uniqueId, va
         id={`reading-controls-${uniqueId}`}
         className={`transition-all duration-200 ${showControls ? 'opacity-100 h-auto' : 'opacity-0 h-0 overflow-hidden'}`}
       >
-        <div className="space-y-8 pt-4 p-4 bg-slate-50 rounded-lg border border-slate-100">
-          <StatusButtons bookId={bookId} currentStatus={status} onStatusChange={onStatusChange} variant="full-width" />
+        <div className="space-y-8 pt-4 p-4 bg-white rounded-lg border border-slate-100">
+          <div className="flex justify-center">
+            <StatusButtons bookId={bookId} currentStatus={status} onStatusChange={onStatusChange} size="small" roundedVariant="compact" />
+          </div>
           <BookProgressSlider
             currentPage={currentPage}
             totalPages={totalPages}

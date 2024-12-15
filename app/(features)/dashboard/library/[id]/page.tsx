@@ -134,7 +134,6 @@ function BookDetailsContent() {
   return (
     <DashboardLayout>
       <div className="p-6 pb-24 max-w-3xl mx-auto space-y-8">
-        {/* Header Section */}
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             {/* Right side - Controls */}
@@ -166,9 +165,10 @@ function BookDetailsContent() {
             </div>
           </div>
 
+          {/* Header Section */}
           <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-bold">{book.title}</h1>
-            <h2 className="text-xl font-semibold -mt-2">{book.subtitle}</h2>
+            <h1 className="text-3xl font-bold leading-0 text-slate-600">{book.title}</h1>
+            <h2 className="text-lg font-semibold leading-tight text-slate-500">{book.subtitle}</h2>
             <div className="mt-2">
               <p className="text-sm text-gray-600">
                 By: {book.author} • {book.totalPages} pages

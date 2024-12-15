@@ -6,13 +6,11 @@ interface DashboardLayoutProps {
   title?: string;
 }
 
-const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div>
-      <TopNav title={title} />
-      <main className="mt-8 md:p-4 w-full">{children}</main>
+    <div className="min-h-screen bg-gray-50">
+      <TopNav />
+      <main>{children}</main>
     </div>
   );
-};
-
-export default DashboardLayout;
+}

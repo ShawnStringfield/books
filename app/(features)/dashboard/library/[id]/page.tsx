@@ -6,13 +6,12 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Trash2, Library, BookOpen, LayoutDashboard } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
 import { DashboardStats } from '../../components/stats/DashboardStats';
-import { Breadcrumbs } from '../../components/Breadcrumbs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -138,19 +137,6 @@ function BookDetailsContent() {
         {/* Header Section */}
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            {/* Left side - Breadcrumbs */}
-            <Breadcrumbs
-              items={[
-                { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
-                { label: 'Library', path: '/dashboard/library', icon: <Library className="h-4 w-4" /> },
-                {
-                  label: book?.title || 'Book Details',
-                  path: `/dashboard/library/${id}`,
-                  icon: <BookOpen className="h-4 w-4" />,
-                },
-              ]}
-            />
-
             {/* Right side - Controls */}
             <div className="flex items-center gap-2">
               {showEditControls ? (

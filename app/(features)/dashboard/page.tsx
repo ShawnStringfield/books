@@ -24,13 +24,15 @@ export default function DashboardPage() {
   if (!hasHydrated) return null;
 
   return (
-    <DashboardLayout title="Dashboard">
-      <DashboardStats />
-      <CurrentlyReading books={currentlyReadingBooks} />
-      <RecentHighlights highlights={validHighlights} highlightsThisMonth={validHighlights.length} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <WishlistOnboarding />
-        <FavHighlightsOnboarding />
+    <DashboardLayout>
+      <div className="max-w-3xl mx-auto p-6">
+        <CurrentlyReading books={currentlyReadingBooks} />
+        <DashboardStats />
+        <RecentHighlights highlights={validHighlights} highlightsThisMonth={validHighlights.length} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+          <WishlistOnboarding />
+          <FavHighlightsOnboarding />
+        </div>
       </div>
     </DashboardLayout>
   );

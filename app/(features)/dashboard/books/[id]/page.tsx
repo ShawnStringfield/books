@@ -7,13 +7,12 @@ import { ReadingStatus } from '../../types/books';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { Highlight } from '../../types/books';
-import { formatDate } from '../../utils/dateUtils';
-import { Trash2, Star, StarOff } from 'lucide-react';
+import { useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
+import BookHighlights from '../../components/BookHighlights';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,20 +27,25 @@ import {
 export default function BookDetailsPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { books, highlights, updateBookStatus, updateReadingProgress, addHighlight, deleteBook, deleteHighlight, toggleFavoriteHighlight } =
-    useDashboardStore();
+  const { books: rawBooks, updateBookStatus, updateReadingProgress, deleteBook } = useDashboardStore();
+  const isLoading = useDashboardStore((state) => state.isLoading);
+  const books = rawBooks.map((b) => ({ ...b, status: b.status as ReadingStatus }));
   const { canChangeStatus, changeBookStatus } = useBookStatus(books);
   const book = books.find((b) => b.id === id);
-  const [newHighlight, setNewHighlight] = useState('');
-  const [isClient, setIsClient] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const isLastBook = useDashboardStore(selectIsLastBook);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<ReadingStatus | null>(null);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex justify-center items-center min-h-[50vh]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!book) return <div>Book not found</div>;
 
@@ -73,26 +77,12 @@ export default function BookDetailsPage() {
     }
   };
 
-  const handleAddHighlight = () => {
-    if (!newHighlight.trim()) return;
-
-    addHighlight(book.id, {
-      text: newHighlight,
-      page: book.currentPage,
-      isFavorite: false,
-    });
-    setNewHighlight('');
-  };
-
   const handleDeleteBook = () => {
     if (!isLastBook) {
       deleteBook(book.id);
       router.push('/dashboard/books');
     }
   };
-
-  // Get highlights for this book
-  const bookHighlights = highlights.filter((h) => h.bookId === id);
 
   return (
     <DashboardLayout>
@@ -120,9 +110,7 @@ export default function BookDetailsPage() {
                   alt={book.title}
                   width={200}
                   height={300}
-                  className="object-cover rounded-lg w-auto h-[225px]
-                    sm:h-[262px] 
-                    md:h-[300px]"
+                  className="object-cover rounded-lg w-auto h-[225px] sm:h-[262px] md:h-[300px]"
                   priority
                 />
               )}
@@ -164,54 +152,8 @@ export default function BookDetailsPage() {
               </div>
             </div>
 
-            <div className="mt-8 space-y-4">
-              <h2 className="text-xl font-semibold">Highlights</h2>
-
-              <div className="space-y-2">
-                <textarea
-                  value={newHighlight}
-                  onChange={(e) => setNewHighlight(e.target.value)}
-                  placeholder="Add a new highlight..."
-                  className="w-full px-3 py-2 border rounded-md min-h-[100px]"
-                  aria-label="New highlight text"
-                />
-                <Button onClick={handleAddHighlight} disabled={!newHighlight.trim()} className="w-full">
-                  Add Highlight
-                </Button>
-              </div>
-
-              <div className="space-y-4">
-                {bookHighlights.map((highlight: Highlight) => (
-                  <div key={highlight.id} className="p-4 bg-gray-50 rounded-lg space-y-2">
-                    <div className="flex justify-between items-start">
-                      <p className="text-gray-800">{highlight.text}</p>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleFavoriteHighlight(highlight.id)}
-                          className="text-yellow-500 hover:text-yellow-600"
-                          aria-label={highlight.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                        >
-                          {highlight.isFavorite ? <Star className="h-4 w-4" /> : <StarOff className="h-4 w-4" />}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteHighlight(highlight.id)}
-                          className="text-red-500 hover:text-red-600"
-                          aria-label="Delete highlight"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      Page {highlight.page} • {isClient ? formatDate(highlight.createdAt) : ''}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-8">
+              <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} />
             </div>
           </CardContent>
         </Card>

@@ -112,18 +112,15 @@ export const useDashboardStore = create<DashboardStore>()(
             return state;
           }
 
+          const completedDate = status === ReadingStatus.COMPLETED ? new Date() : undefined;
+
           return {
             books: state.books.map((b) =>
               b.id === bookId
                 ? {
                     ...b,
                     status,
-                    completedDate:
-                      status === ReadingStatus.COMPLETED
-                        ? new Date()
-                        : status === ReadingStatus.IN_PROGRESS || status === ReadingStatus.NOT_STARTED
-                        ? null
-                        : b.completedDate,
+                    completedDate,
                   }
                 : b
             ),
@@ -147,7 +144,7 @@ export const useDashboardStore = create<DashboardStore>()(
               book.id === highlight.bookId
                 ? {
                     ...book,
-                    highlights: book.highlights.filter((h) => h.id !== highlightId),
+                    highlights: book.highlights?.filter((h) => h.id !== highlightId) || [],
                   }
                 : book
             ),

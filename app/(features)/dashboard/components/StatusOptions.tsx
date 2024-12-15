@@ -4,13 +4,13 @@ interface StatusButtonsProps {
   bookId: string;
   currentStatus: ReadingStatus;
   onStatusChange: (bookId: string, status: ReadingStatus) => void;
+  variant?: 'default' | 'full-width';
 }
 
-const StatusButtons = ({ bookId, currentStatus, onStatusChange }: StatusButtonsProps) => {
+const StatusButtons = ({ bookId, currentStatus, onStatusChange, variant = 'default' }: StatusButtonsProps) => {
   return (
-    <div className="flex items-center gap-1">
+    <div className={`flex ${variant === 'full-width' ? 'w-full gap-3' : 'gap-2'}`}>
       {Object.values(ReadingStatus).map((status) => {
-        // Format status text for display and aria-label
         const formattedStatus = status
           .replace('_', ' ')
           .toLowerCase()
@@ -22,6 +22,7 @@ const StatusButtons = ({ bookId, currentStatus, onStatusChange }: StatusButtonsP
 
         const buttonClasses = `
           px-2 py-1 text-[12px] rounded-full transition-colors
+          ${variant === 'full-width' ? 'flex-1' : ''}
           ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800'}
         `;
 

@@ -7,6 +7,7 @@ import ReadingProgressBar from './ReadingProgressBar';
 import { useDashboardStore } from '../stores/useDashboardStore';
 import ReadingControls from './ReadingControls';
 import BookHighlights from './BookHighlights';
+import Link from 'next/link';
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -60,7 +61,11 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
           <div className="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-6 mt-8 sm:mt-12">
             <div className="flex gap-4 sm:hidden">
               <div className="flex-1 -mt-1">
-                <SheetTitle className="text-2xl font-semibold">{book.title}</SheetTitle>
+                <SheetTitle className="text-2xl font-semibold">
+                  <Link href={`/dashboard/books/${book.id}`} className="hover:text-blue-600 transition-colors cursor-pointer">
+                    {book.title}
+                  </Link>
+                </SheetTitle>
                 {book.subtitle && <p className="text-lg leading-snug my-4 text-gray-600">{book.subtitle}</p>}
                 <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
                   <span>by {book.author}</span>
@@ -121,7 +126,11 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
             <div className="hidden sm:block flex-grow">
               <div className="flex flex-col h-full">
-                <SheetTitle className="text-xl sm:text-2xl font-bold -mt-2">{book.title}</SheetTitle>
+                <SheetTitle className="text-xl sm:text-2xl font-bold -mt-2">
+                  <Link href={`/dashboard/books/${book.id}`} className="hover:text-blue-600 transition-colors cursor-pointer">
+                    {book.title}
+                  </Link>
+                </SheetTitle>
                 <SheetDescription className="sr-only">{description}</SheetDescription>
 
                 <div className="space-y-4 mt-4 mb-8">

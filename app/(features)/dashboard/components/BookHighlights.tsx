@@ -1,4 +1,4 @@
-import { Star, StarOff, Trash2 } from 'lucide-react';
+import { Heart, HeartIcon, Trash2 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
 import { useDashboardStore } from '../stores/useDashboardStore';
@@ -48,24 +48,22 @@ const BookHighlights = ({ bookId, currentPage }: BookHighlightsProps) => {
 
   return (
     <div className="space-y-8">
-      <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
-        <div className="space-y-2">
-          <textarea
-            value={newHighlight}
-            onChange={(e) => setNewHighlight(e.target.value)}
-            placeholder="Add a highlight from your current page..."
-            className="w-full px-3 py-2 border rounded-lg min-h-[100px] text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            aria-label="New highlight text"
-          />
-          <Button onClick={handleAddHighlight} disabled={!newHighlight.trim()} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-            Add Highlight
-          </Button>
-        </div>
+      <div className="space-y-2">
+        <textarea
+          value={newHighlight}
+          onChange={(e) => setNewHighlight(e.target.value)}
+          placeholder="Add a highlight from your current page..."
+          className="w-full px-3 py-2 border rounded-lg min-h-[100px] text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          aria-label="New highlight text"
+        />
+        <Button onClick={handleAddHighlight} disabled={!newHighlight.trim()} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+          Add Highlight
+        </Button>
       </div>
 
       {highlights.length > 0 && (
-        <div className="transition-all duration-300 hover:bg-white hover:shadow-md p-3 sm:p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">Highlights</h3>
+        <div className="">
+          <h3 className="font-medium text-muted-foreground mb-4">Highlights</h3>
           <div className="space-y-4">
             {highlights.map((highlight) => (
               <div key={highlight.id} className="group relative p-4 bg-gray-50 rounded-lg space-y-2 hover:bg-gray-100 transition-all duration-200">
@@ -76,10 +74,10 @@ const BookHighlights = ({ bookId, currentPage }: BookHighlightsProps) => {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleToggleFavorite(highlight.id)}
-                      className={`text-yellow-500 hover:text-yellow-600 ${highlight.isFavorite ? 'bg-yellow-50' : ''}`}
+                      className={`text-slate-600 hover:text-slate-700 ${highlight.isFavorite ? 'bg-slate-50' : ''}`}
                       aria-label={highlight.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                     >
-                      {highlight.isFavorite ? <Star className="h-4 w-4" /> : <StarOff className="h-4 w-4" />}
+                      {highlight.isFavorite ? <Heart className="h-4 w-4 fill-current" /> : <HeartIcon className="h-4 w-4" />}
                     </Button>
                     <Button
                       variant="ghost"

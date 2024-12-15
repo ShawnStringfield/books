@@ -77,7 +77,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
               </div>
             </div>
 
-            <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <div className="sm:hidden mt-4 flex flex-col gap-2">
               {book.previewLink && (
                 <a
                   href={book.previewLink}
@@ -126,6 +126,33 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                     <p className="text-sm my-2 text-slate-500">by {book.author}</p>
                     <p className="text-sm text-slate-500">{book.totalPages} pages</p>
                   </div>
+
+                  {(book.previewLink || book.infoLink) && (
+                    <div className="flex gap-4">
+                      {book.previewLink && (
+                        <a
+                          href={book.previewLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-slate-700 text-white hover:bg-slate-800 transition-colors duration-200 flex-1"
+                        >
+                          <LinkIcon className="w-3.5 h-3.5" />
+                          <span>Preview Book</span>
+                        </a>
+                      )}
+                      {book.infoLink && (
+                        <a
+                          href={book.infoLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors duration-200 flex-1"
+                        >
+                          <LinkIcon className="w-3.5 h-3.5" />
+                          <span>More Information</span>
+                        </a>
+                      )}
+                    </div>
+                  )}
 
                   <ReadingControls
                     bookId={book.id}

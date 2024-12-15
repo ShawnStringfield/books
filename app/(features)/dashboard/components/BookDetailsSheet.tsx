@@ -75,7 +75,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                 <div className="my-4 text-slate-500">
                   {book.categories && book.categories.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {book.categories.map((category, index) => (
+                      {book.categories.map((category: string, index: number) => (
                         <span key={index} className="flex items-center gap-1">
                           <span className="text-sm">{category}</span>
                         </span>

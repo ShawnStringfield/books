@@ -138,7 +138,7 @@ function BookDetailsContent() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             {/* Left side - Breadcrumbs */}
-            <div className="flex items-center gap-2 text-sm -ml-1 pl-[2px]">
+            <div className="flex items-center gap-2 text-sm -ml-1 pl-[2px] mt-4">
               <Button
                 variant="ghost"
                 size="sm"
@@ -191,7 +191,7 @@ function BookDetailsContent() {
               <p className="text-sm text-gray-600">
                 By: {book.author} • {book.totalPages} pages
               </p>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
                 <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
                 {book.isbn && (
                   <>

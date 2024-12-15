@@ -3,11 +3,9 @@ import { Card, CardContent } from '@/app/components/ui/card';
 import { Library, PlusCircle } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
-import Link from 'next/link';
-import { Book, ReadingStatus } from '../types/books';
+import { Book } from '../types/books';
 import { useDashboardStore } from '../stores/useDashboardStore';
-import StatusButtons from './StatusOptions';
-import BookDetailsSheet from './BookDetailsSheet';
+import BookCard from './BookCard';
 
 interface CurrentlyReadingProps {
   books: Book[];
@@ -23,31 +21,7 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
           <h2 className="text-lg font-semibold flex items-center gap-2">Currently Reading</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {books.map((book) => (
-              <Card key={book.id} className="bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 h-[215px]">
-                <CardContent className="p-6 flex flex-col h-full">
-                  <div>
-                    <Link href={`/dashboard/books/${book.id}`} className="block group" aria-label={`View details for ${book.title}`}>
-                      <h4 className="font-semibold text-md group-hover:text-blue-600 transition-colors leading-tight">{book.title}</h4>
-                    </Link>
-                    <p className="text-xs text-gray-600 py-1">by {book.author}</p>
-                  </div>
-
-                  <div className="flex justify-between items-center mt-auto">
-                    <div className="flex items-center gap-2">
-                      <BookDetailsSheet book={book} />
-                      <StatusButtons
-                        bookId={book.id}
-                        currentStatus={book.status as ReadingStatus}
-                        onStatusChange={updateBookStatus}
-                        size="small"
-                        roundedVariant="compact"
-                      />
-                    </div>
-
-                    <span className="text-xs text-gray-400">{Math.round((book.currentPage / book.totalPages) * 100)}%</span>
-                  </div>
-                </CardContent>
-              </Card>
+              <BookCard key={book.id} book={book} onStatusChange={updateBookStatus} showProgress={true} />
             ))}
           </div>
         </>

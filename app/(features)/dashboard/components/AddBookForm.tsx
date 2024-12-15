@@ -1,66 +1,32 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button } from '@/app/components/ui/button';
+import { useState, useEffect } from 'react';
+import { Search, X } from 'lucide-react';
+import { useDebounce } from '@/app/hooks/useDebounce';
+import { GoogleBook, GoogleBooksResponse, ReadingStatus } from '../types/books';
+import Image from 'next/image';
 import { Input } from '@/app/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/app/components/ui/form';
+import { Button } from '@/app/components/ui/button';
 import { useDashboardStore } from '../stores/useDashboardStore';
 import { v4 as uuidv4 } from 'uuid';
-import { ReadingStatus } from '../types/books';
-import { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
-import { useDebounce } from '@/app/hooks/useDebounce';
-import { GoogleBook, GoogleBooksResponse } from '../types/books';
-import Image from 'next/image';
+import { Separator } from '@/app/components/ui/separator';
 
-// Validation schema remains the same
-const bookFormSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  subtitle: z.string().optional(),
-  author: z.string().min(1, 'Author is required'),
-  totalPages: z.number().min(1, 'Pages must be greater than 0'),
-  coverUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
-  currentPage: z.number().min(0).optional(),
-  description: z.string().optional(),
-  publisher: z.string().optional(),
-  previewLink: z.string().url('Invalid preview URL').optional().or(z.literal('')),
-  infoLink: z.string().url('Invalid info URL').optional().or(z.literal('')),
-  categories: z.array(z.string()).optional(),
-  isbn: z.string().optional(),
-});
-
-type BookFormValues = z.infer<typeof bookFormSchema>;
-
-// Add onSuccess prop to component props
 interface AddBookFormProps {
   onSuccess?: () => void;
-  onCancel?: () => void;
+  onClose?: () => void;
 }
 
-export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
+export function AddBookForm({ onSuccess, onClose }: AddBookFormProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<GoogleBook[]>([]);
+  const [selectedBook, setSelectedBook] = useState<GoogleBook | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const debouncedSearch = useDebounce(searchQuery, 500);
 
-  const { addBook, setAddBookDrawerOpen, setLoading, isLoading, books } = useDashboardStore();
+  const { addBook, setLoading, isLoading, books } = useDashboardStore();
 
-  const form = useForm<BookFormValues>({
-    resolver: zodResolver(bookFormSchema),
-    defaultValues: {
-      title: '',
-      author: '',
-      totalPages: undefined,
-      coverUrl: '',
-      currentPage: 0,
-      isbn: '',
-    },
-  });
-
-  // Add search functionality
+  // Search functionality
   useEffect(() => {
     const searchBooks = async () => {
       if (!debouncedSearch) {
@@ -84,291 +50,160 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
   }, [debouncedSearch]);
 
   const handleBookSelect = (book: GoogleBook) => {
-    form.setValue('title', book.volumeInfo.title);
-    form.setValue('subtitle', book.volumeInfo.subtitle || '');
-    form.setValue('author', book.volumeInfo.authors?.[0] || '');
-    form.setValue('totalPages', book.volumeInfo.pageCount || 0);
-    form.setValue('coverUrl', book.volumeInfo.imageLinks?.thumbnail || '');
-    form.setValue('description', book.volumeInfo.description || '');
-    form.setValue('publisher', book.volumeInfo.publisher || '');
-    form.setValue('previewLink', book.volumeInfo.previewLink || '');
-    form.setValue('infoLink', book.volumeInfo.infoLink || '');
-    form.setValue('categories', book.volumeInfo.categories || []);
-    form.setValue(
-      'isbn',
-      book.volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_13')?.identifier ||
-        book.volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_10')?.identifier ||
-        ''
-    );
+    setSelectedBook(book);
     setSearchQuery('');
     setSearchResults([]);
   };
 
-  const onSubmit = async (data: BookFormValues) => {
+  const handleAddBook = async () => {
+    if (!selectedBook) return;
+
     try {
       setLoading(true);
-      setFormError(null);
+      setError(null);
 
-      // Check for duplicate books
+      const bookData = {
+        title: selectedBook.volumeInfo.title,
+        subtitle: selectedBook.volumeInfo.subtitle || '',
+        author: selectedBook.volumeInfo.authors?.[0] || 'Unknown Author',
+        totalPages: selectedBook.volumeInfo.pageCount || 0,
+        coverUrl: selectedBook.volumeInfo.imageLinks?.thumbnail || '',
+        description: selectedBook.volumeInfo.description || '',
+        publisher: selectedBook.volumeInfo.publisher || '',
+        previewLink: selectedBook.volumeInfo.previewLink || '',
+        infoLink: selectedBook.volumeInfo.infoLink || '',
+        categories: selectedBook.volumeInfo.categories || [],
+        isbn:
+          selectedBook.volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_13')?.identifier ||
+          selectedBook.volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_10')?.identifier ||
+          '',
+      };
+
+      // Check for duplicates
       const isDuplicate = books.some((book) => {
-        // If ISBN is available, check for duplicate ISBN
-        if (data.isbn && book.isbn) {
-          return data.isbn === book.isbn;
+        if (bookData.isbn && book.isbn) {
+          return bookData.isbn === book.isbn;
         }
-        // Otherwise, check for duplicate title and author combination
-        const bookAuthor = book.author?.toLowerCase() || '';
-        const dataAuthor = data.author.toLowerCase();
-        return book.title.toLowerCase() === data.title.toLowerCase() && bookAuthor === dataAuthor;
+        return book.title.toLowerCase() === bookData.title.toLowerCase() && book.author?.toLowerCase() === bookData.author.toLowerCase();
       });
 
       if (isDuplicate) {
-        setFormError('This book already exists in your collection');
-        setLoading(false);
+        setError('This book already exists in your collection');
         return;
       }
 
       const newBook = {
         id: uuidv4(),
-        ...data,
-        isbn: data.isbn || undefined,
-        coverUrl: data.coverUrl || undefined,
-        description: data.description || '',
+        ...bookData,
         createdAt: new Date().toISOString(),
         completedDate: undefined,
-        currentPage: data.currentPage ?? 0,
+        currentPage: 0,
         status: ReadingStatus.NOT_STARTED,
         startDate: undefined,
         highlights: [],
-        categories: data.categories || [],
-        genre: (data.categories && data.categories[0]) || 'Unknown',
+        genre: (bookData.categories && bookData.categories[0]) || 'Unknown',
       };
 
       addBook(newBook);
-      form.reset();
-      setAddBookDrawerOpen(false);
       onSuccess?.();
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Failed to add book');
-      console.error('Failed to add book:', error);
+      setError(error instanceof Error ? error.message : 'Failed to add book');
     } finally {
       setLoading(false);
     }
   };
 
-  console.log('searchResults', searchResults);
-
-  // Rest of the component remains the same, just update the submit button to use isLoading from store
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {formError && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-4">{formError}</div>}
-        <div className="relative">
-          <Input placeholder="Search for a book..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pr-10" />
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+    <div className="w-full bg-white rounded-lg shadow-lg border border-gray-200 p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold">Add New Book</h3>
+        <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
 
-          {searchResults.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200">
-              {searchResults.map((book) => (
-                <button
-                  key={book.id}
-                  type="button"
-                  onClick={() => handleBookSelect(book)}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-3"
-                >
-                  {book.volumeInfo.imageLinks?.thumbnail && (
-                    <Image src={book.volumeInfo.imageLinks.thumbnail} alt="" width={40} height={56} className="object-cover" />
-                  )}
-                  <div>
-                    <p className="font-medium">{book.volumeInfo.title}</p>
-                    <p className="text-sm text-gray-600">{book.volumeInfo.authors?.[0]}</p>
-                  </div>
-                </button>
+      {error && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">{error}</div>}
+
+      <div className="relative">
+        <Input placeholder="Search for a book..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pr-10" autoFocus />
+        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+
+        {searchResults.length > 0 && !selectedBook && (
+          <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200 max-h-[300px] overflow-y-auto">
+            {searchResults.map((book) => (
+              <button
+                key={book.id}
+                type="button"
+                onClick={() => handleBookSelect(book)}
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-3"
+              >
+                {book.volumeInfo.imageLinks?.thumbnail && (
+                  <Image src={book.volumeInfo.imageLinks.thumbnail} alt="" width={40} height={56} className="object-cover" />
+                )}
+                <div>
+                  <p className="font-medium">{book.volumeInfo.title}</p>
+                  <p className="text-sm text-gray-600">{book.volumeInfo.authors?.[0]}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {isSearching && (
+          <div className="absolute z-10 w-full mt-1 p-4 bg-white rounded-md shadow-lg border border-gray-200 text-center text-sm">Searching...</div>
+        )}
+      </div>
+
+      {selectedBook && (
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            {selectedBook.volumeInfo.imageLinks?.thumbnail && (
+              <Image src={selectedBook.volumeInfo.imageLinks.thumbnail} alt="" width={80} height={120} className="object-cover rounded-md" />
+            )}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-base truncate">{selectedBook.volumeInfo.title}</h3>
+              {selectedBook.volumeInfo.subtitle && <p className="text-gray-600 text-sm truncate">{selectedBook.volumeInfo.subtitle}</p>}
+              <p className="text-gray-600 text-sm">By {selectedBook.volumeInfo.authors?.[0] || 'Unknown Author'}</p>
+              <div className="mt-1 text-sm text-gray-500">
+                <p>{selectedBook.volumeInfo.pageCount || 0} pages</p>
+                <p className="truncate">{selectedBook.volumeInfo.publisher}</p>
+              </div>
+            </div>
+          </div>
+
+          <Separator className="my-2" />
+
+          {selectedBook.volumeInfo.description && <p className="text-sm text-gray-600 line-clamp-2">{selectedBook.volumeInfo.description}</p>}
+
+          {selectedBook.volumeInfo.categories && (
+            <div className="flex gap-1.5 flex-wrap">
+              {selectedBook.volumeInfo.categories.map((category) => (
+                <span key={category} className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">
+                  {category}
+                </span>
               ))}
             </div>
           )}
 
-          {isSearching && (
-            <div className="absolute z-10 w-full mt-1 p-4 bg-white rounded-md shadow-lg border border-gray-200 text-center">Searching...</div>
-          )}
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSelectedBook(null);
+                setSearchQuery('');
+              }}
+              disabled={isLoading}
+            >
+              Back to Search
+            </Button>
+            <Button type="button" size="sm" onClick={handleAddBook} disabled={isLoading}>
+              {isLoading ? 'Adding...' : 'Add to Library'}
+            </Button>
+          </div>
         </div>
-
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Book Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter book title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="subtitle"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Subtitle (optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter book subtitle" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="author"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Author</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter author name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="totalPages"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Total Pages</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="Enter total pages" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="coverUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Cover Image URL (optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter cover image URL" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <textarea
-                  {...field}
-                  className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="Book description..."
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="publisher"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Publisher (optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter publisher name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="previewLink"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Preview Link (optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter preview link URL" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="infoLink"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Book Info Link (optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter book info URL" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="categories"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Categories (optional)</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter categories separated by commas"
-                  value={field.value?.join(', ') || ''}
-                  onChange={(e) => {
-                    const categories = e.target.value
-                      .split(',')
-                      .map((cat) => cat.trim())
-                      .filter(Boolean);
-                    field.onChange(categories);
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="isbn"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>ISBN (optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter ISBN" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel || (() => setAddBookDrawerOpen(false))} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Adding...' : 'Add Book'}
-          </Button>
-        </div>
-      </form>
-    </Form>
+      )}
+    </div>
   );
 }

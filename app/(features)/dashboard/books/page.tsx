@@ -4,16 +4,14 @@ import { useState, useLayoutEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { BooksList } from '../components/BooksList';
 import { Button } from '@/app/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
 import { AddBookForm } from '../components/AddBookForm';
 import { useDashboardStore } from '../stores/useDashboardStore';
 
 export default function BooksPage() {
   const [mounted, setMounted] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const isLoading = useDashboardStore((state) => state.isLoading);
   const error = useDashboardStore((state) => state.error);
+  const [isAddingBook, setIsAddingBook] = useState(false);
 
   useLayoutEffect(() => {
     setMounted(true);
@@ -28,24 +26,22 @@ export default function BooksPage() {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold">Books</h1>
-          <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-            <DrawerTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <PlusCircle className="w-4 h-4" />
-                Add Book
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>Add New Book</DrawerTitle>
-                <DrawerDescription>Fill out the form below to add a new book to your collection.</DrawerDescription>
-              </DrawerHeader>
-              <div className="p-4">
-                <AddBookForm onSuccess={() => setIsDrawerOpen(false)} onCancel={() => setIsDrawerOpen(false)} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+          <Button onClick={() => setIsAddingBook(true)} disabled={isAddingBook}>
+            Add Book
+          </Button>
         </div>
+
+        {isAddingBook && (
+          <div className="mb-6">
+            <AddBookForm
+              onSuccess={() => {
+                setIsAddingBook(false);
+                // Any other success handling
+              }}
+              onClose={() => setIsAddingBook(false)}
+            />
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex justify-center py-12">

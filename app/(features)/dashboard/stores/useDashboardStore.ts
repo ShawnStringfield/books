@@ -47,6 +47,7 @@ export const useDashboardStore = create<DashboardStore>()(
           const status = isFirstBook ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED;
           const startDate = isFirstBook ? new Date().toISOString() : undefined;
           const currentPage = isFirstBook ? 1 : 0;
+          const categories = book.categories || [];
 
           return {
             books: [
@@ -58,6 +59,8 @@ export const useDashboardStore = create<DashboardStore>()(
                 currentPage,
                 highlights: [],
                 startDate,
+                categories,
+                genre: categories[0] || 'Unknown',
               },
             ],
             error: null,

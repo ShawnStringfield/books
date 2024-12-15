@@ -31,7 +31,7 @@ const GoogleBooks = () => {
   useEffect(() => {
     const fetchBooksForGenre = async (genre: string) => {
       const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=subject:${'fiction'}&maxResults=4&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
+        `https://www.googleapis.com/books/v1/volumes?q=subject:${genre.toLowerCase()}&maxResults=4&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
       );
 
       if (!response.ok) {

@@ -22,7 +22,7 @@ export interface Book {
   totalPages: number;
   currentPage: number;
   status: ReadingStatus;
-  categories?: string[];
+  categories: string[];
   previewLink?: string;
   infoLink?: string;
   description?: string;
@@ -32,6 +32,9 @@ export interface Book {
   language?: string;
   publishDate?: string;
   startDate?: string;
+  coverUrl?: string;
+  highlights?: Highlight[];
+  completedDate?: string;
 }
 
 export interface Highlight {

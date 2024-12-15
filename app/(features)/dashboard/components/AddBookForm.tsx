@@ -139,6 +139,8 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         status: ReadingStatus.NOT_STARTED,
         startDate: undefined,
         highlights: [],
+        categories: data.categories || [],
+        genre: (data.categories && data.categories[0]) || 'Unknown',
       };
 
       addBook(newBook);

@@ -54,6 +54,16 @@ export function BooksList() {
               <div className="flex-grow">
                 <h3 className="font-medium line-clamp-2">{book.title}</h3>
                 <p className="text-sm text-gray-600 line-clamp-1">{book.author}</p>
+                <div className="flex flex-wrap gap-1 mt-1 mb-2">
+                  {book.categories?.map((category, index) => (
+                    <span key={index} className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      {category}
+                    </span>
+                  ))}
+                  {book.genre && !book.categories?.includes(book.genre) && (
+                    <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">{book.genre}</span>
+                  )}
+                </div>
                 <div className="text-sm text-gray-500 mt-2">
                   <div className="flex items-center gap-2">
                     <div className="flex-grow bg-gray-200 h-2 rounded-full">

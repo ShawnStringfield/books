@@ -24,16 +24,14 @@ export default function DashboardPage() {
   if (!hasHydrated) return null;
 
   return (
-    <div className="p-6 space-y-6">
-      <DashboardLayout>
-        <DashboardStats />
-        <CurrentlyReading books={currentlyReadingBooks} />
-        <RecentHighlights highlights={validHighlights} highlightsThisMonth={validHighlights.length} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <WishlistOnboarding />
-          <FavHighlightsOnboarding />
-        </div>
-      </DashboardLayout>
-    </div>
+    <DashboardLayout title="Dashboard">
+      <DashboardStats />
+      <CurrentlyReading books={currentlyReadingBooks} />
+      <RecentHighlights highlights={validHighlights} highlightsThisMonth={validHighlights.length} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <WishlistOnboarding />
+        <FavHighlightsOnboarding />
+      </div>
+    </DashboardLayout>
   );
 }

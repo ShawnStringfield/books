@@ -1,9 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { UserMenu } from '@/app/components/menus/UserMenu';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/app/components/ui/button';
+import { HomeIcon } from 'lucide-react';
 import Link from 'next/link';
 
 interface NavAction {
@@ -16,14 +16,12 @@ interface NavAction {
 
 interface RouteConfig {
   [key: string]: {
-    title?: string;
     actions?: NavAction[];
   };
 }
 
 const routeConfig: RouteConfig = {
   '/dashboard': {
-    title: 'Dashboard',
     actions: [
       {
         label: 'Add Book',
@@ -33,7 +31,6 @@ const routeConfig: RouteConfig = {
     ],
   },
   '/dashboard/library': {
-    title: 'My Library',
     actions: [
       {
         label: 'Add Book',
@@ -48,7 +45,6 @@ const routeConfig: RouteConfig = {
     ],
   },
   '/dashboard/library/': {
-    title: 'Book Details',
     actions: [
       {
         label: 'Add Book',
@@ -70,13 +66,20 @@ const TopNav = () => {
 
   const config = currentRoute ? routeConfig[currentRoute] : null;
 
-  if (!config) return null;
-
   return (
     <header className="h-16 border-b bg-white fixed top-0 right-0 left-0 z-30 px-8">
       <div className="h-full flex items-center justify-between">
-        <div className="flex-end">
-          {config.actions?.map((action, index) =>
+        <div className="flex items-center space-x-6">
+          <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors" aria-label="Go to Dashboard">
+            <HomeIcon className="w-5 h-5" />
+          </Link>
+          <Link href="/dashboard/library" className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium">
+            Library
+          </Link>
+        </div>
+
+        <div className="flex items-center space-x-4">
+          {config?.actions?.map((action, index) =>
             action.href ? (
               <Link key={index} href={action.href}>
                 <Button variant={action.variant || 'default'} size="sm" className="mx-2">

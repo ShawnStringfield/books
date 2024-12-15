@@ -9,7 +9,7 @@ import { useDashboardStore } from '../stores/useDashboardStore';
 import { Library, LayoutDashboard } from 'lucide-react';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 
-export default function BooksPage() {
+export default function LibraryPage() {
   const [mounted, setMounted] = useState(false);
   const isLoading = useDashboardStore((state) => state.isLoading);
   const error = useDashboardStore((state) => state.error);
@@ -24,7 +24,7 @@ export default function BooksPage() {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title="My Library">
       <div className="p-6">
         <Breadcrumbs
           items={[
@@ -32,8 +32,7 @@ export default function BooksPage() {
             { label: 'Library', path: '/dashboard/library', icon: <Library className="h-4 w-4" /> },
           ]}
         />
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold">My Library</h1>
+        <div className="flex justify-end mb-6">
           <Button onClick={() => setIsAddingBook(true)} disabled={isAddingBook}>
             Add Book
           </Button>

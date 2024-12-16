@@ -31,7 +31,7 @@ export function BooksList() {
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2" role="list" aria-label="Books list">
+    <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2" role="list" aria-label="Books list">
       {books.map((book) => (
         <div key={book.id} className="relative group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200" role="listitem">
           <BookCard

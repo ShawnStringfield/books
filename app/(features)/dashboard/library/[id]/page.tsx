@@ -26,6 +26,7 @@ import EditableBookDescription from '../../components/EditableBookDescription';
 import ReadingControls from '../../components/ReadingControls';
 import EditableGenre from '../../components/EditableGenre';
 import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
+import Image from 'next/image';
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -165,23 +166,44 @@ function BookDetailsContent() {
             </div>
           </div>
 
-          {/* Header Section */}
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-bold leading-0 text-slate-600">{book.title}</h1>
-            <h2 className="text-lg font-semibold leading-tight text-slate-500">{book.subtitle}</h2>
-            <div className="mt-2">
-              <p className="text-sm text-gray-600">
-                By: {book.author} • {book.totalPages} pages
-              </p>
-              <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
-                {book.isbn && (
-                  <>
-                    <span className="text-gray-400">•</span>
-                    <span>ISBN: {book.isbn}</span>
-                  </>
-                )}
-                {!book.genre && !book.isbn && <span className="text-gray-400 italic">No additional details available</span>}
+          {/* Header Section - Updated with cover image */}
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Book Cover - Updated with smaller size */}
+            <div className="w-24 md:w-28 flex-shrink-0">
+              {book.coverUrl ? (
+                <Image
+                  src={book.coverUrl}
+                  alt={`Cover of ${book.title}`}
+                  width={112}
+                  height={168}
+                  className="w-full rounded-lg shadow-md object-cover aspect-[2/3]"
+                  priority
+                />
+              ) : (
+                <div className="w-full aspect-[2/3] bg-slate-100 rounded-lg shadow-md flex items-center justify-center">
+                  <span className="text-slate-400 text-xs">No cover</span>
+                </div>
+              )}
+            </div>
+
+            {/* Book Details */}
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl font-bold leading-0 text-slate-600">{book.title}</h1>
+              <h2 className="text-lg font-semibold leading-tight text-slate-500">{book.subtitle}</h2>
+              <div className="mt-2">
+                <p className="text-sm text-gray-600">
+                  By: {book.author} • {book.totalPages} pages
+                </p>
+                <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+                  <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
+                  {book.isbn && (
+                    <>
+                      <span className="text-gray-400">•</span>
+                      <span>ISBN: {book.isbn}</span>
+                    </>
+                  )}
+                  {!book.genre && !book.isbn && <span className="text-gray-400 italic">No additional details available</span>}
+                </div>
               </div>
             </div>
           </div>

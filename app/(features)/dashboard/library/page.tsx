@@ -23,7 +23,7 @@ export default function LibraryPage() {
 
   return (
     <DashboardLayout title="My Library">
-      <div className="max-w-3xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-6">
         <div className="flex justify-end mb-6">
           <Button onClick={() => setIsAddingBook(true)} disabled={isAddingBook}>
             Add Book
@@ -36,7 +36,7 @@ export default function LibraryPage() {
               onSuccess={() => {
                 setIsAddingBook(false);
               }}
-              onClose={() => setIsAddingBook(false)}
+              onCancel={() => setIsAddingBook(false)}
             />
           </div>
         )}

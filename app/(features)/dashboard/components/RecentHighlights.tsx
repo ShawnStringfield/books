@@ -11,7 +11,7 @@ interface RecentHighlightsProps {
 
 const RecentHighlights = ({ highlights, highlightsThisMonth }: RecentHighlightsProps) => {
   const { books } = useDashboardStore();
-  const recentHighlights = highlights.slice(0, 5);
+  const recentHighlights = [...highlights].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
 
   return (
     <div className="my-16">
@@ -30,18 +30,13 @@ const RecentHighlights = ({ highlights, highlightsThisMonth }: RecentHighlightsP
               {recentHighlights.map((highlight) => (
                 <div key={highlight.id} className="group rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
                   <div className="flex flex-col h-full">
-                    <div className="flex flex-col sm:flex-row justify-between items-start mb-3 gap-2">
-                      <time
-                        dateTime={new Date(highlight.createdAt).toISOString()}
-                        className="text-xs text-gray-500 font-medium order-first sm:order-last"
-                      >
+                    <span className="text-gray-500 font-medium text-sm mb-2">{books.find((b) => b.id === highlight.bookId)?.title}</span>
+                    <p className="text-gray-900 text-sm leading-normal mb-3">&ldquo;{highlight.text}&rdquo;</p>
+                    <div className="flex justify-between items-center text-xs text-gray-500 pt-2 border-t border-gray-50">
+                      <span className="bg-gray-50 px-2 py-1 rounded-full">Page {highlight.page}</span>
+                      <time dateTime={new Date(highlight.createdAt).toISOString()} className="text-gray-500 font-medium whitespace-nowrap">
                         {formatDistanceToNow(new Date(highlight.createdAt), { addSuffix: true })}
                       </time>
-                      <p className="text-gray-900 text-sm leading-normal flex-1">&ldquo;{highlight.text}&rdquo;</p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-gray-500 pt-2 border-t border-gray-50 gap-2">
-                      <span className="text-gray-500 font-medium w-full sm:w-auto">{books.find((b) => b.id === highlight.bookId)?.title}</span>
-                      <span className="bg-gray-50 px-2 py-1 rounded-full w-full sm:w-auto text-center">Page {highlight.page}</span>
                     </div>
                   </div>
                 </div>

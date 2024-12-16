@@ -47,7 +47,7 @@ export default function TopNav() {
 
   return (
     <nav className="border-b bg-white">
-      <div className="max-w-3xl mx-auto px-6">
+      <div className="max-w-4xl mx-auto px-6">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-6">
             <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors" aria-label="Go to Dashboard">
@@ -106,7 +106,7 @@ function ActionButton({ action, isSheetOpen, setIsSheetOpen }: ActionButtonProps
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="w-full sm:max-w-xl">
-          <AddBookForm onSuccess={() => setIsSheetOpen(false)} onClose={() => setIsSheetOpen(false)} />
+          <AddBookForm onSuccess={() => setIsSheetOpen(false)} onCancel={() => setIsSheetOpen(false)} />
         </SheetContent>
       </Sheet>
     );

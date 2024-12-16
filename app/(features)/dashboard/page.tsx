@@ -25,9 +25,10 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-3xl mx-auto p-6">
-        <CurrentlyReading books={currentlyReadingBooks} />
+      <div className="max-w-4xl mx-auto p-6">
         <DashboardStats />
+        <CurrentlyReading books={currentlyReadingBooks} />
+
         <RecentHighlights highlights={validHighlights} highlightsThisMonth={validHighlights.length} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
           <WishlistOnboarding />

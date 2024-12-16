@@ -133,7 +133,7 @@ function BookDetailsContent() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 pb-24 max-w-3xl mx-auto space-y-8">
+      <div className="p-6 pb-24 max-w-4xl mx-auto space-y-8">
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             {/* Right side - Controls */}
@@ -248,7 +248,7 @@ function BookDetailsContent() {
 
       {/* Sticky Footer */}
       <div className="fixed bottom-0 left-0 right-0 border-t bg-white p-4">
-        <div className="max-w-3xl mx-auto space-y-2">
+        <div className="max-w-4xl mx-auto space-y-2">
           <div className="flex justify-between items-center text-sm text-gray-600">
             <span>Progress</span>
             <span>

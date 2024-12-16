@@ -13,9 +13,9 @@ const HighlightsList = ({ bookId }: HighlightsListProps) => {
   const toggleFavoriteHighlight = useDashboardStore((state) => state.toggleFavoriteHighlight);
   const allHighlights = useDashboardStore((state) => state.highlights);
 
-  // Memoize filtered highlights to prevent unnecessary recalculations
+  // Memoize filtered and sorted highlights
   const highlights = useMemo(() => {
-    return allHighlights.filter((h) => h.bookId === bookId);
+    return allHighlights.filter((h) => h.bookId === bookId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [allHighlights, bookId]);
 
   const handleToggleFavorite = useCallback(

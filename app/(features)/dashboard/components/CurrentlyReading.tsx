@@ -21,7 +21,7 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
           <h2 className="text-lg font-semibold flex items-center gap-2">Currently Reading</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {books.map((book) => (
-              <BookCard key={book.id} book={book} onStatusChange={updateBookStatus} progressDisplay="detailed" />
+              <BookCard key={book.id} book={book} onStatusChange={updateBookStatus} progressDisplay="compact" />
             ))}
           </div>
         </>

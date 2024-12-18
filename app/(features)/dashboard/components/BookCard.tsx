@@ -4,6 +4,7 @@ import { Book, ReadingStatus } from '../types/books';
 import Link from 'next/link';
 import StatusButtons from './StatusOptions';
 import BookDetailsSheet from './BookDetailsSheet';
+import { Eye } from 'lucide-react';
 
 type ProgressDisplayVariant = 'hidden' | 'compact' | 'detailed';
 
@@ -21,7 +22,7 @@ const BookCard = ({ book, onStatusChange, progressDisplay = 'hidden', className 
     <Card
       className={`bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 ${
         progressDisplay === 'detailed' ? 'h-[240px]' : 'h-[215px]'
-      } focus:outline-none ${className}`}
+      } focus:outline-none ${className} relative`}
     >
       <CardContent className="p-6 flex flex-col h-full">
         <div>
@@ -35,9 +36,11 @@ const BookCard = ({ book, onStatusChange, progressDisplay = 'hidden', className 
           <p className="text-xs text-gray-600 py-1">by {book.author}</p>
         </div>
 
-        <div className="flex justify-between items-center mt-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-auto gap-2">
           <div className="flex items-center gap-2">
-            <BookDetailsSheet book={book} />
+            <div className="rounded-full p-1 bg-gray-50 hover:bg-gray-100 transition-colors">
+              <BookDetailsSheet book={book} />
+            </div>
             <StatusButtons
               bookId={book.id}
               currentStatus={book.status as ReadingStatus}
@@ -46,6 +49,13 @@ const BookCard = ({ book, onStatusChange, progressDisplay = 'hidden', className 
               roundedVariant="compact"
             />
           </div>
+          <Link
+            href={`/dashboard/library/${book.id}`}
+            className="text-gray-400 hover:text-gray-600 transition-colors ml-auto rounded-full p-1 bg-gray-50 hover:bg-gray-100"
+            aria-label={`View details for ${book.title}`}
+          >
+            <Eye size={18} />
+          </Link>
         </div>
 
         {progressDisplay === 'detailed' && (

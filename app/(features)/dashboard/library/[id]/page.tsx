@@ -150,15 +150,10 @@ function BookDetailsContent() {
       <div className="p-6 pb-24 max-w-4xl mx-auto space-y-8">
         {/* Mobile Controls */}
         <div className="md:hidden flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowReadingControlsDialog(true)}
-            className="h-10 w-10 rounded-full hover:bg-slate-100"
-          >
-            <Settings2 className="h-5 w-5" />
+          <Button variant="ghost" size="icon" onClick={() => setShowReadingControlsDialog(true)} className="h-10 w-10 rounded-full bg-slate-200">
+            <Settings2 className="h-10 w-10 " />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setShowHighlightsDialog(true)} className="h-10 w-10 rounded-full hover:bg-slate-100">
+          <Button variant="ghost" size="icon" onClick={() => setShowHighlightsDialog(true)} className="h-10 w-10 rounded-full bg-slate-200">
             <Plus className="h-5 w-5" />
           </Button>
         </div>

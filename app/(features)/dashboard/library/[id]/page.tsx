@@ -6,7 +6,7 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Settings2 } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/app/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 import ReadingProgressBar from '../../components/ReadingProgressBar';
 import EditableBookDescription from '../../components/EditableBookDescription';
 import ReadingControls from '../../components/ReadingControls';
@@ -44,6 +45,8 @@ function BookDetailsContent() {
   const [editedDescription, setEditedDescription] = useState('');
   const [editedGenre, setEditedGenre] = useState('');
   const [showHighlights, setShowHighlights] = useState(false);
+  const [showReadingControlsDialog, setShowReadingControlsDialog] = useState(false);
+  const [showHighlightsDialog, setShowHighlightsDialog] = useState(false);
 
   // Redirect if no id is provided
   useEffect(() => {
@@ -134,7 +137,56 @@ function BookDetailsContent() {
 
   return (
     <DashboardLayout>
+      {/* Highlights Dialog */}
+      <Dialog open={showHighlightsDialog} onOpenChange={setShowHighlightsDialog}>
+        <DialogContent className="sm:max-w-[425px] top-0 translate-y-0">
+          <DialogHeader>
+            <DialogTitle>Add Highlight</DialogTitle>
+          </DialogHeader>
+          <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={true} formOnly={true} />
+        </DialogContent>
+      </Dialog>
+
       <div className="p-6 pb-24 max-w-4xl mx-auto space-y-8">
+        {/* Mobile Controls */}
+        <div className="md:hidden flex items-center gap-3 mb-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowReadingControlsDialog(true)}
+            className="h-10 w-10 rounded-full hover:bg-slate-100"
+          >
+            <Settings2 className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => setShowHighlightsDialog(true)} className="h-10 w-10 rounded-full hover:bg-slate-100">
+            <Plus className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Reading Controls Dialog */}
+        <Dialog open={showReadingControlsDialog} onOpenChange={setShowReadingControlsDialog}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Reading Controls</DialogTitle>
+            </DialogHeader>
+            <ReadingControls
+              bookId={book.id}
+              currentPage={book.currentPage || 0}
+              totalPages={book.totalPages}
+              status={book.status}
+              uniqueId={book.id}
+              variant="mobile"
+              onStatusChange={handleStatusChange}
+              onProgressChange={handleProgressChange}
+              onEdit={toggleEditControls}
+              onDelete={() => setShowDeleteDialog(true)}
+              isLastBook={isLastBook}
+              showEditControls={showEditControls}
+              onSaveChanges={handleSaveChanges}
+            />
+          </DialogContent>
+        </Dialog>
+
         <div className="space-y-6">
           {/* Book Details */}
           <div className="flex flex-col md:flex-row gap-6">
@@ -160,21 +212,24 @@ function BookDetailsContent() {
           </div>
         </div>
 
-        <ReadingControls
-          bookId={book.id}
-          currentPage={book.currentPage || 0}
-          totalPages={book.totalPages}
-          status={book.status}
-          uniqueId={book.id}
-          variant="mobile"
-          onStatusChange={handleStatusChange}
-          onProgressChange={handleProgressChange}
-          onEdit={toggleEditControls}
-          onDelete={() => setShowDeleteDialog(true)}
-          isLastBook={isLastBook}
-          showEditControls={showEditControls}
-          onSaveChanges={handleSaveChanges}
-        />
+        {/* Desktop Reading Controls - Only visible on md and up */}
+        <div className="hidden md:block">
+          <ReadingControls
+            bookId={book.id}
+            currentPage={book.currentPage || 0}
+            totalPages={book.totalPages}
+            status={book.status}
+            uniqueId={book.id}
+            variant="mobile"
+            onStatusChange={handleStatusChange}
+            onProgressChange={handleProgressChange}
+            onEdit={toggleEditControls}
+            onDelete={() => setShowDeleteDialog(true)}
+            isLastBook={isLastBook}
+            showEditControls={showEditControls}
+            onSaveChanges={handleSaveChanges}
+          />
+        </div>
 
         {/* About Section */}
         <div className="space-y-4 py-8">
@@ -187,21 +242,32 @@ function BookDetailsContent() {
           />
         </div>
 
-        {/* Book Highlights */}
+        {/* Book Highlights Section */}
         <div className="space-y-4 py-8">
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => setShowHighlights(!showHighlights)}
-            className="w-full flex items-center justify-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            {showHighlights ? 'Hide Form' : 'Add Highlight'}
-          </Button>
+          <h2 className="text-lg font-semibold leading-tight text-slate-500">Highlights</h2>
 
-          <div className="space-y-4">
-            <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={showHighlights} />
+          {/* Desktop Add Highlight Button */}
+          <div className="hidden md:block">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => setShowHighlights(!showHighlights)}
+              className="w-full flex items-center justify-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              {showHighlights ? 'Hide Form' : 'Add Highlight'}
+            </Button>
           </div>
+
+          {/* Desktop Highlight Form */}
+          {showHighlights && (
+            <div className="hidden md:block">
+              <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={true} formOnly={true} />
+            </div>
+          )}
+
+          {/* Highlights List - Always visible */}
+          <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={false} listOnly={true} />
         </div>
 
         {/* Keep existing dialogs */}

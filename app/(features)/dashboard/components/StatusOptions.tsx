@@ -1,54 +1,39 @@
+import { cn } from '@/lib/utils';
 import { ReadingStatus } from '../types/books';
 
 interface StatusButtonsProps {
   bookId: string;
   currentStatus: ReadingStatus;
   onStatusChange: (bookId: string, status: ReadingStatus) => void;
-  variant?: 'default' | 'full-width';
-  roundedVariant?: 'default' | 'compact';
-  size?: 'default' | 'small';
+  size?: 'default' | 'small' | 'xs';
+  roundedVariant?: 'full' | 'compact';
 }
 
-const StatusButtons = ({
-  bookId,
-  currentStatus,
-  onStatusChange,
-  variant = 'default',
-  roundedVariant = 'default',
-  size = 'default',
-}: StatusButtonsProps) => {
+const statusOptions: { value: ReadingStatus; label: string }[] = [
+  { value: ReadingStatus.NOT_STARTED, label: 'Not Started' },
+  { value: ReadingStatus.IN_PROGRESS, label: 'In Progress' },
+  { value: ReadingStatus.COMPLETED, label: 'Completed' },
+];
+
+const StatusButtons = ({ bookId, currentStatus, onStatusChange, size = 'default', roundedVariant = 'full' }: StatusButtonsProps) => {
   return (
-    <div className={`flex ${variant === 'full-width' ? 'w-full gap-3' : 'gap-2'}`}>
-      {Object.values(ReadingStatus).map((status) => {
-        const formattedStatus = status
-          .replace('_', ' ')
-          .toLowerCase()
-          .split(' ')
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ');
-
-        const isActive = currentStatus === status;
-        const roundedClass = roundedVariant === 'compact' ? 'rounded-md' : 'rounded-full';
-        const sizeClasses = size === 'small' ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm';
-
-        const buttonClasses = `
-          ${sizeClasses} font-medium ${roundedClass} transition-colors
-          ${variant === 'full-width' ? 'flex-1' : ''}
-          ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800'}
-        `;
-
-        return (
-          <button
-            key={status}
-            onClick={() => onStatusChange(bookId, status)}
-            className={buttonClasses}
-            aria-label={`Set status to ${formattedStatus.toLowerCase()}`}
-            aria-pressed={isActive}
-          >
-            {formattedStatus}
-          </button>
-        );
-      })}
+    <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1">
+      {statusOptions.map((option) => (
+        <button
+          key={option.value}
+          onClick={() => onStatusChange(bookId, option.value)}
+          className={cn(
+            'inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950',
+            roundedVariant === 'full' ? 'rounded-md' : 'first:rounded-l-md last:rounded-r-md',
+            size === 'default' && 'px-3 py-1.5 text-sm',
+            size === 'small' && 'px-2.5 py-1 text-sm',
+            size === 'xs' && 'px-2 py-0.5 text-xs',
+            currentStatus === option.value ? 'bg-slate-100 text-slate-900 font-medium' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+          )}
+        >
+          {option.label}
+        </button>
+      ))}
     </div>
   );
 };

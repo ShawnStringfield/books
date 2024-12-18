@@ -6,7 +6,7 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Trash2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
@@ -26,7 +26,6 @@ import EditableBookDescription from '../../components/EditableBookDescription';
 import ReadingControls from '../../components/ReadingControls';
 import EditableGenre from '../../components/EditableGenre';
 import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
-import Image from 'next/image';
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -53,7 +52,8 @@ function BookDetailsContent() {
     }
   }, [id, router]);
 
-  if (isLoading) {
+  // Show loading state if either isLoading is true or books haven't been loaded yet
+  if (isLoading || rawBooks.length === 0) {
     return (
       <DashboardLayout>
         <div className="flex justify-center items-center min-h-[50vh]">
@@ -136,57 +136,8 @@ function BookDetailsContent() {
     <DashboardLayout>
       <div className="p-6 pb-24 max-w-4xl mx-auto space-y-8">
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            {/* Right side - Controls */}
-            <div className="flex items-center gap-2">
-              {showEditControls ? (
-                <>
-                  <Button variant="outline" size="sm" onClick={toggleEditControls}>
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={handleSaveChanges}>
-                    Save Changes
-                  </Button>
-                </>
-              ) : (
-                <Button variant="ghost" size="sm" onClick={toggleEditControls}>
-                  Edit
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-gray-500 hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
-                onClick={() => setShowDeleteDialog(true)}
-                disabled={isLastBook}
-                title={isLastBook ? 'Cannot delete the last book' : undefined}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Header Section - Updated with cover image */}
+          {/* Book Details */}
           <div className="flex flex-col md:flex-row gap-6">
-            {/* Book Cover - Updated with smaller size */}
-            <div className="w-24 md:w-28 flex-shrink-0">
-              {book.coverUrl ? (
-                <Image
-                  src={book.coverUrl}
-                  alt={`Cover of ${book.title}`}
-                  width={112}
-                  height={168}
-                  className="w-full rounded-lg shadow-md object-cover aspect-[2/3]"
-                  priority
-                />
-              ) : (
-                <div className="w-full aspect-[2/3] bg-slate-100 rounded-lg shadow-md flex items-center justify-center">
-                  <span className="text-slate-400 text-xs">No cover</span>
-                </div>
-              )}
-            </div>
-
-            {/* Book Details */}
             <div className="flex flex-col gap-2">
               <h1 className="text-3xl font-bold leading-0 text-slate-600">{book.title}</h1>
               <h2 className="text-lg font-semibold leading-tight text-slate-500">{book.subtitle}</h2>
@@ -209,8 +160,24 @@ function BookDetailsContent() {
           </div>
         </div>
 
+        <ReadingControls
+          bookId={book.id}
+          currentPage={book.currentPage || 0}
+          totalPages={book.totalPages}
+          status={book.status}
+          uniqueId={book.id}
+          variant="mobile"
+          onStatusChange={handleStatusChange}
+          onProgressChange={handleProgressChange}
+          onEdit={toggleEditControls}
+          onDelete={() => setShowDeleteDialog(true)}
+          isLastBook={isLastBook}
+          showEditControls={showEditControls}
+          onSaveChanges={handleSaveChanges}
+        />
+
         {/* About Section */}
-        <div className="space-y-4">
+        <div className="space-y-4 py-8">
           <h2 className="text-lg font-semibold leading-tight text-slate-500">About This Book</h2>
           <EditableBookDescription
             description={book.description || ''}
@@ -220,20 +187,8 @@ function BookDetailsContent() {
           />
         </div>
 
-        {/* Reading Controls */}
-        <ReadingControls
-          bookId={book.id}
-          currentPage={book.currentPage || 0}
-          totalPages={book.totalPages}
-          status={book.status}
-          uniqueId={book.id}
-          variant="desktop"
-          onStatusChange={handleStatusChange}
-          onProgressChange={handleProgressChange}
-        />
-
         {/* Book Highlights */}
-        <div className="space-y-4">
+        <div className="space-y-4 py-8">
           <Button
             variant="outline"
             size="lg"

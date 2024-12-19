@@ -44,7 +44,6 @@ function BookDetailsContent() {
   const { showEditControls, toggleEditControls } = useEditMode();
   const [editedDescription, setEditedDescription] = useState('');
   const [editedGenre, setEditedGenre] = useState('');
-  const [showHighlights, setShowHighlights] = useState(false);
   const [showReadingControlsDialog, setShowReadingControlsDialog] = useState(false);
   const [showHighlightsDialog, setShowHighlightsDialog] = useState(false);
 
@@ -149,7 +148,7 @@ function BookDetailsContent() {
 
       <div className="p-6 pb-24 max-w-4xl mx-auto space-y-8">
         {/* Mobile Controls */}
-        <div className="md:hidden flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-4">
           <Button variant="ghost" size="icon" onClick={() => setShowReadingControlsDialog(true)} className="h-10 w-10 rounded-full bg-slate-200">
             <Settings2 className="h-10 w-10 " />
           </Button>
@@ -207,25 +206,6 @@ function BookDetailsContent() {
           </div>
         </div>
 
-        {/* Desktop Reading Controls - Only visible on md and up */}
-        <div className="hidden md:block">
-          <ReadingControls
-            bookId={book.id}
-            currentPage={book.currentPage || 0}
-            totalPages={book.totalPages}
-            status={book.status}
-            uniqueId={book.id}
-            variant="mobile"
-            onStatusChange={handleStatusChange}
-            onProgressChange={handleProgressChange}
-            onEdit={toggleEditControls}
-            onDelete={() => setShowDeleteDialog(true)}
-            isLastBook={isLastBook}
-            showEditControls={showEditControls}
-            onSaveChanges={handleSaveChanges}
-          />
-        </div>
-
         {/* About Section */}
         <div className="space-y-4 py-8">
           <h2 className="text-lg font-semibold leading-tight text-slate-500">About This Book</h2>
@@ -240,28 +220,6 @@ function BookDetailsContent() {
         {/* Book Highlights Section */}
         <div className="space-y-4 py-8">
           <h2 className="text-lg font-semibold leading-tight text-slate-500">Highlights</h2>
-
-          {/* Desktop Add Highlight Button */}
-          <div className="hidden md:block">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setShowHighlights(!showHighlights)}
-              className="w-full flex items-center justify-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              {showHighlights ? 'Hide Form' : 'Add Highlight'}
-            </Button>
-          </div>
-
-          {/* Desktop Highlight Form */}
-          {showHighlights && (
-            <div className="hidden md:block">
-              <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={true} formOnly={true} />
-            </div>
-          )}
-
-          {/* Highlights List - Always visible */}
           <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={false} listOnly={true} />
         </div>
 

@@ -1,10 +1,11 @@
-import { Settings2, Trash2, Book } from 'lucide-react';
+import { Settings2, Trash2 } from 'lucide-react';
 import { ReadingStatus } from '../types/books';
 import StatusButtons from './StatusOptions';
 import BookProgressSlider from './BookProgressSlider';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/button';
 import { Separator } from '@/app/components/ui/separator';
+import { Progress } from '@/app/components/ui/progress';
 
 interface ReadingControlsProps {
   bookId: string;
@@ -41,6 +42,7 @@ const ReadingControls = ({
   showEditControls,
   onSaveChanges,
 }: ReadingControlsProps) => {
+  const progress = Math.round((currentPage / totalPages) * 100);
   const pagesRemaining = totalPages - currentPage;
 
   if (variant === 'icon') {
@@ -60,65 +62,64 @@ const ReadingControls = ({
   }
 
   return (
-    <div className={cn('space-y-6 p-4 bg-white border border-slate-100 rounded-lg', className)}>
+    <div className={cn('space-y-6', className)} id={`reading-controls-${uniqueId}`}>
+      {/* Reading Status Section */}
       <div className="space-y-3">
-        <div className="text-sm text-slate-600">Reading Status</div>
+        <div className="text-sm font-medium text-slate-600">Reading Status</div>
         <StatusButtons bookId={bookId} currentStatus={status} onStatusChange={onStatusChange} size={size} />
       </div>
 
-      <div className="space-y-3">
-        <div className="text-sm text-slate-600">Reading Progress</div>
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Book className="w-4 h-4 text-slate-400" />
-            <div className="text-sm text-slate-600">Current Page:</div>
-            <div className="flex-1" />
-            <div className="text-sm">
-              <span className="font-medium">{currentPage}</span>
-              <span className="text-slate-400"> / {totalPages}</span>
-            </div>
+      {/* Reading Progress Section */}
+      <div className="space-y-4">
+        <div className="text-sm font-medium text-slate-600">Reading Progress</div>
+
+        {/* Progress Bar */}
+        <div className="space-y-2">
+          <Progress value={progress} className="h-2" />
+          <div className="flex items-center justify-between text-sm text-slate-600">
+            <span>{progress}% Complete</span>
+            <span>{pagesRemaining} pages remaining</span>
           </div>
-          <BookProgressSlider
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onProgressChange}
-            variant={variant}
-            uniqueId={uniqueId}
-          />
-          <div className="text-sm text-slate-500">{pagesRemaining} pages remaining</div>
         </div>
+
+        {/* Page Controls */}
+        <BookProgressSlider currentPage={currentPage} totalPages={totalPages} onPageChange={onProgressChange} variant={variant} uniqueId={uniqueId} />
       </div>
 
-      <Separator className="my-2" />
-
-      <div className="flex items-center justify-end gap-2">
-        {showEditControls ? (
-          <>
-            <Button variant="outline" size="sm" onClick={onEdit} className="text-xs py-1 px-2">
-              Cancel
-            </Button>
-            <Button size="sm" onClick={onSaveChanges} className="text-xs py-1 px-2">
-              Save
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button variant="ghost" size="sm" onClick={onEdit} className="text-xs py-1 px-2">
-              Edit
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs py-1 px-2 text-gray-500 hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
-              onClick={onDelete}
-              disabled={isLastBook}
-              title={isLastBook ? 'Cannot delete the last book' : undefined}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </>
-        )}
-      </div>
+      {/* Action Buttons */}
+      {(onEdit || onDelete || showEditControls) && (
+        <>
+          <Separator className="my-2" />
+          <div className="flex items-center justify-end gap-2">
+            {showEditControls ? (
+              <>
+                <Button variant="outline" size="sm" onClick={onEdit} className="text-xs py-1 px-2">
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={onSaveChanges} className="text-xs py-1 px-2">
+                  Save
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={onEdit} className="text-xs py-1 px-2">
+                  Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs py-1 px-2 text-gray-500 hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
+                  onClick={onDelete}
+                  disabled={isLastBook}
+                  title={isLastBook ? 'Cannot delete the last book' : undefined}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

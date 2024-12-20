@@ -59,14 +59,19 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                className="rounded-full p-2 text-destructive hover:text-destructive/90 bg-destructive/10 hover:bg-destructive/20"
                 onClick={() => setShowDeleteDialog(true)}
                 disabled={isLastBook}
               >
                 <Trash2 className="h-5 w-5" />
                 <span className="sr-only">Delete book</span>
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => setShowHighlights(!showHighlights)} className="text-slate-700">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowHighlights(!showHighlights)}
+                className="rounded-full p-2 text-slate-700 bg-slate-100 hover:bg-slate-200"
+              >
                 <Plus className="h-5 w-5" />
                 <span className="sr-only">{showHighlights ? 'Hide highlight form' : 'Add highlight'}</span>
               </Button>

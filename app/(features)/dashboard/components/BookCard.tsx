@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/app/components/ui/card';
 import { Progress } from '@/app/components/ui/progress';
 import { Book, ReadingStatus } from '../types/books';
 import Link from 'next/link';
-import StatusButtons from './StatusOptions';
+import StatusButtons from './StatusButtons';
 import BookDetailsSheet from './BookDetailsSheet';
 import { Trash2, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -57,6 +57,7 @@ const BookCard = ({ book, onStatusChange, onDelete, isLastBook = false, progress
             onStatusChange={onStatusChange}
             size="small"
             roundedVariant="compact"
+            align="left"
           />
         </div>
 
@@ -72,7 +73,7 @@ const BookCard = ({ book, onStatusChange, onDelete, isLastBook = false, progress
           </div>
         )}
 
-        <div className="flex justify-end items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+        <div className="flex justify-end items-center gap-2 mt-4 pt-4 ">
           <div className="flex-1">
             {showWarning && isLastBook && (
               <div className="flex items-center text-amber-600 text-xs">

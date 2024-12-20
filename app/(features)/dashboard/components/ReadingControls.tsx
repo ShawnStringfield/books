@@ -1,6 +1,6 @@
 import { Settings2, Trash2, AlertCircle } from 'lucide-react';
 import { ReadingStatus } from '../types/books';
-import StatusButtons from './StatusOptions';
+import StatusButtons from './StatusButtons';
 import BookProgressSlider from './BookProgressSlider';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/button';
@@ -74,7 +74,7 @@ const ReadingControls = ({
     <div className={cn('space-y-6', className)} id={`reading-controls-${uniqueId}`}>
       {/* Reading Status Section */}
       <div className="space-y-3">
-        <StatusButtons bookId={bookId} currentStatus={status} onStatusChange={handleStatusChange} size={size} />
+        <StatusButtons bookId={bookId} currentStatus={status} onStatusChange={handleStatusChange} size={size} roundedVariant="full" align="center" />
 
         {showWarning && (
           <div className="flex items-center gap-2 p-3 text-sm bg-amber-50 border border-amber-200 rounded-md">

@@ -7,8 +7,8 @@ export interface StatusButtonsProps {
   currentStatus: ReadingStatus;
   onStatusChange: (bookId: string, status: ReadingStatus) => void;
   size?: 'default' | 'small' | 'xs';
-  roundedVariant?: 'full' | 'compact';
   align?: 'left' | 'center' | 'right';
+  className?: string;
 }
 
 const statusOptions: { value: ReadingStatus; label: string; icon: React.ReactNode }[] = [
@@ -17,23 +17,28 @@ const statusOptions: { value: ReadingStatus; label: string; icon: React.ReactNod
   { value: ReadingStatus.COMPLETED, label: 'Completed', icon: <CheckCircle className="h-3.5 w-3.5" /> },
 ];
 
-const StatusButtons = ({ bookId, currentStatus, onStatusChange, size = 'xs', roundedVariant = 'full', align = 'left' }: StatusButtonsProps) => {
+const StatusButtons = ({ bookId, currentStatus, onStatusChange, size = 'xs', align = 'left', className }: StatusButtonsProps) => {
   return (
     <div
-      className={cn('flex w-full', align === 'left' && 'justify-start', align === 'center' && 'justify-center', align === 'right' && 'justify-end')}
+      className={cn(
+        'flex w-full',
+        align === 'left' && 'justify-start',
+        align === 'center' && 'justify-center',
+        align === 'right' && 'justify-end',
+        className
+      )}
     >
-      <div className="inline-flex">
+      <div className="inline-flex gap-4">
         {statusOptions.map((option) => (
           <button
             key={option.value}
             onClick={() => onStatusChange(bookId, option.value)}
             className={cn(
-              'flex-1 inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950',
-              roundedVariant === 'full' ? 'rounded-md' : 'first:rounded-l-md last:rounded-r-md',
-              size === 'default' && 'px-3 py-1.5 text-sm',
-              size === 'small' && 'px-2.5 py-1 text-sm',
-              size === 'xs' && 'px-2 py-0.5 text-xs',
-              currentStatus === option.value ? 'bg-slate-100 text-slate-900 font-medium' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+              'inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950',
+              size === 'default' && 'text-sm',
+              size === 'small' && 'text-sm',
+              size === 'xs' && 'text-xs',
+              currentStatus === option.value ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-600'
             )}
           >
             {option.icon}

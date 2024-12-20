@@ -51,14 +51,7 @@ const BookCard = ({ book, onStatusChange, onDelete, isLastBook = false, progress
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-auto gap-2">
-          <StatusButtons
-            bookId={book.id}
-            currentStatus={book.status as ReadingStatus}
-            onStatusChange={onStatusChange}
-            size="small"
-            roundedVariant="compact"
-            align="left"
-          />
+          <StatusButtons bookId={book.id} currentStatus={book.status as ReadingStatus} onStatusChange={onStatusChange} size="small" align="left" />
         </div>
 
         {progressDisplay === 'detailed' && (

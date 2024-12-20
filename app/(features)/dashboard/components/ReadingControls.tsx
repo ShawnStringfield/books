@@ -74,7 +74,7 @@ const ReadingControls = ({
     <div className={cn('space-y-6', className)} id={`reading-controls-${uniqueId}`}>
       {/* Reading Status Section */}
       <div className="space-y-3">
-        <StatusButtons bookId={bookId} currentStatus={status} onStatusChange={handleStatusChange} size={size} roundedVariant="full" align="center" />
+        <StatusButtons bookId={bookId} currentStatus={status} onStatusChange={handleStatusChange} size={size} align="left" className="my-4" />
 
         {showWarning && (
           <div className="flex items-center gap-2 p-3 text-sm bg-amber-50 border border-amber-200 rounded-md">

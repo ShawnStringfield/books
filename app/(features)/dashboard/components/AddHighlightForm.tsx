@@ -32,12 +32,17 @@ const AddHighlightForm = ({ bookId, currentPage, onClose }: AddHighlightFormProp
         value={newHighlight}
         onChange={(e) => setNewHighlight(e.target.value)}
         placeholder="Add a highlight from your current page..."
-        className="w-full px-3 py-2 border rounded-lg min-h-[100px] text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+        className="w-full px-3 py-2 border rounded-lg min-h-[200px] text-sm focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0"
         aria-label="New highlight text"
       />
-      <Button onClick={handleAddHighlight} disabled={!newHighlight.trim()} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-        Add Highlight
-      </Button>
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={onClose} className="flex-1">
+          Cancel
+        </Button>
+        <Button onClick={handleAddHighlight} disabled={!newHighlight.trim()} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
+          Add Highlight
+        </Button>
+      </div>
     </div>
   );
 };

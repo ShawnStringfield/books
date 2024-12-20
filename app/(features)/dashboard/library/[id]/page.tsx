@@ -6,7 +6,7 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Plus, Settings2, Pencil } from 'lucide-react';
+import { Plus, Settings2, Pencil, Highlighter } from 'lucide-react';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
@@ -107,11 +107,38 @@ function BookDetailsContent() {
     <DashboardLayout>
       {/* Highlights Dialog */}
       <Dialog open={showHighlightsDialog} onOpenChange={setShowHighlightsDialog}>
-        <DialogContent className="sm:max-w-[425px] top-0 translate-y-0">
+        <DialogContent className="sm:max-w-[600px] focus-visible:outline-none [&>button]:bg-slate-200 [&>button]:hover:bg-slate-300 [&>button]:transition-colors [&>button]:duration-200 [&>button]:p-1.5 [&>button]:rounded-full [&>button]:scale-85">
           <DialogHeader>
-            <DialogTitle>Add Highlight</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Highlighter className="h-5 w-5" />
+              Add Highlight
+            </DialogTitle>
           </DialogHeader>
           <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={true} onClose={() => setShowHighlightsDialog(false)} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Reading Controls Dialog */}
+      <Dialog open={showReadingControlsDialog} onOpenChange={setShowReadingControlsDialog}>
+        <DialogContent className="sm:max-w-[600px] focus-visible:outline-none [&>button]:bg-slate-200 [&>button]:hover:bg-slate-300 [&>button]:transition-colors [&>button]:duration-200 [&>button]:p-1.5 [&>button]:rounded-full [&>button]:scale-85">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings2 className="h-5 w-5" />
+              Reading Controls
+            </DialogTitle>
+          </DialogHeader>
+          <ReadingControls
+            bookId={book.id}
+            currentPage={book.currentPage || 0}
+            totalPages={book.totalPages}
+            status={book.status}
+            uniqueId={book.id}
+            variant="mobile"
+            onStatusChange={handleStatusChange}
+            onProgressChange={handleProgressChange}
+            onDelete={handleDelete}
+            isLastBook={isLastBook}
+          />
         </DialogContent>
       </Dialog>
 
@@ -129,63 +156,40 @@ function BookDetailsContent() {
           </Button>
         </div>
 
-        {/* Reading Controls Dialog */}
-        <Dialog open={showReadingControlsDialog} onOpenChange={setShowReadingControlsDialog}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Reading Controls</DialogTitle>
-            </DialogHeader>
-            <ReadingControls
-              bookId={book.id}
-              currentPage={book.currentPage || 0}
-              totalPages={book.totalPages}
-              status={book.status}
-              uniqueId={book.id}
-              variant="mobile"
-              onStatusChange={handleStatusChange}
-              onProgressChange={handleProgressChange}
-              onDelete={handleDelete}
-              isLastBook={isLastBook}
-            />
-          </DialogContent>
-        </Dialog>
-
-        <div className="space-y-6">
-          {/* Book Details */}
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              <div className="flex items-start justify-between">
-                <div className="flex flex-col gap-2">
-                  <h1 className="text-3xl font-bold leading-0 text-slate-600">{book.title}</h1>
-                  <h2 className="text-lg font-semibold leading-tight text-slate-500">{book.subtitle}</h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  {showEditControls ? (
-                    <>
-                      <Button variant="outline" size="sm" onClick={toggleEditControls} className="text-xs py-1 px-2">
-                        Cancel
-                      </Button>
-                      <Button size="sm" onClick={handleSaveChanges} className="text-xs py-1 px-2">
-                        Save Changes
-                      </Button>
-                    </>
-                  ) : null}
-                </div>
+        {/* Book Details */}
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex-1">
+            <div className="flex items-start justify-between">
+              <div className="flex flex-col gap-2">
+                <h1 className="text-3xl font-bold leading-0 text-slate-600">{book.title}</h1>
+                <h2 className="text-lg font-semibold leading-tight text-slate-500">{book.subtitle}</h2>
               </div>
-              <div className="mt-2">
-                <p className="text-sm text-gray-600">
-                  By: {book.author} • {book.totalPages} pages
-                </p>
-                <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                  <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
-                  {book.isbn && (
-                    <>
-                      <span className="text-gray-400">•</span>
-                      <span>ISBN: {book.isbn}</span>
-                    </>
-                  )}
-                  {!book.genre && !book.isbn && <span className="text-gray-400 italic">No additional details available</span>}
-                </div>
+              <div className="flex items-center gap-2">
+                {showEditControls ? (
+                  <>
+                    <Button variant="outline" size="sm" onClick={toggleEditControls} className="text-xs py-1 px-2">
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={handleSaveChanges} className="text-xs py-1 px-2">
+                      Save Changes
+                    </Button>
+                  </>
+                ) : null}
+              </div>
+            </div>
+            <div className="mt-2">
+              <p className="text-sm text-gray-600">
+                By: {book.author} • {book.totalPages} pages
+              </p>
+              <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+                <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
+                {book.isbn && (
+                  <>
+                    <span className="text-gray-400">•</span>
+                    <span>ISBN: {book.isbn}</span>
+                  </>
+                )}
+                {!book.genre && !book.isbn && <span className="text-gray-400 italic">No additional details available</span>}
               </div>
             </div>
           </div>

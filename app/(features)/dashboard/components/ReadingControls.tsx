@@ -19,6 +19,7 @@ interface ReadingControlsProps {
   onStatusChange: (bookId: string, status: ReadingStatus) => void;
   onProgressChange: (value: number[]) => void;
   onDelete: () => void;
+  onCancel?: () => void;
   isLastBook?: boolean;
 }
 
@@ -34,6 +35,7 @@ const ReadingControls = ({
   onStatusChange,
   onProgressChange,
   onDelete,
+  onCancel,
   isLastBook,
 }: ReadingControlsProps) => {
   const [showWarning, setShowWarning] = useState(false);
@@ -109,6 +111,9 @@ const ReadingControls = ({
           <Separator className="my-2" />
           <div className="space-y-3">
             <div className="flex items-center justify-end gap-2">
+              <Button variant="secondary" size="sm" className="text-xs py-1 px-2" onClick={onCancel}>
+                Cancel
+              </Button>
               <Button
                 variant="destructive"
                 size="sm"

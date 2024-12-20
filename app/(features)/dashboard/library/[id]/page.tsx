@@ -137,6 +137,7 @@ function BookDetailsContent() {
             onStatusChange={handleStatusChange}
             onProgressChange={handleProgressChange}
             onDelete={handleDelete}
+            onCancel={() => setShowReadingControlsDialog(false)}
             isLastBook={isLastBook}
           />
         </DialogContent>

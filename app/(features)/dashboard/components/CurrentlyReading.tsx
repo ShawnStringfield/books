@@ -4,15 +4,26 @@ import { Library, PlusCircle } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 import { Book } from '../types/books';
-import { useDashboardStore } from '../stores/useDashboardStore';
+import { useDashboardStore, selectIsLastBook } from '../stores/useDashboardStore';
 import BookCard from './BookCard';
+import { DeleteBookDialog } from './DeleteBookDialog';
+import { useState } from 'react';
 
 interface CurrentlyReadingProps {
   books: Book[];
 }
 
 const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
-  const { updateBookStatus } = useDashboardStore();
+  const { updateBookStatus, deleteBook } = useDashboardStore();
+  const isLastBook = useDashboardStore(selectIsLastBook);
+  const [bookToDelete, setBookToDelete] = useState<string | null>(null);
+
+  const handleDelete = () => {
+    if (bookToDelete && !isLastBook) {
+      deleteBook(bookToDelete);
+      setBookToDelete(null);
+    }
+  };
 
   return (
     <div className="space-y-4 my-16">
@@ -21,9 +32,23 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
           <h2 className="text-lg font-semibold flex items-center gap-2">Currently Reading</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {books.map((book) => (
-              <BookCard key={book.id} book={book} onStatusChange={updateBookStatus} progressDisplay="compact" />
+              <BookCard
+                key={book.id}
+                book={book}
+                onStatusChange={updateBookStatus}
+                onDelete={(id) => setBookToDelete(id)}
+                isLastBook={isLastBook}
+                progressDisplay="compact"
+              />
             ))}
           </div>
+
+          <DeleteBookDialog
+            isOpen={!!bookToDelete}
+            onClose={() => setBookToDelete(null)}
+            onConfirm={handleDelete}
+            bookTitle={books.find((b) => b.id === bookToDelete)?.title || ''}
+          />
         </>
       ) : (
         <EmptyReadingState />

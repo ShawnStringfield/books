@@ -6,17 +6,22 @@ import { useCallback, useMemo } from 'react';
 
 interface HighlightsListProps {
   bookId: string;
+  limit?: number;
 }
 
-const HighlightsList = ({ bookId }: HighlightsListProps) => {
+const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
   const deleteHighlight = useDashboardStore((state) => state.deleteHighlight);
   const toggleFavoriteHighlight = useDashboardStore((state) => state.toggleFavoriteHighlight);
   const allHighlights = useDashboardStore((state) => state.highlights);
 
   // Memoize filtered and sorted highlights
   const highlights = useMemo(() => {
-    return allHighlights.filter((h) => h.bookId === bookId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [allHighlights, bookId]);
+    const filtered = allHighlights
+      .filter((h) => h.bookId === bookId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    return limit ? filtered.slice(0, limit) : filtered;
+  }, [allHighlights, bookId, limit]);
 
   const handleToggleFavorite = useCallback(
     (highlightId: string) => {
@@ -54,7 +59,9 @@ const HighlightsList = ({ bookId }: HighlightsListProps) => {
   return (
     <div>
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold leading-tight text-slate-500">Highlights</h2>
+        <h2 className="text-lg font-semibold leading-tight text-slate-500">
+          {limit ? `Recent Highlights (${highlights.length})` : `Highlights (${highlights.length})`}
+        </h2>
         {highlights.map((highlight) => (
           <div key={highlight.id} className="group relative p-4 bg-white rounded-lg border border-gray-200">
             <div className="space-y-2">

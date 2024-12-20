@@ -1,6 +1,7 @@
 import { BookOpen } from 'lucide-react';
 import { Slider } from '@/app/components/ui/slider';
 import { usePageProgress } from '../hooks/usePageProgress';
+import { cn } from '@/lib/utils';
 
 interface BookProgressSliderProps {
   currentPage: number;
@@ -9,9 +10,18 @@ interface BookProgressSliderProps {
   uniqueId: string;
   variant?: 'mobile' | 'desktop';
   showSlider?: boolean;
+  className?: string;
 }
 
-const BookProgressSlider = ({ currentPage, totalPages, onPageChange, uniqueId, variant = 'desktop', showSlider = true }: BookProgressSliderProps) => {
+const BookProgressSlider = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  uniqueId,
+  variant = 'desktop',
+  showSlider = true,
+  className,
+}: BookProgressSliderProps) => {
   const sliderId = `${variant}-pages-${uniqueId}`;
   const inputId = `${variant}-input-${uniqueId}`;
 
@@ -22,7 +32,7 @@ const BookProgressSlider = ({ currentPage, totalPages, onPageChange, uniqueId, v
   });
 
   return (
-    <div className="w-full">
+    <div className={cn('w-full', className)}>
       <div className="flex items-center justify-between">
         <label htmlFor={inputId} className="flex items-center gap-2 text-xs font-medium text-gray-700">
           <BookOpen className="w-4 h-4" />

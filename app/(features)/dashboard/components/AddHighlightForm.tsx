@@ -1,6 +1,7 @@
 import { Button } from '@/app/components/ui/button';
 import { useDashboardStore } from '../stores/useDashboardStore';
 import { useState, useCallback } from 'react';
+import { Highlighter } from 'lucide-react';
 
 interface AddHighlightFormProps {
   bookId: string;
@@ -27,7 +28,11 @@ const AddHighlightForm = ({ bookId, currentPage, onClose }: AddHighlightFormProp
   }, [addHighlight, bookId, currentPage, newHighlight, onClose]);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Highlighter className="w-5 h-5 text-slate-500" />
+        <h2 className="text-lg font-semibold leading-tight text-slate-500">Add New Highlight</h2>
+      </div>
       <textarea
         value={newHighlight}
         onChange={(e) => setNewHighlight(e.target.value)}

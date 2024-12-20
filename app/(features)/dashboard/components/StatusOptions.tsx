@@ -18,13 +18,13 @@ const statusOptions: { value: ReadingStatus; label: string; icon: React.ReactNod
 
 const StatusButtons = ({ bookId, currentStatus, onStatusChange, size = 'xs', roundedVariant = 'full' }: StatusButtonsProps) => {
   return (
-    <div className="inline-flex p-0.5">
+    <div className="inline-flex w-full p-0.5">
       {statusOptions.map((option) => (
         <button
           key={option.value}
           onClick={() => onStatusChange(bookId, option.value)}
           className={cn(
-            'inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950',
+            'flex-1 inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950',
             roundedVariant === 'full' ? 'rounded-md' : 'first:rounded-l-md last:rounded-r-md',
             size === 'default' && 'px-3 py-1.5 text-sm',
             size === 'small' && 'px-2.5 py-1 text-sm',

@@ -121,7 +121,7 @@ function BookDetailsContent() {
       {/* Reading Controls Dialog */}
       <Dialog open={showReadingControlsDialog} onOpenChange={setShowReadingControlsDialog}>
         <DialogContent className="sm:max-w-[600px] focus-visible:outline-none [&>button]:bg-slate-200 [&>button]:hover:bg-slate-300 [&>button]:transition-colors [&>button]:duration-200 [&>button]:p-1.5 [&>button]:rounded-full [&>button]:scale-85">
-          <DialogHeader>
+          <DialogHeader className="border-b pb-4 -mx-6 px-6">
             <DialogTitle className="flex items-center gap-2">
               <Settings2 className="h-5 w-5" />
               Reading Controls

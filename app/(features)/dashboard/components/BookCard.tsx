@@ -4,24 +4,38 @@ import { Book, ReadingStatus } from '../types/books';
 import Link from 'next/link';
 import StatusButtons from './StatusOptions';
 import BookDetailsSheet from './BookDetailsSheet';
-import { Eye } from 'lucide-react';
+import { Trash2, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
 
 type ProgressDisplayVariant = 'hidden' | 'compact' | 'detailed';
 
 interface BookCardProps {
   book: Book;
   onStatusChange: (bookId: string, status: ReadingStatus) => void;
+  onDelete?: (bookId: string) => void;
+  isLastBook?: boolean;
   progressDisplay?: ProgressDisplayVariant;
   className?: string;
 }
 
-const BookCard = ({ book, onStatusChange, progressDisplay = 'hidden', className = '' }: BookCardProps) => {
+const BookCard = ({ book, onStatusChange, onDelete, isLastBook = false, progressDisplay = 'hidden', className = '' }: BookCardProps) => {
   const progress = Math.round((book.currentPage / book.totalPages) * 100);
+  const [showWarning, setShowWarning] = useState(false);
+
+  const handleDelete = () => {
+    if (isLastBook) {
+      setShowWarning(true);
+      // Hide warning after 3 seconds
+      setTimeout(() => setShowWarning(false), 3000);
+    } else {
+      onDelete?.(book.id);
+    }
+  };
 
   return (
     <Card
       className={`bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 ${
-        progressDisplay === 'detailed' ? 'h-[240px]' : 'h-[215px]'
+        progressDisplay === 'detailed' ? 'h-[280px]' : 'h-[255px]'
       } focus:outline-none ${className} relative`}
     >
       <CardContent className="p-6 flex flex-col h-full">
@@ -37,25 +51,13 @@ const BookCard = ({ book, onStatusChange, progressDisplay = 'hidden', className 
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-auto gap-2">
-          <div className="flex items-center gap-2">
-            <div className="rounded-full p-1 bg-gray-50 hover:bg-gray-100 transition-colors">
-              <BookDetailsSheet book={book} />
-            </div>
-            <StatusButtons
-              bookId={book.id}
-              currentStatus={book.status as ReadingStatus}
-              onStatusChange={onStatusChange}
-              size="small"
-              roundedVariant="compact"
-            />
-          </div>
-          <Link
-            href={`/dashboard/library/${book.id}`}
-            className="text-gray-400 hover:text-gray-600 transition-colors ml-auto rounded-full p-1 bg-gray-50 hover:bg-gray-100"
-            aria-label={`View details for ${book.title}`}
-          >
-            <Eye size={18} />
-          </Link>
+          <StatusButtons
+            bookId={book.id}
+            currentStatus={book.status as ReadingStatus}
+            onStatusChange={onStatusChange}
+            size="small"
+            roundedVariant="compact"
+          />
         </div>
 
         {progressDisplay === 'detailed' && (
@@ -69,6 +71,27 @@ const BookCard = ({ book, onStatusChange, progressDisplay = 'hidden', className 
             <Progress value={progress} className="h-1.5" aria-label={`Reading progress: ${progress}%`} />
           </div>
         )}
+
+        <div className="flex justify-end items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+          <div className="flex-1">
+            {showWarning && isLastBook && (
+              <div className="flex items-center text-amber-600 text-xs">
+                <AlertCircle size={14} className="mr-1" />
+                Cannot delete the last book
+              </div>
+            )}
+          </div>
+          <div className="rounded-full p-1.5 bg-gray-50 hover:bg-gray-100 transition-colors">
+            <BookDetailsSheet book={book} />
+          </div>
+          <button
+            onClick={handleDelete}
+            className="text-gray-400 hover:text-red-500 transition-colors rounded-full p-1.5 bg-gray-50 hover:bg-red-50"
+            aria-label="Delete book"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </CardContent>
     </Card>
   );

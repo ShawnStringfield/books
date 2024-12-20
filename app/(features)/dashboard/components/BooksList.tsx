@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useDashboardStore, selectIsLastBook } from '../stores/useDashboardStore';
 import { DeleteBookDialog } from './DeleteBookDialog';
-import { Button } from '@/app/components/ui/button';
-import { Trash2 } from 'lucide-react';
 import BookCard from './BookCard';
 import { ReadingStatus } from '../types/books';
 
@@ -37,23 +35,11 @@ export function BooksList() {
           <BookCard
             book={book}
             onStatusChange={handleStatusChange}
+            onDelete={(id) => setBookToDelete(id)}
+            isLastBook={isLastBook}
             progressDisplay="compact"
             className="group-hover:border-blue-200 transition-colors duration-200"
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-3 right-3 
-              opacity-0 group-hover:opacity-100 focus:opacity-100
-              text-red-500 hover:text-red-700 hover:bg-red-50/80 
-              disabled:opacity-50 transition-opacity duration-200 z-10"
-            onClick={() => setBookToDelete(book.id)}
-            disabled={isLastBook}
-            aria-label={`Delete ${book.title}${isLastBook ? ' (Cannot delete last book)' : ''}`}
-            title={isLastBook ? 'Cannot delete the last book' : undefined}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
         </div>
       ))}
 

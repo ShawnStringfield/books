@@ -54,6 +54,7 @@ const HighlightsList = ({ bookId }: HighlightsListProps) => {
   return (
     <div>
       <div className="space-y-4">
+        <h2 className="text-lg font-semibold leading-tight text-slate-500">Highlights</h2>
         {highlights.map((highlight) => (
           <div key={highlight.id} className="group relative p-4 bg-white rounded-lg border border-gray-200">
             <div className="space-y-2">

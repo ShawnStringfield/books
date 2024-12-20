@@ -4,16 +4,15 @@ import HighlightsList from './HighlightsList';
 interface BookHighlightsProps {
   bookId: string;
   currentPage: number;
-  showForm?: boolean;
-  formOnly?: boolean;
-  listOnly?: boolean;
+  showForm: boolean;
+  onClose: () => void;
 }
 
-const BookHighlights = ({ bookId, currentPage, showForm = false, formOnly = false, listOnly = false }: BookHighlightsProps) => {
+const BookHighlights = ({ bookId, currentPage, showForm, onClose }: BookHighlightsProps) => {
   return (
     <div className="space-y-8">
-      {showForm && !listOnly && <AddHighlightForm bookId={bookId} currentPage={currentPage} />}
-      {!formOnly && <HighlightsList bookId={bookId} />}
+      {showForm && <AddHighlightForm bookId={bookId} currentPage={currentPage} onClose={onClose} />}
+      {!showForm && <HighlightsList bookId={bookId} />}
     </div>
   );
 };

@@ -5,9 +5,10 @@ import { useState, useCallback } from 'react';
 interface AddHighlightFormProps {
   bookId: string;
   currentPage: number;
+  onClose: () => void;
 }
 
-const AddHighlightForm = ({ bookId, currentPage }: AddHighlightFormProps) => {
+const AddHighlightForm = ({ bookId, currentPage, onClose }: AddHighlightFormProps) => {
   const [newHighlight, setNewHighlight] = useState('');
   const addHighlight = useDashboardStore((state) => state.addHighlight);
 
@@ -20,7 +21,10 @@ const AddHighlightForm = ({ bookId, currentPage }: AddHighlightFormProps) => {
       isFavorite: false,
     });
     setNewHighlight('');
-  }, [addHighlight, bookId, currentPage, newHighlight]);
+    if (typeof onClose === 'function') {
+      onClose();
+    }
+  }, [addHighlight, bookId, currentPage, newHighlight, onClose]);
 
   return (
     <div className="space-y-2">

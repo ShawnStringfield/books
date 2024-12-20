@@ -6,7 +6,7 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Plus, Settings2 } from 'lucide-react';
+import { Plus, Settings2, Pencil } from 'lucide-react';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
@@ -111,7 +111,7 @@ function BookDetailsContent() {
           <DialogHeader>
             <DialogTitle>Add Highlight</DialogTitle>
           </DialogHeader>
-          <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={true} formOnly={true} />
+          <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={true} onClose={() => setShowHighlightsDialog(false)} />
         </DialogContent>
       </Dialog>
 
@@ -123,6 +123,9 @@ function BookDetailsContent() {
           </Button>
           <Button variant="ghost" size="icon" onClick={() => setShowHighlightsDialog(true)} className="h-10 w-10 rounded-full bg-slate-200">
             <Plus className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={toggleEditControls} className="h-10 w-10 rounded-full bg-slate-200">
+            <Pencil className="h-5 w-5" />
           </Button>
         </div>
 
@@ -166,11 +169,7 @@ function BookDetailsContent() {
                         Save Changes
                       </Button>
                     </>
-                  ) : (
-                    <Button size="sm" onClick={toggleEditControls} className="text-xs py-1 px-2">
-                      Edit Book
-                    </Button>
-                  )}
+                  ) : null}
                 </div>
               </div>
               <div className="mt-2">
@@ -205,8 +204,7 @@ function BookDetailsContent() {
 
         {/* Book Highlights Section */}
         <div className="space-y-4 py-8">
-          <h2 className="text-lg font-semibold leading-tight text-slate-500">Highlights</h2>
-          <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={false} listOnly={true} />
+          <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={false} onClose={() => setShowHighlightsDialog(false)} />
         </div>
       </div>
 

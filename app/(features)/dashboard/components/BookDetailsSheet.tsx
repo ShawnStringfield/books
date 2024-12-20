@@ -194,7 +194,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
               <Plus className="h-4 w-4" />
               {showHighlights ? 'Hide Form' : 'Add Highlight'}
             </Button>
-            <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={showHighlights} />
+            <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={showHighlights} onClose={() => setShowHighlights(false)} />
           </div>
         </div>
 

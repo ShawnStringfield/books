@@ -6,7 +6,7 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Plus, Settings2, Pencil, Highlighter } from 'lucide-react';
+import { Plus, Settings2, Pencil, Highlighter, ExternalLink, Info } from 'lucide-react';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
@@ -191,6 +191,32 @@ function BookDetailsContent() {
                   </>
                 )}
                 {!book.genre && !book.isbn && <span className="text-gray-400 italic">No additional details available</span>}
+              </div>
+              <div className="flex items-center gap-4 mt-3">
+                {book.previewLink && (
+                  <a
+                    href={book.previewLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                    aria-label="Preview book"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Preview
+                  </a>
+                )}
+                {book.infoLink && (
+                  <a
+                    href={book.infoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                    aria-label="More information about book"
+                  >
+                    <Info className="h-4 w-4" />
+                    More Information
+                  </a>
+                )}
               </div>
             </div>
           </div>

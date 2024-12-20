@@ -37,7 +37,7 @@ const BookProgressSlider = ({ currentPage, totalPages, onPageChange, uniqueId, v
             onBlur={handleInputBlur}
             min={0}
             max={totalPages}
-            className="w-12 px-3 py-1 text-xs border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-8 px-2 py-1 text-xs border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Enter current page number"
           />
           <span className="text-xs text-gray-500">/ {totalPages}</span>

@@ -126,13 +126,13 @@ const ReadingControls = ({
                 </>
               ) : (
                 <>
-                  <Button variant="ghost" size="sm" onClick={onEdit} className="text-xs py-1 px-2">
+                  <Button size="sm" onClick={onEdit} className=" text-xs py-1 px-2">
                     Edit
                   </Button>
                   <Button
-                    variant="secondary"
+                    variant="destructive"
                     size="sm"
-                    className="text-xs py-1 px-2 text-gray-500 hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
+                    className="text-xs py-1 px-2 text-white hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
                     onClick={handleDeleteClick}
                     disabled={isLastBook}
                     title={isLastBook ? 'Cannot delete the last book' : undefined}

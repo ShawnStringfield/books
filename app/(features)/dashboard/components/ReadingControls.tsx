@@ -18,11 +18,8 @@ interface ReadingControlsProps {
   className?: string;
   onStatusChange: (bookId: string, status: ReadingStatus) => void;
   onProgressChange: (value: number[]) => void;
-  onEdit?: () => void;
   onDelete: () => void;
   isLastBook?: boolean;
-  showEditControls?: boolean;
-  onSaveChanges?: () => void;
 }
 
 const ReadingControls = ({
@@ -36,11 +33,8 @@ const ReadingControls = ({
   className,
   onStatusChange,
   onProgressChange,
-  onEdit,
   onDelete,
   isLastBook,
-  showEditControls,
-  onSaveChanges,
 }: ReadingControlsProps) => {
   const [showWarning, setShowWarning] = useState(false);
   const [showDeleteWarning, setShowDeleteWarning] = useState(false);
@@ -110,37 +104,21 @@ const ReadingControls = ({
       </div>
 
       {/* Action Buttons */}
-      {(onEdit !== undefined || onDelete !== undefined || showEditControls) && (
+      {onDelete !== undefined && (
         <>
           <Separator className="my-2" />
           <div className="space-y-3">
             <div className="flex items-center justify-end gap-2">
-              {showEditControls ? (
-                <>
-                  <Button variant="outline" size="sm" onClick={onEdit} className="text-xs py-1 px-2">
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={onSaveChanges} className="text-xs py-1 px-2">
-                    Save
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button size="sm" onClick={onEdit} className=" text-xs py-1 px-2">
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="text-xs py-1 px-2 text-white hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
-                    onClick={handleDeleteClick}
-                    disabled={isLastBook}
-                    title={isLastBook ? 'Cannot delete the last book' : undefined}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" /> Delete Book
-                  </Button>
-                </>
-              )}
+              <Button
+                variant="destructive"
+                size="sm"
+                className="text-xs py-1 px-2 text-white hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
+                onClick={handleDeleteClick}
+                disabled={isLastBook}
+                title={isLastBook ? 'Cannot delete the last book' : undefined}
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Delete Book
+              </Button>
             </div>
 
             {showDeleteWarning && (

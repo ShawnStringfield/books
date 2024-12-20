@@ -141,11 +141,8 @@ function BookDetailsContent() {
               variant="mobile"
               onStatusChange={handleStatusChange}
               onProgressChange={handleProgressChange}
-              onEdit={toggleEditControls}
-              isLastBook={isLastBook}
-              showEditControls={showEditControls}
-              onSaveChanges={handleSaveChanges}
               onDelete={handleDelete}
+              isLastBook={isLastBook}
             />
           </DialogContent>
         </Dialog>
@@ -153,9 +150,29 @@ function BookDetailsContent() {
         <div className="space-y-6">
           {/* Book Details */}
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-bold leading-0 text-slate-600">{book.title}</h1>
-              <h2 className="text-lg font-semibold leading-tight text-slate-500">{book.subtitle}</h2>
+            <div className="flex-1">
+              <div className="flex items-start justify-between">
+                <div className="flex flex-col gap-2">
+                  <h1 className="text-3xl font-bold leading-0 text-slate-600">{book.title}</h1>
+                  <h2 className="text-lg font-semibold leading-tight text-slate-500">{book.subtitle}</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  {showEditControls ? (
+                    <>
+                      <Button variant="outline" size="sm" onClick={toggleEditControls} className="text-xs py-1 px-2">
+                        Cancel
+                      </Button>
+                      <Button size="sm" onClick={handleSaveChanges} className="text-xs py-1 px-2">
+                        Save Changes
+                      </Button>
+                    </>
+                  ) : (
+                    <Button size="sm" onClick={toggleEditControls} className="text-xs py-1 px-2">
+                      Edit Book
+                    </Button>
+                  )}
+                </div>
+              </div>
               <div className="mt-2">
                 <p className="text-sm text-gray-600">
                   By: {book.author} • {book.totalPages} pages

@@ -21,7 +21,7 @@ function BookDetailsContent() {
   const router = useRouter();
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
-  const { books: rawBooks = [], updateBookStatus, updateReadingProgress, updateBookDescription, updateBookGenre } = useDashboardStore();
+  const { books: rawBooks = [], updateBookStatus, updateReadingProgress, updateBookDescription, updateBookGenre, deleteBook } = useDashboardStore();
   const isLoading = useDashboardStore((state) => state.isLoading);
   const books = rawBooks.map((b) => ({ ...b, status: b.status as ReadingStatus }));
   const { changeBookStatus, isChangingStatus } = useBookStatus(books);
@@ -96,6 +96,13 @@ function BookDetailsContent() {
     toggleEditControls(); // Exit edit mode after saving
   };
 
+  const handleDelete = () => {
+    if (!isLastBook) {
+      deleteBook(book.id);
+      router.push('/dashboard/library');
+    }
+  };
+
   return (
     <DashboardLayout>
       {/* Highlights Dialog */}
@@ -138,6 +145,7 @@ function BookDetailsContent() {
               isLastBook={isLastBook}
               showEditControls={showEditControls}
               onSaveChanges={handleSaveChanges}
+              onDelete={handleDelete}
             />
           </DialogContent>
         </Dialog>

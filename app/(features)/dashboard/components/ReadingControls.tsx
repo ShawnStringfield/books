@@ -19,7 +19,7 @@ interface ReadingControlsProps {
   onStatusChange: (bookId: string, status: ReadingStatus) => void;
   onProgressChange: (value: number[]) => void;
   onEdit?: () => void;
-  onDelete?: () => void;
+  onDelete: () => void;
   isLastBook?: boolean;
   showEditControls?: boolean;
   onSaveChanges?: () => void;
@@ -43,6 +43,7 @@ const ReadingControls = ({
   onSaveChanges,
 }: ReadingControlsProps) => {
   const [showWarning, setShowWarning] = useState(false);
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
   const handleStatusChange = (bookId: string, newStatus: ReadingStatus) => {
     if (newStatus === ReadingStatus.NOT_STARTED && currentPage > 0) {
@@ -50,6 +51,11 @@ const ReadingControls = ({
     } else {
       onStatusChange(bookId, newStatus);
     }
+  };
+
+  const handleDeleteClick = () => {
+    if (isLastBook) return;
+    setShowDeleteWarning(true);
   };
 
   if (variant === 'icon') {
@@ -104,35 +110,60 @@ const ReadingControls = ({
       </div>
 
       {/* Action Buttons */}
-      {(onEdit || onDelete || showEditControls) && (
+      {(onEdit !== undefined || onDelete !== undefined || showEditControls) && (
         <>
           <Separator className="my-2" />
-          <div className="flex items-center justify-end gap-2">
-            {showEditControls ? (
-              <>
-                <Button variant="outline" size="sm" onClick={onEdit} className="text-xs py-1 px-2">
-                  Cancel
-                </Button>
-                <Button size="sm" onClick={onSaveChanges} className="text-xs py-1 px-2">
-                  Save
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" onClick={onEdit} className="text-xs py-1 px-2">
-                  Edit
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="text-xs py-1 px-2 text-gray-500 hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
-                  onClick={onDelete}
-                  disabled={isLastBook}
-                  title={isLastBook ? 'Cannot delete the last book' : undefined}
-                >
-                  <Trash2 className="h-3.5 w-3.5" /> Delete Book
-                </Button>
-              </>
+          <div className="space-y-3">
+            <div className="flex items-center justify-end gap-2">
+              {showEditControls ? (
+                <>
+                  <Button variant="outline" size="sm" onClick={onEdit} className="text-xs py-1 px-2">
+                    Cancel
+                  </Button>
+                  <Button size="sm" onClick={onSaveChanges} className="text-xs py-1 px-2">
+                    Save
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" onClick={onEdit} className="text-xs py-1 px-2">
+                    Edit
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="text-xs py-1 px-2 text-gray-500 hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
+                    onClick={handleDeleteClick}
+                    disabled={isLastBook}
+                    title={isLastBook ? 'Cannot delete the last book' : undefined}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Delete Book
+                  </Button>
+                </>
+              )}
+            </div>
+
+            {showDeleteWarning && (
+              <div className="flex items-center gap-2 p-3 text-sm bg-red-50 border border-red-200 rounded-md">
+                <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                <div className="flex-1 text-red-800">Are you sure you want to delete this book? This action cannot be undone.</div>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" className="text-xs hover:bg-red-100" onClick={() => setShowDeleteWarning(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs text-red-600 hover:bg-red-100 hover:text-red-700"
+                    onClick={() => {
+                      setShowDeleteWarning(false);
+                      onDelete();
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
         </>

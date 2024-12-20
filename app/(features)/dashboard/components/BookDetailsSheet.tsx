@@ -2,43 +2,39 @@ import { Eye, Link as LinkIcon, X, Plus } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle, SheetClose } from '@/app/components/ui/sheet';
 import { Book } from '../types/books';
 import { ReadingStatus } from '../types/books';
-import { useId, useCallback, useState } from 'react';
+import { useId, useState } from 'react';
 import ReadingProgressBar from './ReadingProgressBar';
-import { useDashboardStore } from '../stores/useDashboardStore';
+import { useDashboardStore, selectIsLastBook } from '../stores/useDashboardStore';
 import ReadingControls from './ReadingControls';
 import BookHighlights from './BookHighlights';
 import Link from 'next/link';
 import { Button } from '@/app/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 interface BookDetailsSheetProps {
   book: Book;
 }
 
 const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
+  const router = useRouter();
   const uniqueId = useId();
-  const sheetDescriptionId = `book-details-desc-${uniqueId}`;
-  const updateBookStatus = useDashboardStore((state) => state.updateBookStatus);
-  const updateReadingProgress = useDashboardStore((state) => state.updateReadingProgress);
   const [showHighlights, setShowHighlights] = useState(false);
+  const { updateBookStatus, updateReadingProgress, deleteBook } = useDashboardStore();
+  const isLastBook = useDashboardStore(selectIsLastBook);
+
+  const handleDelete = () => {
+    if (!isLastBook) {
+      deleteBook(book.id);
+      router.push('/dashboard/library');
+    }
+  };
+
+  const handleProgressChange = (value: number[]) => {
+    const newPage = value[0];
+    updateReadingProgress(book.id, newPage);
+  };
 
   const description = book.subtitle || `Details for ${book.title}`;
-
-  const handleProgressChange = useCallback(
-    (value: number[]) => {
-      const newPage = value[0];
-      updateReadingProgress(book.id, newPage);
-
-      // Automatically update status based on pages read
-      if (newPage === 0) {
-        updateBookStatus(book.id, ReadingStatus.NOT_STARTED);
-      } else if (newPage === book.totalPages) {
-        updateBookStatus(book.id, ReadingStatus.COMPLETED);
-      } else if (newPage > 0) {
-        updateBookStatus(book.id, ReadingStatus.IN_PROGRESS);
-      }
-    },
-    [book.id, book.totalPages, updateBookStatus, updateReadingProgress]
-  );
 
   return (
     <Sheet>
@@ -53,7 +49,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
       <SheetContent
         side="right"
         className="w-full sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] p-0 m-0 sm:m-4 h-[100dvh] rounded-none sm:rounded-lg bg-gradient-to-br from-white to-blue-50 flex flex-col [&>button]:!ring-0 [&>button]:!outline-none [&>button]:focus:!ring-0 [&>button]:focus:!outline-none [&>button]:focus-visible:!ring-0 [&>button]:focus-visible:!outline-none [&>button]:focus-visible:!ring-offset-0"
-        aria-describedby={sheetDescriptionId}
+        aria-describedby={`book-details-desc-${uniqueId}`}
       >
         <SheetClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
           <X className="h-4 w-4" />
@@ -123,6 +119,8 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                 variant="mobile"
                 onStatusChange={updateBookStatus}
                 onProgressChange={handleProgressChange}
+                onDelete={handleDelete}
+                isLastBook={isLastBook}
               />
             </div>
 
@@ -178,6 +176,8 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                     variant="desktop"
                     onStatusChange={updateBookStatus}
                     onProgressChange={handleProgressChange}
+                    onDelete={handleDelete}
+                    isLastBook={isLastBook}
                   />
                 </div>
               </div>

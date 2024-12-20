@@ -9,9 +9,9 @@ export interface GoogleBooksResponse {
 }
 
 export enum ReadingStatus {
-  NOT_STARTED = 'NOT_STARTED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
+  NOT_STARTED = 'not-started',
+  IN_PROGRESS = 'in-progress',
+  COMPLETED = 'completed',
 }
 
 export interface Book {

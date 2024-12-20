@@ -7,20 +7,9 @@ import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
 import { Plus, Settings2 } from 'lucide-react';
-import { DeleteBookDialog } from '../../components/DeleteBookDialog';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/app/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 import ReadingProgressBar from '../../components/ReadingProgressBar';
 import EditableBookDescription from '../../components/EditableBookDescription';
@@ -32,15 +21,12 @@ function BookDetailsContent() {
   const router = useRouter();
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
-  const { books: rawBooks = [], updateBookStatus, updateReadingProgress, deleteBook, updateBookDescription, updateBookGenre } = useDashboardStore();
+  const { books: rawBooks = [], updateBookStatus, updateReadingProgress, updateBookDescription, updateBookGenre } = useDashboardStore();
   const isLoading = useDashboardStore((state) => state.isLoading);
   const books = rawBooks.map((b) => ({ ...b, status: b.status as ReadingStatus }));
   const { changeBookStatus, isChangingStatus } = useBookStatus(books);
   const book = books.find((b) => b.id === id);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const isLastBook = useDashboardStore(selectIsLastBook);
-  const [showResetDialog, setShowResetDialog] = useState(false);
-  const [pendingStatus, setPendingStatus] = useState<ReadingStatus | null>(null);
   const { showEditControls, toggleEditControls } = useEditMode();
   const [editedDescription, setEditedDescription] = useState('');
   const [editedGenre, setEditedGenre] = useState('');
@@ -81,32 +67,8 @@ function BookDetailsContent() {
   const handleStatusChange = async (bookId: string, newStatus: ReadingStatus) => {
     if (isChangingStatus) return;
 
-    if (newStatus === ReadingStatus.NOT_STARTED) {
-      setPendingStatus(newStatus);
-      setShowResetDialog(true);
-      return;
-    }
-
     if (await changeBookStatus(book, newStatus)) {
       updateBookStatus(bookId, newStatus);
-    }
-  };
-
-  const handleResetConfirm = async () => {
-    if (!pendingStatus || isChangingStatus) return;
-
-    if (await changeBookStatus(book, pendingStatus)) {
-      updateBookStatus(book.id, pendingStatus);
-      updateReadingProgress(book.id, 0); // Reset progress to 0
-    }
-    setShowResetDialog(false);
-    setPendingStatus(null);
-  };
-
-  const handleDeleteBook = () => {
-    if (!isLastBook) {
-      deleteBook(book.id);
-      router.push('/dashboard/library');
     }
   };
 
@@ -159,7 +121,7 @@ function BookDetailsContent() {
 
         {/* Reading Controls Dialog */}
         <Dialog open={showReadingControlsDialog} onOpenChange={setShowReadingControlsDialog}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
               <DialogTitle>Reading Controls</DialogTitle>
             </DialogHeader>
@@ -173,7 +135,6 @@ function BookDetailsContent() {
               onStatusChange={handleStatusChange}
               onProgressChange={handleProgressChange}
               onEdit={toggleEditControls}
-              onDelete={() => setShowDeleteDialog(true)}
               isLastBook={isLastBook}
               showEditControls={showEditControls}
               onSaveChanges={handleSaveChanges}
@@ -222,24 +183,6 @@ function BookDetailsContent() {
           <h2 className="text-lg font-semibold leading-tight text-slate-500">Highlights</h2>
           <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={false} listOnly={true} />
         </div>
-
-        {/* Keep existing dialogs */}
-        <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Reset Reading Progress?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Changing the status to &ldquo;Not Started&rdquo; will reset your reading progress to 0 pages. Are you sure you want to continue?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setPendingStatus(null)}>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleResetConfirm}>Continue</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        <DeleteBookDialog isOpen={showDeleteDialog} onClose={() => setShowDeleteDialog(false)} onConfirm={handleDeleteBook} bookTitle={book.title} />
       </div>
 
       {/* Sticky Footer */}

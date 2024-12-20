@@ -6,7 +6,7 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Plus, Settings2, Pencil, Highlighter, ExternalLink, Info } from 'lucide-react';
+import { Plus, Settings2, Pencil, ExternalLink, Info } from 'lucide-react';
 import { selectIsLastBook } from '../../stores/useDashboardStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
@@ -16,6 +16,7 @@ import EditableBookDescription from '../../components/EditableBookDescription';
 import ReadingControls from '../../components/ReadingControls';
 import EditableGenre from '../../components/EditableGenre';
 import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
+import Toolbar from '../../components/Toolbar';
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -118,12 +119,6 @@ function BookDetailsContent() {
       {/* Highlights Dialog */}
       <Dialog open={showHighlightsDialog} onOpenChange={setShowHighlightsDialog}>
         <DialogContent className="sm:max-w-[600px] focus-visible:outline-none [&>button]:bg-slate-200 [&>button]:hover:bg-slate-300 [&>button]:transition-colors [&>button]:duration-200 [&>button]:p-1.5 [&>button]:rounded-full [&>button]:scale-85">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Highlighter className="h-5 w-5" />
-              Add Highlight
-            </DialogTitle>
-          </DialogHeader>
           <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={true} onClose={() => setShowHighlightsDialog(false)} />
         </DialogContent>
       </Dialog>
@@ -155,17 +150,26 @@ function BookDetailsContent() {
 
       <div className="p-6 pb-12 max-w-4xl mx-auto space-y-8">
         {/* Mobile Controls */}
-        <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="icon" onClick={() => setShowReadingControlsDialog(true)} className="h-10 w-10 rounded-full bg-slate-200">
-            <Settings2 className="h-10 w-10 " />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => setShowHighlightsDialog(true)} className="h-10 w-10 rounded-full bg-slate-200">
-            <Plus className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={toggleEditControls} className="h-10 w-10 rounded-full bg-slate-200">
-            <Pencil className="h-5 w-5" />
-          </Button>
-        </div>
+        <Toolbar
+          actions={[
+            {
+              icon: Settings2,
+              label: 'Reading controls',
+              onClick: () => setShowReadingControlsDialog(true),
+            },
+            {
+              icon: Plus,
+              label: 'Add highlight',
+              onClick: () => setShowHighlightsDialog(true),
+            },
+            {
+              icon: Pencil,
+              label: 'Toggle edit mode',
+              onClick: toggleEditControls,
+            },
+          ]}
+          className="flex items-center gap-3 mb-4"
+        />
 
         {/* Book Details */}
         <div className="flex flex-col md:flex-row gap-6">

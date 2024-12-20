@@ -1,16 +1,17 @@
-import { Eye, Link as LinkIcon, X, Plus, Trash2 } from 'lucide-react';
+import { Eye, Link as LinkIcon, X, Plus, Trash2, Settings2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle, SheetClose, SheetHeader } from '@/app/components/ui/sheet';
 import { Book } from '../types/books';
 import { useId, useState } from 'react';
 import ReadingProgressBar from './ReadingProgressBar';
 import { useDashboardStore, selectIsLastBook } from '../stores/useDashboardStore';
 import Link from 'next/link';
-import { Button } from '@/app/components/ui/button';
 import { useRouter } from 'next/navigation';
 import BookHighlights from './BookHighlights';
-import StatusButtons from './StatusButtons';
 import BookProgressSlider from './BookProgressSlider';
 import { DeleteBookDialog } from './DeleteBookDialog';
+import Toolbar, { ToolbarAction } from './Toolbar';
+import ReadingControls from './ReadingControls';
+import StatusButtons from './StatusButtons';
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -21,6 +22,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
   const uniqueId = useId();
   const [showHighlights, setShowHighlights] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showReadingControls, setShowReadingControls] = useState(false);
   const { updateBookStatus, updateReadingProgress, deleteBook } = useDashboardStore();
   const isLastBook = useDashboardStore(selectIsLastBook);
 
@@ -37,6 +39,27 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
   };
 
   const description = book.subtitle || `Details for ${book.title}`;
+
+  const toolbarActions: ToolbarAction[] = [
+    {
+      icon: Trash2,
+      label: 'Delete book',
+      onClick: () => setShowDeleteDialog(true),
+      variant: 'destructive',
+      disabled: isLastBook,
+    },
+    {
+      icon: Settings2,
+      label: showReadingControls ? 'Hide reading controls' : 'Show reading controls',
+      onClick: () => setShowReadingControls(!showReadingControls),
+      variant: showReadingControls ? 'outline' : 'default',
+    },
+    {
+      icon: Plus,
+      label: showHighlights ? 'Hide highlight form' : 'Add highlight',
+      onClick: () => setShowHighlights(!showHighlights),
+    },
+  ];
 
   return (
     <Sheet>
@@ -62,27 +85,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
         <SheetHeader className="px-4 sm:px-6 pt-4">
           <div className="flex justify-between items-center mb-4">
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full p-2 text-destructive hover:text-destructive/90 bg-destructive/10 hover:bg-destructive/20"
-                onClick={() => setShowDeleteDialog(true)}
-                disabled={isLastBook}
-              >
-                <Trash2 className="h-5 w-5" />
-                <span className="sr-only">Delete book</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowHighlights(!showHighlights)}
-                className="rounded-full p-2 text-slate-700 bg-slate-100 hover:bg-slate-200"
-              >
-                <Plus className="h-5 w-5" />
-                <span className="sr-only">{showHighlights ? 'Hide highlight form' : 'Add highlight'}</span>
-              </Button>
-            </div>
+            <Toolbar actions={toolbarActions} className="my-4" />
             <SheetClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
               <X className="h-5 w-5" />
               <span className="sr-only">Close</span>
@@ -133,18 +136,21 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                   )}
                 </div>
 
-                {/* Reading Status Buttons */}
-                <StatusButtons bookId={book.id} currentStatus={book.status} onStatusChange={updateBookStatus} size="small" align="left" />
-
-                {/* Current Page Slider */}
-                <BookProgressSlider
-                  currentPage={book.currentPage || 0}
-                  totalPages={book.totalPages}
-                  onPageChange={handleProgressChange}
-                  uniqueId={uniqueId}
-                  variant="desktop"
-                  showPercentage={true}
-                />
+                {showReadingControls && (
+                  <ReadingControls
+                    bookId={book.id}
+                    currentPage={book.currentPage}
+                    totalPages={book.totalPages}
+                    status={book.status}
+                    uniqueId={uniqueId}
+                    variant="desktop"
+                    onStatusChange={updateBookStatus}
+                    onProgressChange={handleProgressChange}
+                    onDelete={handleDelete}
+                    onCancel={() => setShowReadingControls(false)}
+                    isLastBook={isLastBook}
+                  />
+                )}
               </div>
             </div>
           </div>

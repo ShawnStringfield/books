@@ -50,9 +50,16 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="w-full sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] p-0 m-0 sm:m-4 h-[100dvh] rounded-none sm:rounded-lg bg-gradient-to-br from-white to-blue-50 flex flex-col [&>button]:hidden"
+        className="w-full sm:w-[540px] md:min-w-[500px] lg:min-w-[700px] p-0 h-[100dvh] rounded-none bg-gradient-to-br from-white to-blue-50 flex flex-col [&>button]:hidden overflow-hidden"
         aria-describedby={`book-details-desc-${uniqueId}`}
       >
+        <ReadingProgressBar
+          currentPage={book.currentPage}
+          totalPages={book.totalPages}
+          progress={Math.min(Math.round((book.currentPage / book.totalPages) * 100), 100)}
+          variant="bleed"
+        />
+
         <SheetHeader className="px-4 sm:px-6 pt-4">
           <div className="flex justify-between items-center mb-4">
             <div className="flex gap-2">
@@ -136,6 +143,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                   onPageChange={handleProgressChange}
                   uniqueId={uniqueId}
                   variant="desktop"
+                  showPercentage={true}
                 />
               </div>
             </div>
@@ -150,14 +158,6 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
               highlightLimit={5}
             />
           </div>
-        </div>
-
-        <div className="flex-shrink-0 bg-white/80 backdrop-blur-sm border-t px-4 sm:px-6 py-4 sm:py-6">
-          <ReadingProgressBar
-            currentPage={book.currentPage}
-            totalPages={book.totalPages}
-            progress={Math.min(Math.round((book.currentPage / book.totalPages) * 100), 100)}
-          />
         </div>
       </SheetContent>
 

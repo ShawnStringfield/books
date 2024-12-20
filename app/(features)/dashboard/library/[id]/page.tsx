@@ -105,6 +105,16 @@ function BookDetailsContent() {
 
   return (
     <DashboardLayout>
+      {/* Progress Bar - Moved from footer to top */}
+      <div className="relative -mt-[1px] bg-white">
+        <ReadingProgressBar
+          currentPage={book.currentPage || 0}
+          totalPages={book.totalPages || 0}
+          progress={book.totalPages ? Math.round(((book.currentPage || 0) / book.totalPages) * 100) : 0}
+          variant="bleed"
+        />
+      </div>
+
       {/* Highlights Dialog */}
       <Dialog open={showHighlightsDialog} onOpenChange={setShowHighlightsDialog}>
         <DialogContent className="sm:max-w-[600px] focus-visible:outline-none [&>button]:bg-slate-200 [&>button]:hover:bg-slate-300 [&>button]:transition-colors [&>button]:duration-200 [&>button]:p-1.5 [&>button]:rounded-full [&>button]:scale-85">
@@ -143,7 +153,7 @@ function BookDetailsContent() {
         </DialogContent>
       </Dialog>
 
-      <div className="p-6 pb-24 max-w-4xl mx-auto space-y-8">
+      <div className="p-6 pb-12 max-w-4xl mx-auto space-y-8">
         {/* Mobile Controls */}
         <div className="flex items-center gap-3 mb-4">
           <Button variant="ghost" size="icon" onClick={() => setShowReadingControlsDialog(true)} className="h-10 w-10 rounded-full bg-slate-200">
@@ -237,21 +247,15 @@ function BookDetailsContent() {
         <div className="space-y-4 py-8">
           <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={false} onClose={() => setShowHighlightsDialog(false)} />
         </div>
-      </div>
 
-      {/* Sticky Footer */}
-      <div className="fixed bottom-0 left-0 right-0 border-t bg-white p-4">
-        <div className="max-w-4xl mx-auto space-y-2">
-          <div className="flex justify-between items-center text-sm text-gray-600">
-            <span>Progress</span>
-            <span>
-              {book.currentPage || 0} of {book.totalPages || 0} pages
-            </span>
-          </div>
+        {/* Book Progress Section */}
+        <div className="space-y-4 py-8 border-t">
+          <h2 className="text-lg font-semibold leading-tight text-slate-500">Reading Progress</h2>
           <ReadingProgressBar
             currentPage={book.currentPage || 0}
-            totalPages={book.totalPages || 0}
-            progress={book.totalPages ? Math.round(((book.currentPage || 0) / book.totalPages) * 100) : 0}
+            totalPages={book.totalPages}
+            progress={Math.round(((book.currentPage || 0) / book.totalPages) * 100)}
+            variant="default"
           />
         </div>
       </div>

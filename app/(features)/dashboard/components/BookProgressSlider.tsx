@@ -10,6 +10,7 @@ interface BookProgressSliderProps {
   uniqueId: string;
   variant?: 'mobile' | 'desktop';
   showSlider?: boolean;
+  showPercentage?: boolean;
   className?: string;
 }
 
@@ -20,6 +21,7 @@ const BookProgressSlider = ({
   uniqueId,
   variant = 'desktop',
   showSlider = true,
+  showPercentage = false,
   className,
 }: BookProgressSliderProps) => {
   const sliderId = `${variant}-pages-${uniqueId}`;
@@ -30,6 +32,8 @@ const BookProgressSlider = ({
     totalPages,
     onPageChange,
   });
+
+  const percentComplete = Math.min(Math.round((currentPage / totalPages) * 100), 100);
 
   return (
     <div className={cn('w-full', className)}>
@@ -66,7 +70,10 @@ const BookProgressSlider = ({
               className="py-2"
             />
           </div>
-          <div className="text-xs text-gray-500">{pagesRemaining} pages remaining</div>
+          <div className="flex justify-between items-center text-xs text-gray-500">
+            <span>{pagesRemaining} pages remaining</span>
+            {showPercentage && <span>({percentComplete}%)</span>}
+          </div>
         </>
       )}
     </div>

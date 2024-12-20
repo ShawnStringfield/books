@@ -102,7 +102,14 @@ const ReadingControls = ({
 
       {/* Reading Progress Section */}
       <div className="space-y-4">
-        <BookProgressSlider currentPage={currentPage} totalPages={totalPages} onPageChange={onProgressChange} variant={variant} uniqueId={uniqueId} />
+        <BookProgressSlider
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onProgressChange}
+          variant={variant}
+          uniqueId={uniqueId}
+          showPercentage={true}
+        />
       </div>
 
       {/* Action Buttons */}

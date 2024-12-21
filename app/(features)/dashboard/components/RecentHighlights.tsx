@@ -1,28 +1,37 @@
 import { Button } from '@/app/components/ui/button';
 import { BookText, Highlighter } from 'lucide-react';
-import { useBookStore } from '../stores/useBookStore';
+import { useBookStore, selectBooks, selectHighlights } from '../stores/useBookStore';
 import { formatDistanceToNow } from 'date-fns';
 import type { EnrichedHighlight } from '../stores/useBookStore';
-import type { Highlight } from '../types/books';
 import { useMemo } from 'react';
-import { enrichHighlights, getRecentHighlights } from '../utils/highlightUtils';
+import { enrichHighlights } from '../utils/highlightUtils';
 
-interface RecentHighlightsProps {
-  highlights: Highlight[];
-  highlightsThisMonth: number;
-}
+const RecentHighlights = () => {
+  // Get raw data from store
+  const books = useBookStore(selectBooks);
+  const highlights = useBookStore(selectHighlights);
 
-const RecentHighlights = ({ highlights: propHighlights, highlightsThisMonth }: RecentHighlightsProps) => {
-  const books = useBookStore((state) => state.books);
+  // Memoize the enriched data
+  const enrichedData = useMemo(() => {
+    const enrichedHighlights = enrichHighlights(highlights, books);
+    const sortedHighlights = enrichedHighlights.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const recentHighlights = sortedHighlights.slice(0, 5);
+    const totalHighlights = enrichedHighlights.length;
 
-  // Memoize the computed values
-  const { recentHighlights, totalHighlights } = useMemo(() => {
-    const enrichedHighlights = enrichHighlights(propHighlights, books);
+    const now = new Date();
+    const highlightsThisMonth = enrichedHighlights.filter((highlight) => {
+      const highlightDate = new Date(highlight.createdAt);
+      return highlightDate.getMonth() === now.getMonth() && highlightDate.getFullYear() === now.getFullYear();
+    }).length;
+
     return {
-      recentHighlights: getRecentHighlights(enrichedHighlights, 5),
-      totalHighlights: enrichedHighlights.length,
+      recentHighlights,
+      totalHighlights,
+      highlightsThisMonth,
     };
-  }, [propHighlights, books]);
+  }, [books, highlights]);
+
+  const { recentHighlights, totalHighlights, highlightsThisMonth } = enrichedData;
 
   return (
     <div className="my-16">

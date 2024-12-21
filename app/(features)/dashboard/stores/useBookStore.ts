@@ -269,9 +269,51 @@ export const useBookStore = create<BookStore>()(
   )
 );
 
+// Types
+export interface EnrichedHighlight extends Highlight {
+  bookTitle: string;
+  bookAuthor: string;
+  bookCurrentPage: number;
+  bookTotalPages: number;
+  readingProgress: number;
+}
+
+// Base selectors
+export const selectBooks = (state: BookStore): Book[] => state.books;
+export const selectHighlights = (state: BookStore): Highlight[] => state.highlights;
+
+// Memoized selectors using Zustand's built-in memoization
+export const selectEnrichedHighlights = (state: BookStore): EnrichedHighlight[] => {
+  const books = selectBooks(state);
+  const highlights = selectHighlights(state);
+  const enriched = enrichHighlights(highlights, books);
+  return enriched.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+};
+
+// Combined selector for recent highlights data
+export const selectRecentHighlightsData = (
+  state: BookStore
+): {
+  recentHighlights: EnrichedHighlight[];
+  totalHighlights: number;
+  highlightsThisMonth: number;
+} => {
+  const enrichedHighlights = selectEnrichedHighlights(state);
+  const now = new Date();
+
+  const highlightsThisMonth = enrichedHighlights.filter((highlight: EnrichedHighlight) => {
+    const highlightDate = new Date(highlight.createdAt);
+    return highlightDate.getMonth() === now.getMonth() && highlightDate.getFullYear() === now.getFullYear();
+  }).length;
+
+  return {
+    recentHighlights: enrichedHighlights.slice(0, 5),
+    totalHighlights: enrichedHighlights.length,
+    highlightsThisMonth,
+  };
+};
+
 // Enhanced selectors for better performance
-export const selectBooks = (state: BookStore) => state.books;
-export const selectHighlights = (state: BookStore) => state.highlights;
 export const selectRecentHighlights = (state: BookStore) => state.highlights.slice(0, 5);
 export const selectFavoriteHighlights = (state: BookStore) => state.highlights.filter((h) => h.isFavorite);
 export const selectHighlightsByBook = (bookId: string) => (state: BookStore) => state.highlights.filter((h) => h.bookId === bookId);
@@ -284,27 +326,6 @@ export const selectHighlightsThisMonth = (state: BookStore) => {
     const highlightDate = new Date(highlight.createdAt);
     return highlightDate.getMonth() === now.getMonth() && highlightDate.getFullYear() === now.getFullYear();
   }).length;
-};
-
-// New selector for all highlights with book details
-export interface EnrichedHighlight extends Highlight {
-  bookTitle: string;
-  bookAuthor: string;
-  bookCurrentPage: number;
-  bookTotalPages: number;
-  readingProgress: number; // Percentage of book read
-}
-
-// Memoized selector for enriched highlights
-export const selectEnrichedHighlights = (state: BookStore): EnrichedHighlight[] => {
-  const enriched = enrichHighlights(state.highlights, state.books);
-  return enriched.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-};
-
-// Selector for recent highlights to avoid unnecessary calculations
-export const selectRecentEnrichedHighlights = (state: BookStore): EnrichedHighlight[] => {
-  const enrichedHighlights = selectEnrichedHighlights(state);
-  return enrichedHighlights.slice(0, 5);
 };
 
 // Sort options for highlights
@@ -333,18 +354,3 @@ export const selectHasHydrated = (state: BookStore) => state.hasHydrated;
 export const selectCurrentlyReading = (state: BookStore) => state.books.filter((book) => book.status === ReadingStatus.IN_PROGRESS);
 export const selectFirstCurrentlyReading = (state: BookStore) => state.books.find((book) => book.status === ReadingStatus.IN_PROGRESS);
 export const selectIsLastBook = (state: BookStore) => state.books.length === 1;
-
-// Update the component to use a single selector
-export const selectRecentHighlightsData = (state: BookStore) => {
-  const enrichedHighlights = selectEnrichedHighlights(state);
-  const now = new Date();
-
-  return {
-    recentHighlights: enrichedHighlights.slice(0, 5),
-    totalHighlights: enrichedHighlights.length,
-    highlightsThisMonth: enrichedHighlights.filter((highlight) => {
-      const highlightDate = new Date(highlight.createdAt);
-      return highlightDate.getMonth() === now.getMonth() && highlightDate.getFullYear() === now.getFullYear();
-    }).length,
-  };
-};

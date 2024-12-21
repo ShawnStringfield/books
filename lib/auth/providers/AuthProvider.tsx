@@ -40,7 +40,6 @@ export const AuthProvider = ({
 
   // Convert NextAuth session to our custom session type
   const session: Session = useMemo(() => {
-    console.log('Session Data:', sessionData); // Debug log
     return {
       user: sessionData?.user
         ? {

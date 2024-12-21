@@ -34,7 +34,7 @@ export const ProgressWizard = ({
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="mb-8 space-y-2" data-testid="progress-wizard">
-          <ProgressBar value={progress} />
+          <ProgressBar value={progress} showKnob={true} />
           <ProgressSteps steps={steps.map((step) => step)} currentStep={currentStep} completedSteps={completedSteps} onStepClick={onStepChange} />
         </div>
 

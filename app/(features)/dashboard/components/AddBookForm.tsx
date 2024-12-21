@@ -7,7 +7,7 @@ import { GoogleBook, GoogleBooksResponse, ReadingStatus } from '../types/books';
 import Image from 'next/image';
 import { Input } from '@/app/components/ui/input';
 import { Button } from '@/app/components/ui/button';
-import { useDashboardStore } from '../stores/useDashboardStore';
+import { useBookStore } from '@/app/(features)/dashboard/stores/useBookStore';
 import { v4 as uuidv4 } from 'uuid';
 import { Separator } from '@/app/components/ui/separator';
 
@@ -25,7 +25,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
   const debouncedSearch = useDebounce(searchQuery, 500);
   const [addAsInProgress, setAddAsInProgress] = useState(false);
 
-  const { addBook, setLoading, isLoading, books } = useDashboardStore();
+  const { addBook, setLoading, isLoading, books } = useBookStore();
 
   // Search functionality
   useEffect(() => {

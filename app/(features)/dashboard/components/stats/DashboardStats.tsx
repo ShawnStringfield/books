@@ -1,7 +1,7 @@
 import React from 'react';
 import { MonthlyStats } from './MonthlyStats';
 import { YearlyStats } from './YearlyStats';
-import { useDashboardStore, selectBooks, selectHighlights, selectIsLoading, selectError, selectHasHydrated } from '../../stores/useDashboardStore';
+import { useBookStore, selectBooks, selectHighlights, selectIsLoading, selectError, selectHasHydrated } from '../../stores/useBookStore';
 import { useBookGoals } from '@/app/(features)/profile-onboarding/hooks/useOnboardingStore';
 import { calculateReadingStats } from '../../utils/statsCalculator';
 import { Skeleton } from '@/app/components/ui/skeleton';
@@ -16,11 +16,11 @@ const StatsLoadingSkeleton = () => (
 );
 
 export const DashboardStats = () => {
-  const books = useDashboardStore(selectBooks);
-  const highlights = useDashboardStore(selectHighlights);
-  const isLoading = useDashboardStore(selectIsLoading);
-  const error = useDashboardStore(selectError);
-  const hasHydrated = useDashboardStore(selectHasHydrated);
+  const books = useBookStore(selectBooks);
+  const highlights = useBookStore(selectHighlights);
+  const isLoading = useBookStore(selectIsLoading);
+  const error = useBookStore(selectError);
+  const hasHydrated = useBookStore(selectHasHydrated);
   const bookGoals = useBookGoals();
 
   if (!hasHydrated || isLoading) {

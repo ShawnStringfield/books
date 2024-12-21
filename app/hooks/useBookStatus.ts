@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/app/hooks/use-toast';
 import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
-import { useDashboardStore } from '@/app/(features)/dashboard/stores/useDashboardStore';
+import { useBookStore } from '@/app/(features)/dashboard/stores/useBookStore';
 
 interface Book {
   id: string;
@@ -20,7 +20,7 @@ interface UseBookStatusResult {
 
 export const useBookStatus = (books: Book[]): UseBookStatusResult => {
   const { toast } = useToast();
-  const { updateReadingProgress } = useDashboardStore();
+  const { updateReadingProgress } = useBookStore();
   const [isChangingStatus, setIsChangingStatus] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 

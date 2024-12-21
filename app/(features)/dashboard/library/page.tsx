@@ -5,13 +5,13 @@ import DashboardLayout from '../components/DashboardLayout';
 import { BooksList } from '../components/BooksList';
 import { Plus } from 'lucide-react';
 import { AddBookForm } from '../components/AddBookForm';
-import { useDashboardStore } from '../stores/useDashboardStore';
+import { useBookStore } from '../stores/useBookStore';
 import Toolbar, { ToolbarAction } from '../components/Toolbar';
 
 export default function LibraryPage() {
   const [mounted, setMounted] = useState(false);
-  const isLoading = useDashboardStore((state) => state.isLoading);
-  const error = useDashboardStore((state) => state.error);
+  const isLoading = useBookStore((state) => state.isLoading);
+  const error = useBookStore((state) => state.error);
   const [isAddingBook, setIsAddingBook] = useState(false);
 
   useLayoutEffect(() => {

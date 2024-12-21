@@ -1,6 +1,6 @@
 import { Button } from '@/app/components/ui/button';
 import { BookText, Highlighter } from 'lucide-react';
-import { useDashboardStore } from '../stores/useDashboardStore';
+import { useBookStore } from '../stores/useBookStore';
 import { formatDistanceToNow } from 'date-fns';
 import { Highlight } from '../types/books';
 
@@ -10,7 +10,7 @@ interface RecentHighlightsProps {
 }
 
 const RecentHighlights = ({ highlights, highlightsThisMonth }: RecentHighlightsProps) => {
-  const { books } = useDashboardStore();
+  const { books } = useBookStore();
   const recentHighlights = [...highlights].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
 
   return (

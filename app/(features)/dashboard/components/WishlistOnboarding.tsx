@@ -25,7 +25,7 @@ interface Highlight {
   createdAt: Date;
 }
 
-interface DashboardStore {
+interface BookStore {
   books: Book[];
   highlights: Highlight[];
   addBook: (book: Book) => void;
@@ -35,7 +35,7 @@ interface DashboardStore {
 }
 
 // Store
-const useDashboardStore = create<DashboardStore>()(
+const useBookStore = create<BookStore>()(
   persist(
     (set) => ({
       books: [],
@@ -51,12 +51,12 @@ const useDashboardStore = create<DashboardStore>()(
           books: state.books.map((b) => (b.id === bookId ? { ...b, currentPage } : b)),
         })),
     }),
-    { name: 'dashboard-store' }
+    { name: 'book-store' }
   )
 );
 
 const WishlistOnboarding = () => {
-  const { books } = useDashboardStore();
+  const { books } = useBookStore();
 
   const wishlist = books.filter((b) => !b.startDate);
 

@@ -1,5 +1,5 @@
 import { Button } from '@/app/components/ui/button';
-import { useDashboardStore } from '../stores/useDashboardStore';
+import { useBookStore } from '../stores/useBookStore';
 import { useState, useCallback } from 'react';
 import { Highlighter } from 'lucide-react';
 
@@ -11,7 +11,7 @@ interface AddHighlightFormProps {
 
 const AddHighlightForm = ({ bookId, currentPage, onClose }: AddHighlightFormProps) => {
   const [newHighlight, setNewHighlight] = useState('');
-  const addHighlight = useDashboardStore((state) => state.addHighlight);
+  const addHighlight = useBookStore((state) => state.addHighlight);
 
   const handleAddHighlight = useCallback(() => {
     if (!newHighlight.trim()) return;

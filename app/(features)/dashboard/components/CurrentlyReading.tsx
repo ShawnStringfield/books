@@ -4,7 +4,7 @@ import { Library, PlusCircle } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 import { Book } from '../types/books';
-import { useDashboardStore, selectIsLastBook } from '../stores/useDashboardStore';
+import { useBookStore, selectIsLastBook } from '../stores/useBookStore';
 import BookCard from './BookCard';
 import { DeleteBookDialog } from './DeleteBookDialog';
 import { useState } from 'react';
@@ -14,8 +14,8 @@ interface CurrentlyReadingProps {
 }
 
 const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
-  const { updateBookStatus, deleteBook } = useDashboardStore();
-  const isLastBook = useDashboardStore(selectIsLastBook);
+  const { updateBookStatus, deleteBook } = useBookStore();
+  const isLastBook = useBookStore(selectIsLastBook);
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
 
   const handleDelete = () => {
@@ -58,7 +58,7 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
 };
 
 function EmptyReadingState() {
-  const { isAddBookDrawerOpen, setAddBookDrawerOpen } = useDashboardStore();
+  const { isAddBookDrawerOpen, setAddBookDrawerOpen } = useBookStore();
 
   return (
     <Card className="bg-gradient-to-br from-blue-50 to-white">

@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { Book, Highlight, ReadingStatus } from '../types/books';
 import { v4 as uuidv4 } from 'uuid';
 
-interface DashboardState {
+interface BookState {
   books: Book[];
   highlights: Highlight[];
   isLoading: boolean;
@@ -12,7 +12,7 @@ interface DashboardState {
   hasHydrated: boolean;
 }
 
-interface DashboardActions {
+interface BookActions {
   addBook: (book: Book) => void;
   addHighlight: (bookId: string, highlight: Omit<Highlight, 'id' | 'bookId' | 'createdAt'>) => void;
   toggleFavoriteHighlight: (id: string) => void;
@@ -28,9 +28,9 @@ interface DashboardActions {
   deleteHighlight: (highlightId: string) => void;
 }
 
-export type DashboardStore = DashboardState & DashboardActions;
+export type BookStore = BookState & BookActions;
 
-export const useDashboardStore = create<DashboardStore>()(
+export const useBookStore = create<BookStore>()(
   persist(
     (set) => ({
       // Initial state
@@ -238,11 +238,11 @@ export const useDashboardStore = create<DashboardStore>()(
 );
 
 // Selectors for better performance
-export const selectBooks = (state: DashboardStore) => state.books;
-export const selectHighlights = (state: DashboardStore) => state.highlights;
-export const selectIsLoading = (state: DashboardStore) => state.isLoading;
-export const selectError = (state: DashboardStore) => state.error;
-export const selectHasHydrated = (state: DashboardStore) => state.hasHydrated;
-export const selectCurrentlyReading = (state: DashboardStore) => state.books.filter((book) => book.status === ReadingStatus.IN_PROGRESS);
-export const selectFirstCurrentlyReading = (state: DashboardStore) => state.books.find((book) => book.status === ReadingStatus.IN_PROGRESS);
-export const selectIsLastBook = (state: DashboardStore) => state.books.length === 1;
+export const selectBooks = (state: BookStore) => state.books;
+export const selectHighlights = (state: BookStore) => state.highlights;
+export const selectIsLoading = (state: BookStore) => state.isLoading;
+export const selectError = (state: BookStore) => state.error;
+export const selectHasHydrated = (state: BookStore) => state.hasHydrated;
+export const selectCurrentlyReading = (state: BookStore) => state.books.filter((book) => book.status === ReadingStatus.IN_PROGRESS);
+export const selectFirstCurrentlyReading = (state: BookStore) => state.books.find((book) => book.status === ReadingStatus.IN_PROGRESS);
+export const selectIsLastBook = (state: BookStore) => state.books.length === 1;

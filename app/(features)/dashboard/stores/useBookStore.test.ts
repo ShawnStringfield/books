@@ -1,10 +1,10 @@
 import { renderHook, act } from '@testing-library/react';
-import { useDashboardStore } from './useDashboardStore';
+import { useBookStore } from './useBookStore';
 import { ReadingStatus } from '../types/books';
 
-describe('useDashboardStore', () => {
+describe('useBookStore', () => {
   beforeEach(() => {
-    useDashboardStore.setState({
+    useBookStore.setState({
       books: [],
       highlights: [],
       isLoading: false,
@@ -13,7 +13,7 @@ describe('useDashboardStore', () => {
   });
 
   it('should add a book', () => {
-    const { result } = renderHook(() => useDashboardStore());
+    const { result } = renderHook(() => useBookStore());
 
     act(() => {
       result.current.addBook({
@@ -22,9 +22,10 @@ describe('useDashboardStore', () => {
         author: 'Test Author',
         currentPage: 0,
         totalPages: 100,
-        completedDate: null,
+        completedDate: undefined,
         status: ReadingStatus.NOT_STARTED,
         highlights: [],
+        categories: [],
       });
     });
 
@@ -33,7 +34,7 @@ describe('useDashboardStore', () => {
   });
 
   it('should update reading progress', () => {
-    const { result } = renderHook(() => useDashboardStore());
+    const { result } = renderHook(() => useBookStore());
 
     act(() => {
       result.current.addBook({
@@ -42,9 +43,10 @@ describe('useDashboardStore', () => {
         author: 'Test Author',
         currentPage: 0,
         totalPages: 100,
-        completedDate: null,
+        completedDate: undefined,
         status: ReadingStatus.NOT_STARTED,
         highlights: [],
+        categories: [],
       });
     });
 

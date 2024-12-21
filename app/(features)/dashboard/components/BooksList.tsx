@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useDashboardStore, selectIsLastBook } from '../stores/useDashboardStore';
+import { useBookStore, selectIsLastBook } from '../stores/useBookStore';
 import { DeleteBookDialog } from './DeleteBookDialog';
 import BookCard from './BookCard';
 import { ReadingStatus } from '../types/books';
 
 export function BooksList() {
-  const { books, deleteBook, updateBookStatus } = useDashboardStore();
-  const isLastBook = useDashboardStore(selectIsLastBook);
+  const { books, deleteBook, updateBookStatus } = useBookStore();
+  const isLastBook = useBookStore(selectIsLastBook);
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
 
   const handleDelete = () => {

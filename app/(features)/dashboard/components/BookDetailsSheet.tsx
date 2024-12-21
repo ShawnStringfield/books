@@ -3,7 +3,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle, SheetC
 import { Book } from '../types/books';
 import { useId, useState } from 'react';
 import ReadingProgressBar from './ReadingProgressBar';
-import { useDashboardStore, selectIsLastBook } from '../stores/useDashboardStore';
+import { useBookStore, selectIsLastBook } from '../stores/useBookStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import BookHighlights from './BookHighlights';
@@ -22,8 +22,8 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
   const [showHighlights, setShowHighlights] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showReadingControls, setShowReadingControls] = useState(false);
-  const { updateBookStatus, updateReadingProgress, deleteBook } = useDashboardStore();
-  const isLastBook = useDashboardStore(selectIsLastBook);
+  const { updateBookStatus, updateReadingProgress, deleteBook } = useBookStore();
+  const isLastBook = useBookStore(selectIsLastBook);
 
   const handleDelete = () => {
     if (!isLastBook) {

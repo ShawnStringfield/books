@@ -1,7 +1,7 @@
 import { Heart, HeartIcon, Trash2 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
-import { useDashboardStore } from '../stores/useDashboardStore';
+import { useBookStore } from '../stores/useBookStore';
 import { useCallback, useMemo } from 'react';
 
 interface HighlightsListProps {
@@ -10,9 +10,9 @@ interface HighlightsListProps {
 }
 
 const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
-  const deleteHighlight = useDashboardStore((state) => state.deleteHighlight);
-  const toggleFavoriteHighlight = useDashboardStore((state) => state.toggleFavoriteHighlight);
-  const allHighlights = useDashboardStore((state) => state.highlights);
+  const deleteHighlight = useBookStore((state) => state.deleteHighlight);
+  const toggleFavoriteHighlight = useBookStore((state) => state.toggleFavoriteHighlight);
+  const allHighlights = useBookStore((state) => state.highlights);
 
   // Memoize filtered and sorted highlights
   const highlights = useMemo(() => {

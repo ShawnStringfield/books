@@ -1,13 +1,13 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useDashboardStore } from '../../stores/useDashboardStore';
+import { useBookStore, selectHasHydrated } from '../../stores/useBookStore';
 import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '../../types/books';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
 import { Plus, Settings2, Pencil, ExternalLink, Info } from 'lucide-react';
-import { selectIsLastBook } from '../../stores/useDashboardStore';
+import { selectIsLastBook } from '../../stores/useBookStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
@@ -23,12 +23,13 @@ function BookDetailsContent() {
   const router = useRouter();
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
-  const { books: rawBooks = [], updateBookStatus, updateReadingProgress, updateBookDescription, updateBookGenre, deleteBook } = useDashboardStore();
-  const isLoading = useDashboardStore((state) => state.isLoading);
+  const { books: rawBooks = [], updateBookStatus, updateReadingProgress, updateBookDescription, updateBookGenre, deleteBook } = useBookStore();
+  const isLoading = useBookStore((state) => state.isLoading);
+  const hasHydrated = useBookStore(selectHasHydrated);
   const books = rawBooks.map((b) => ({ ...b, status: b.status as ReadingStatus }));
   const { changeBookStatus, isChangingStatus } = useBookStatus(books);
   const book = books.find((b) => b.id === id);
-  const isLastBook = useDashboardStore(selectIsLastBook);
+  const isLastBook = useBookStore(selectIsLastBook);
   const { showEditControls, toggleEditControls } = useEditMode();
   const [editedDescription, setEditedDescription] = useState('');
   const [editedGenre, setEditedGenre] = useState('');
@@ -43,7 +44,7 @@ function BookDetailsContent() {
   }, [id, router]);
 
   // Show loading state if either isLoading is true or books haven't been loaded yet
-  if (isLoading || rawBooks.length === 0) {
+  if (!hasHydrated || isLoading || rawBooks.length === 0) {
     return (
       <DashboardLayout>
         <div className="flex justify-center items-center min-h-[50vh]">

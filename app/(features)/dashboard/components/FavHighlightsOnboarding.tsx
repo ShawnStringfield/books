@@ -1,75 +1,46 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Heart } from 'lucide-react';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  coverUrl?: string;
-  totalPages: number;
-  currentPage?: number;
-  startDate?: Date;
-  completedDate?: Date;
-}
-
-interface Highlight {
-  id: string;
-  bookId: string;
-  text: string;
-  page: number;
-  isFavorite: boolean;
-  createdAt: Date;
-}
-
-interface BookStore {
-  books: Book[];
-  highlights: Highlight[];
-  addBook: (book: Book) => void;
-  addHighlight: (highlight: Highlight) => void;
-  toggleFavoriteHighlight: (id: string) => void;
-  updateReadingProgress: (bookId: string, currentPage: number) => void;
-}
-
-const useBookStore = create<BookStore>()(
-  persist(
-    (set) => ({
-      books: [],
-      highlights: [],
-      addBook: (book) => set((state) => ({ books: [...state.books, book] })),
-      addHighlight: (highlight) => set((state) => ({ highlights: [...state.highlights, highlight] })),
-      toggleFavoriteHighlight: (id) =>
-        set((state) => ({
-          highlights: state.highlights.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h)),
-        })),
-      updateReadingProgress: (bookId, currentPage) =>
-        set((state) => ({
-          books: state.books.map((b) => (b.id === bookId ? { ...b, currentPage } : b)),
-        })),
-    }),
-    { name: 'book-store' }
-  )
-);
+import { useBookStore, type BookStore } from '../stores/useBookStore';
+import { useEffect, useState } from 'react';
 
 const FavHighlightsOnboarding = () => {
-  const { books, highlights } = useBookStore();
-  const favoriteHighlights = highlights.filter((h) => h.isFavorite);
+  const [favoriteHighlights, setFavoriteHighlights] = useState<BookStore['highlights']>([]);
+  const [books, setBooks] = useState<BookStore['books']>([]);
+
+  useEffect(() => {
+    // Initial load
+    const state = useBookStore.getState();
+    setFavoriteHighlights(state.highlights.filter((h) => h.isFavorite));
+    setBooks(state.books);
+
+    // Subscribe to changes
+    const unsubscribe = useBookStore.subscribe((state) => {
+      setFavoriteHighlights(state.highlights.filter((h) => h.isFavorite));
+      setBooks(state.books);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <Card className="my-4">
       <CardContent>
         {favoriteHighlights.length > 0 ? (
           <div className="space-y-4">
-            {favoriteHighlights.slice(0, 3).map((highlight) => (
-              <div key={highlight.id} className="border-l-2 border-yellow-400 pl-4">
-                <p className="italic">{highlight.text}</p>
-                <p className="text-sm text-gray-600 mt-1">
-                  {books.find((b) => b.id === highlight.bookId)?.title} - Page {highlight.page}
-                </p>
-              </div>
-            ))}
+            {favoriteHighlights.slice(0, 3).map((highlight) => {
+              const book = books.find((b) => b.id === highlight.bookId);
+              return (
+                <div key={highlight.id} className="border-l-2 border-yellow-400 pl-4">
+                  <p className="italic">{highlight.text}</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {book?.title} - Page {highlight.page}
+                  </p>
+                </div>
+              );
+            })}
             {favoriteHighlights.length > 3 && (
               <Button variant="link" className="text-sm w-full text-center">
                 View all {favoriteHighlights.length} favorites

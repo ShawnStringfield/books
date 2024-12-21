@@ -81,7 +81,7 @@ export const useBookStore = create<BookStore>()(
 
       addHighlight: (bookId, highlight) =>
         set((state) => {
-          const newHighlight = {
+          const newHighlight: Highlight = {
             id: uuidv4(),
             bookId,
             ...highlight,
@@ -89,16 +89,18 @@ export const useBookStore = create<BookStore>()(
             isFavorite: false,
           };
 
+          const updatedBooks = state.books.map((book) =>
+            book.id === bookId
+              ? {
+                  ...book,
+                  highlights: [newHighlight, ...(book.highlights || [])],
+                }
+              : book
+          );
+
           return {
-            highlights: [newHighlight, ...state.highlights], // Add to start for chronological order
-            books: state.books.map((book) =>
-              book.id === bookId
-                ? {
-                    ...book,
-                    highlights: [newHighlight, ...(book.highlights || [])], // Keep consistent with main highlights array
-                  }
-                : book
-            ),
+            highlights: [newHighlight, ...state.highlights],
+            books: updatedBooks,
           };
         }),
 
@@ -217,6 +219,7 @@ export const useBookStore = create<BookStore>()(
       deleteBook: (bookId) => {
         set((state) => ({
           books: state.books.filter((book) => book.id !== bookId),
+          highlights: state.highlights.filter((h) => h.bookId !== bookId),
         }));
       },
 

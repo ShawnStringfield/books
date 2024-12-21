@@ -3,6 +3,15 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { Book, Highlight, ReadingStatus } from '../types/books';
 import { v4 as uuidv4 } from 'uuid';
 
+interface HighlightFilters {
+  bookId?: string;
+  favorite?: boolean;
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+}
+
 interface BookState {
   books: Book[];
   highlights: Highlight[];
@@ -26,13 +35,14 @@ interface BookActions {
   updateBookGenre: (bookId: string, genre: string) => void;
   deleteBook: (bookId: string) => void;
   deleteHighlight: (highlightId: string) => void;
+  filterHighlights: (filters: HighlightFilters) => Highlight[];
 }
 
 export type BookStore = BookState & BookActions;
 
 export const useBookStore = create<BookStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       // Initial state
       books: [],
       highlights: [],
@@ -80,12 +90,12 @@ export const useBookStore = create<BookStore>()(
           };
 
           return {
-            highlights: [...state.highlights, newHighlight],
+            highlights: [newHighlight, ...state.highlights], // Add to start for chronological order
             books: state.books.map((book) =>
               book.id === bookId
                 ? {
                     ...book,
-                    highlights: [...(book.highlights || []), newHighlight],
+                    highlights: [newHighlight, ...(book.highlights || [])], // Keep consistent with main highlights array
                   }
                 : book
             ),
@@ -95,6 +105,10 @@ export const useBookStore = create<BookStore>()(
       toggleFavoriteHighlight: (id) =>
         set((state) => ({
           highlights: state.highlights.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h)),
+          books: state.books.map((book) => ({
+            ...book,
+            highlights: book.highlights?.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h)) || [],
+          })),
         })),
 
       updateReadingProgress: (bookId, currentPage) =>
@@ -223,6 +237,20 @@ export const useBookStore = create<BookStore>()(
             ),
           };
         }),
+
+      filterHighlights: (filters: HighlightFilters) => {
+        const state = get();
+        return state.highlights.filter((highlight) => {
+          if (filters.bookId && highlight.bookId !== filters.bookId) return false;
+          if (filters.favorite && !highlight.isFavorite) return false;
+          if (filters.dateRange) {
+            const { start, end } = filters.dateRange;
+            const highlightDate = new Date(highlight.createdAt);
+            if (highlightDate < start || highlightDate > end) return false;
+          }
+          return true;
+        });
+      },
     }),
     {
       name: 'book-store',
@@ -237,9 +265,58 @@ export const useBookStore = create<BookStore>()(
   )
 );
 
-// Selectors for better performance
+// Enhanced selectors for better performance
 export const selectBooks = (state: BookStore) => state.books;
 export const selectHighlights = (state: BookStore) => state.highlights;
+export const selectRecentHighlights = (state: BookStore) => state.highlights.slice(0, 5);
+export const selectFavoriteHighlights = (state: BookStore) => state.highlights.filter((h) => h.isFavorite);
+export const selectHighlightsByBook = (bookId: string) => (state: BookStore) => state.highlights.filter((h) => h.bookId === bookId);
+export const selectTotalHighlights = (state: BookStore) => state.highlights.length;
+
+// New selector for all highlights with book details
+export interface EnrichedHighlight extends Highlight {
+  bookTitle: string;
+  bookAuthor: string;
+}
+
+export const selectEnrichedHighlights = (state: BookStore): EnrichedHighlight[] => {
+  const bookMap = new Map(state.books.map((book) => [book.id, book]));
+
+  return state.highlights
+    .map((highlight) => {
+      const book = bookMap.get(highlight.bookId);
+      if (!book) return null;
+
+      return {
+        ...highlight,
+        bookTitle: book.title,
+        bookAuthor: book.author,
+      };
+    })
+    .filter((h): h is EnrichedHighlight => h !== null)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+};
+
+// Sort options for highlights
+export type HighlightSortOption = 'date' | 'book' | 'page';
+
+export const selectSortedHighlights =
+  (sortBy: HighlightSortOption) =>
+  (state: BookStore): EnrichedHighlight[] => {
+    const enrichedHighlights = selectEnrichedHighlights(state);
+
+    switch (sortBy) {
+      case 'date':
+        return enrichedHighlights; // Already sorted by date in selectEnrichedHighlights
+      case 'book':
+        return [...enrichedHighlights].sort((a, b) => a.bookTitle.localeCompare(b.bookTitle) || a.page - b.page);
+      case 'page':
+        return [...enrichedHighlights].sort((a, b) => a.bookTitle.localeCompare(b.bookTitle) || a.page - b.page);
+      default:
+        return enrichedHighlights;
+    }
+  };
+
 export const selectIsLoading = (state: BookStore) => state.isLoading;
 export const selectError = (state: BookStore) => state.error;
 export const selectHasHydrated = (state: BookStore) => state.hasHydrated;

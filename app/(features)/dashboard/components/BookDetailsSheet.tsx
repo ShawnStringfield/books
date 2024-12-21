@@ -83,7 +83,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
         <SheetHeader className="px-4 sm:px-6 pt-4">
           <div className="flex justify-between items-center mb-4">
-            <Toolbar actions={toolbarActions} className="my-4" />
+            <Toolbar actions={toolbarActions} className="mt-8" />
             <SheetClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
               <X className="h-5 w-5" />
               <span className="sr-only">Close</span>
@@ -103,9 +103,13 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
 
               <div className="space-y-8 mb-4">
                 <div>
-                  {book.subtitle && <p className="text-sm sm:text-base leading-tight mt-2">{book.subtitle}</p>}
-                  <p className="text-sm my-2 text-slate-500">by {book.author}</p>
-                  <p className="text-sm text-slate-500">{book.totalPages} pages</p>
+                  {book.subtitle && <p className="text-sm sm:text-base mt-2">{book.subtitle}</p>}
+
+                  <div className="flex items-center gap-2 my-2">
+                    <p className="text-sm my-2 text-slate-500">by {book.author}</p>
+                    <p className="text-sm text-slate-500">• {book.totalPages} pages</p>
+                  </div>
+
                   {(book.previewLink || book.infoLink) && (
                     <div className="flex gap-4 mt-2 text-sm text-slate-600">
                       {book.previewLink && (

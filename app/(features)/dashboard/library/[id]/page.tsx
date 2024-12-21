@@ -237,7 +237,7 @@ function BookDetailsContent() {
         </div>
 
         {/* About Section */}
-        <div className="space-y-4 py-8">
+        <div className="space-y-4 pt-8">
           <h2 className="text-lg font-semibold leading-tight text-slate-500">About This Book</h2>
           <EditableBookDescription
             description={book.description || ''}

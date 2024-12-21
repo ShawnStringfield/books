@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { Book, Highlight, ReadingStatus } from '../types/books';
 import { v4 as uuidv4 } from 'uuid';
+import { enrichHighlights } from '../utils/highlightUtils';
 
 interface HighlightFilters {
   bookId?: string;
@@ -296,38 +297,8 @@ export interface EnrichedHighlight extends Highlight {
 
 // Memoized selector for enriched highlights
 export const selectEnrichedHighlights = (state: BookStore): EnrichedHighlight[] => {
-  const books = state.books;
-  const highlights = state.highlights;
-
-  // Create a stable reference for the book map
-  const bookMap = new Map(
-    books.map((book) => [
-      book.id,
-      {
-        title: book.title,
-        author: book.author,
-        currentPage: book.currentPage,
-        totalPages: book.totalPages,
-      },
-    ])
-  );
-
-  return highlights
-    .map((highlight) => {
-      const book = bookMap.get(highlight.bookId);
-      if (!book) return null;
-
-      return {
-        ...highlight,
-        bookTitle: book.title,
-        bookAuthor: book.author,
-        bookCurrentPage: book.currentPage,
-        bookTotalPages: book.totalPages,
-        readingProgress: Math.round((book.currentPage / book.totalPages) * 100),
-      };
-    })
-    .filter((h): h is EnrichedHighlight => h !== null)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const enriched = enrichHighlights(state.highlights, state.books);
+  return enriched.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 };
 
 // Selector for recent highlights to avoid unnecessary calculations

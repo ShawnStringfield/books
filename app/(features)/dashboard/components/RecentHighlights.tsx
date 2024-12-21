@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import type { EnrichedHighlight } from '../stores/useBookStore';
 import type { Highlight } from '../types/books';
 import { useMemo } from 'react';
+import { enrichHighlights, getRecentHighlights } from '../utils/highlightUtils';
 
 interface RecentHighlightsProps {
   highlights: Highlight[];
@@ -16,25 +17,9 @@ const RecentHighlights = ({ highlights: propHighlights, highlightsThisMonth }: R
 
   // Memoize the computed values
   const { recentHighlights, totalHighlights } = useMemo(() => {
-    const enrichedHighlights = propHighlights
-      .map((highlight) => {
-        const book = books.find((b) => b.id === highlight.bookId);
-        if (!book) return null;
-
-        return {
-          ...highlight,
-          bookTitle: book.title,
-          bookAuthor: book.author,
-          bookCurrentPage: book.currentPage,
-          bookTotalPages: book.totalPages,
-          readingProgress: Math.round((book.currentPage / book.totalPages) * 100),
-        };
-      })
-      .filter((h): h is EnrichedHighlight => h !== null)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
+    const enrichedHighlights = enrichHighlights(propHighlights, books);
     return {
-      recentHighlights: enrichedHighlights.slice(0, 5),
+      recentHighlights: getRecentHighlights(enrichedHighlights, 5),
       totalHighlights: enrichedHighlights.length,
     };
   }, [propHighlights, books]);

@@ -10,7 +10,7 @@ import BookHighlights from './BookHighlights';
 import { DeleteBookDialog } from './DeleteBookDialog';
 import Toolbar, { ToolbarAction } from './Toolbar';
 import ReadingControls from './ReadingControls';
-import { calculatePercentComplete } from '../utils/statsCalculator';
+import { calculatePercentComplete } from '../utils/bookUtils';
 
 interface BookDetailsSheetProps {
   book: Book;

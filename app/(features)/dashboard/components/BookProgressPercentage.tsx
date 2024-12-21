@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { calculatePercentComplete } from '../utils/statsCalculator';
+import { calculatePercentComplete } from '../utils/bookUtils';
 
 interface BookProgressPercentageProps {
   currentPage: number;

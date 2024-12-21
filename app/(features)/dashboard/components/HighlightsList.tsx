@@ -3,6 +3,7 @@ import { Button } from '@/app/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
 import { useBookStore } from '../stores/useBookStore';
 import { useCallback, useMemo } from 'react';
+import { filterHighlightsByBook, getRecentHighlights } from '../utils/highlightUtils';
 
 interface HighlightsListProps {
   bookId: string;
@@ -16,11 +17,8 @@ const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
 
   // Memoize filtered and sorted highlights
   const highlights = useMemo(() => {
-    const filtered = allHighlights
-      .filter((h) => h.bookId === bookId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-    return limit ? filtered.slice(0, limit) : filtered;
+    const bookHighlights = filterHighlightsByBook(allHighlights, bookId);
+    return getRecentHighlights(bookHighlights, limit);
   }, [allHighlights, bookId, limit]);
 
   const handleToggleFavorite = useCallback(

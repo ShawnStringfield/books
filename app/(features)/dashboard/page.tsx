@@ -10,7 +10,7 @@ import { useBookStore, selectBooks, selectHighlights, selectHasHydrated } from '
 import DashboardLayout from './components/DashboardLayout';
 import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
 import DashboardStats from './components/stats/DashboardStats';
-import { getValidHighlights } from './utils/statsCalculator';
+import { validateHighlights } from './utils/highlightUtils';
 
 export default function DashboardPage() {
   useOnboardingCheck();
@@ -19,7 +19,7 @@ export default function DashboardPage() {
   const highlights = useBookStore(selectHighlights);
 
   const currentlyReadingBooks = books.filter((book) => book.status === ReadingStatus.IN_PROGRESS);
-  const validHighlights = getValidHighlights(highlights, books);
+  const validHighlights = validateHighlights(highlights, books);
 
   if (!hasHydrated) return null;
 

@@ -1,7 +1,7 @@
-import { Book, Highlight, ReadingStatus } from '../types/books';
-import { calculateReadingStats, getValidHighlights, calculatePercentComplete } from './statsCalculator';
+import { Book, ReadingStatus } from '../types/books';
+import { calculateReadingStats, calculatePercentComplete } from './bookUtils';
 
-describe('statsCalculator', () => {
+describe('bookUtils', () => {
   // Use a fixed date for testing
   const NOW = new Date('2024-01-15T12:00:00Z');
 
@@ -50,41 +50,13 @@ describe('statsCalculator', () => {
     },
   ];
 
-  const standardMockHighlights: Highlight[] = [
-    {
-      id: '1',
-      bookId: '1',
-      text: 'Highlight 1',
-      page: 10,
-      isFavorite: false,
-      createdAt: '2024-01-15T12:00:00Z', // Current month
-    },
-    {
-      id: '2',
-      bookId: '1',
-      text: 'Highlight 2',
-      page: 20,
-      isFavorite: true,
-      createdAt: '2024-01-15T12:00:00Z', // Current month
-    },
-    {
-      id: '3',
-      bookId: '2',
-      text: 'Highlight 3',
-      page: 30,
-      isFavorite: false,
-      createdAt: '2023-12-15T12:00:00Z', // Previous month
-    },
-  ];
-
   describe('calculateReadingStats', () => {
     describe('with standard data', () => {
       it('should calculate correct stats for the current month and year', () => {
-        const stats = calculateReadingStats(standardMockBooks, standardMockHighlights);
+        const stats = calculateReadingStats(standardMockBooks);
 
         expect(stats.booksCompletedThisMonth).toBe(1);
         expect(stats.booksCompletedThisYear).toBe(1);
-        expect(stats.highlightsThisMonth).toBe(2);
       });
     });
 
@@ -118,7 +90,7 @@ describe('statsCalculator', () => {
           },
         ];
 
-        const stats = calculateReadingStats(booksAtMonthTransition, []);
+        const stats = calculateReadingStats(booksAtMonthTransition);
         expect(stats.booksCompletedThisMonth).toBe(2);
       });
 
@@ -149,7 +121,7 @@ describe('statsCalculator', () => {
           },
         ];
 
-        const stats = calculateReadingStats(booksAtMonthBoundary, []);
+        const stats = calculateReadingStats(booksAtMonthBoundary);
         expect(stats.booksCompletedThisMonth).toBe(1); // Should only count the February book
       });
 
@@ -177,7 +149,7 @@ describe('statsCalculator', () => {
           },
         ];
 
-        const stats = calculateReadingStats(booksAtMonthTransition, []);
+        const stats = calculateReadingStats(booksAtMonthTransition);
         expect(stats.booksCompletedThisMonth).toBe(2);
       });
 
@@ -209,7 +181,7 @@ describe('statsCalculator', () => {
         ];
 
         // Debug information
-        const stats = calculateReadingStats(booksAtYearTransition, []);
+        const stats = calculateReadingStats(booksAtYearTransition);
         console.log('Current system time:', new Date().toISOString());
         console.log(
           'Books:',
@@ -240,7 +212,7 @@ describe('statsCalculator', () => {
           },
         ];
 
-        const stats = calculateReadingStats(booksWithInvalidDates, []);
+        const stats = calculateReadingStats(booksWithInvalidDates);
         expect(stats.booksCompletedThisMonth).toBe(0);
         expect(stats.booksCompletedThisYear).toBe(0);
       });
@@ -270,7 +242,7 @@ describe('statsCalculator', () => {
           },
         ];
 
-        const stats = calculateReadingStats(booksWithTimezones, []);
+        const stats = calculateReadingStats(booksWithTimezones);
         expect(stats.booksCompletedThisMonth).toBe(2);
       });
     });
@@ -299,59 +271,16 @@ describe('statsCalculator', () => {
           },
         ];
 
-        const stats = calculateReadingStats(booksWithNullDates, []);
+        const stats = calculateReadingStats(booksWithNullDates);
         expect(stats.booksCompletedThisMonth).toBe(0);
         expect(stats.booksCompletedThisYear).toBe(0);
       });
-
-      it('should handle malformed highlight dates', () => {
-        const highlightsWithBadDates: Highlight[] = [
-          {
-            id: '1',
-            bookId: '1',
-            text: 'Highlight with invalid date',
-            page: 1,
-            isFavorite: false,
-            createdAt: 'invalid-date',
-          },
-        ];
-
-        const stats = calculateReadingStats([], highlightsWithBadDates);
-        expect(stats.highlightsThisMonth).toBe(0);
-      });
     });
 
-    it('should return zero stats when no books or highlights exist', () => {
-      const stats = calculateReadingStats([], []);
+    it('should return zero stats when no books exist', () => {
+      const stats = calculateReadingStats([]);
       expect(stats.booksCompletedThisMonth).toBe(0);
       expect(stats.booksCompletedThisYear).toBe(0);
-      expect(stats.highlightsThisMonth).toBe(0);
-    });
-  });
-
-  describe('getValidHighlights', () => {
-    it('should return only highlights that belong to existing books', () => {
-      const validHighlights = getValidHighlights(standardMockHighlights, standardMockBooks);
-
-      expect(validHighlights).toHaveLength(3);
-      expect(validHighlights.every((h) => ['1', '2'].includes(h.bookId))).toBe(true);
-      expect(validHighlights.find((h) => h.bookId === '999')).toBeUndefined();
-    });
-
-    it('should return empty array when no valid highlights exist', () => {
-      const invalidHighlights: Highlight[] = [
-        {
-          id: '1',
-          bookId: '999',
-          text: 'Invalid highlight',
-          page: 1,
-          isFavorite: false,
-          createdAt: '2024-01-15T12:00:00Z',
-        },
-      ];
-
-      const validHighlights = getValidHighlights(invalidHighlights, standardMockBooks);
-      expect(validHighlights).toHaveLength(0);
     });
   });
 

@@ -15,7 +15,7 @@ import EditableBookDescription from '../../components/EditableBookDescription';
 import EditableGenre from '../../components/EditableGenre';
 import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
 import Toolbar, { ToolbarAction } from '../../components/Toolbar';
-import { calculatePercentComplete } from '../../utils/statsCalculator';
+import { calculatePercentComplete } from '../../utils/bookUtils';
 import ReadingControlsDialog from '../../components/dialogs/ReadingControlsDialog';
 import BookHighlightsDialog from '../../components/dialogs/BookHighlightsDialog';
 

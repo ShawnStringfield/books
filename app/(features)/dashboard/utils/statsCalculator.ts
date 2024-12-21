@@ -46,3 +46,10 @@ const getHighlightsThisMonth = (highlights: Highlight[]): number => {
 export const getValidHighlights = (highlights: Highlight[], books: Book[]): Highlight[] => {
   return highlights.filter((highlight) => books.some((book) => book.id === highlight.bookId));
 };
+
+/**
+ * Calculates the percentage complete of a book
+ */
+export const calculatePercentComplete = (currentPage: number, totalPages: number): number => {
+  return Math.min(Math.round((currentPage / totalPages) * 100), 100);
+};

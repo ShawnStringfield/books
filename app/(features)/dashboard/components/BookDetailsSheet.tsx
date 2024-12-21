@@ -7,11 +7,9 @@ import { useDashboardStore, selectIsLastBook } from '../stores/useDashboardStore
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import BookHighlights from './BookHighlights';
-import BookProgressSlider from './BookProgressSlider';
 import { DeleteBookDialog } from './DeleteBookDialog';
 import Toolbar, { ToolbarAction } from './Toolbar';
 import ReadingControls from './ReadingControls';
-import StatusButtons from './StatusButtons';
 
 interface BookDetailsSheetProps {
   book: Book;

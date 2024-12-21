@@ -2,6 +2,7 @@ import { BookOpen } from 'lucide-react';
 import { Slider } from '@/app/components/ui/slider';
 import { usePageProgress } from '../hooks/usePageProgress';
 import { cn } from '@/lib/utils';
+import BookProgressPercentage from './BookProgressPercentage';
 
 interface BookProgressSliderProps {
   currentPage: number;
@@ -32,8 +33,6 @@ const BookProgressSlider = ({
     totalPages,
     onPageChange,
   });
-
-  const percentComplete = Math.min(Math.round((currentPage / totalPages) * 100), 100);
 
   return (
     <div className={cn('w-full', className)}>
@@ -72,7 +71,7 @@ const BookProgressSlider = ({
           </div>
           <div className="flex justify-between items-center text-xs text-gray-500">
             <span>{pagesRemaining} pages remaining</span>
-            {showPercentage && <span>({percentComplete}%)</span>}
+            {showPercentage && <BookProgressPercentage currentPage={currentPage} totalPages={totalPages} />}
           </div>
         </>
       )}

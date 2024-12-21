@@ -273,16 +273,43 @@ export const selectFavoriteHighlights = (state: BookStore) => state.highlights.f
 export const selectHighlightsByBook = (bookId: string) => (state: BookStore) => state.highlights.filter((h) => h.bookId === bookId);
 export const selectTotalHighlights = (state: BookStore) => state.highlights.length;
 
+// New selector for monthly highlights count
+export const selectHighlightsThisMonth = (state: BookStore) => {
+  const now = new Date();
+  return state.highlights.filter((highlight) => {
+    const highlightDate = new Date(highlight.createdAt);
+    return highlightDate.getMonth() === now.getMonth() && highlightDate.getFullYear() === now.getFullYear();
+  }).length;
+};
+
 // New selector for all highlights with book details
 export interface EnrichedHighlight extends Highlight {
   bookTitle: string;
   bookAuthor: string;
+  bookCurrentPage: number;
+  bookTotalPages: number;
+  readingProgress: number; // Percentage of book read
 }
 
+// Memoized selector for enriched highlights
 export const selectEnrichedHighlights = (state: BookStore): EnrichedHighlight[] => {
-  const bookMap = new Map(state.books.map((book) => [book.id, book]));
+  const books = state.books;
+  const highlights = state.highlights;
 
-  return state.highlights
+  // Create a stable reference for the book map
+  const bookMap = new Map(
+    books.map((book) => [
+      book.id,
+      {
+        title: book.title,
+        author: book.author,
+        currentPage: book.currentPage,
+        totalPages: book.totalPages,
+      },
+    ])
+  );
+
+  return highlights
     .map((highlight) => {
       const book = bookMap.get(highlight.bookId);
       if (!book) return null;
@@ -291,10 +318,19 @@ export const selectEnrichedHighlights = (state: BookStore): EnrichedHighlight[] 
         ...highlight,
         bookTitle: book.title,
         bookAuthor: book.author,
+        bookCurrentPage: book.currentPage,
+        bookTotalPages: book.totalPages,
+        readingProgress: Math.round((book.currentPage / book.totalPages) * 100),
       };
     })
     .filter((h): h is EnrichedHighlight => h !== null)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+};
+
+// Selector for recent highlights to avoid unnecessary calculations
+export const selectRecentEnrichedHighlights = (state: BookStore): EnrichedHighlight[] => {
+  const enrichedHighlights = selectEnrichedHighlights(state);
+  return enrichedHighlights.slice(0, 5);
 };
 
 // Sort options for highlights
@@ -323,3 +359,18 @@ export const selectHasHydrated = (state: BookStore) => state.hasHydrated;
 export const selectCurrentlyReading = (state: BookStore) => state.books.filter((book) => book.status === ReadingStatus.IN_PROGRESS);
 export const selectFirstCurrentlyReading = (state: BookStore) => state.books.find((book) => book.status === ReadingStatus.IN_PROGRESS);
 export const selectIsLastBook = (state: BookStore) => state.books.length === 1;
+
+// Update the component to use a single selector
+export const selectRecentHighlightsData = (state: BookStore) => {
+  const enrichedHighlights = selectEnrichedHighlights(state);
+  const now = new Date();
+
+  return {
+    recentHighlights: enrichedHighlights.slice(0, 5),
+    totalHighlights: enrichedHighlights.length,
+    highlightsThisMonth: enrichedHighlights.filter((highlight) => {
+      const highlightDate = new Date(highlight.createdAt);
+      return highlightDate.getMonth() === now.getMonth() && highlightDate.getFullYear() === now.getFullYear();
+    }).length,
+  };
+};

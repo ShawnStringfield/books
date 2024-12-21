@@ -225,7 +225,7 @@ export const useBookStore = create<BookStore>()(
         }),
     }),
     {
-      name: 'dashboard-storage',
+      name: 'book-store',
       storage: createJSONStorage(() => localStorage),
       version: 1,
       onRehydrateStorage: () => (state) => {

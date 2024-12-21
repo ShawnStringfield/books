@@ -14,7 +14,7 @@ import ReadingProgressBar from '../../components/ReadingProgressBar';
 import EditableBookDescription from '../../components/EditableBookDescription';
 import EditableGenre from '../../components/EditableGenre';
 import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
-import Toolbar from '../../components/Toolbar';
+import Toolbar, { ToolbarAction } from '../../components/Toolbar';
 import { calculatePercentComplete } from '../../utils/statsCalculator';
 import ReadingControlsDialog from '../../components/dialogs/ReadingControlsDialog';
 import BookHighlightsDialog from '../../components/dialogs/BookHighlightsDialog';
@@ -67,6 +67,24 @@ function BookDetailsContent() {
     );
   }
 
+  const toolbarActions: ToolbarAction[] = [
+    {
+      icon: Settings2,
+      label: 'Reading controls',
+      onClick: () => setShowReadingControlsDialog(true),
+    },
+    {
+      icon: Plus,
+      label: 'Add highlight',
+      onClick: () => setShowHighlightsDialog(true),
+    },
+    {
+      icon: Pencil,
+      label: 'Toggle edit mode',
+      onClick: toggleEditControls,
+    },
+  ];
+
   const handleStatusChange = async (bookId: string, newStatus: ReadingStatus) => {
     if (isChangingStatus) return;
 
@@ -109,14 +127,13 @@ function BookDetailsContent() {
   return (
     <DashboardLayout>
       {/* Progress Bar - Moved from footer to top */}
-      <div className="relative -mt-[1px] bg-white overflow-visible">
-        <ReadingProgressBar
-          currentPage={book.currentPage || 0}
-          totalPages={book.totalPages || 0}
-          progress={calculatePercentComplete(book.currentPage, book.totalPages)}
-          variant="bleed"
-        />
-      </div>
+      <ReadingProgressBar
+        currentPage={book.currentPage || 0}
+        totalPages={book.totalPages || 0}
+        progress={calculatePercentComplete(book.currentPage, book.totalPages)}
+        variant="bleed"
+        className="relative -mt-[1px] bg-white overflow-visible"
+      />
 
       {/* Reading Controls Dialog */}
       <ReadingControlsDialog
@@ -137,26 +154,7 @@ function BookDetailsContent() {
 
       <div className="p-6 pb-12 max-w-4xl mx-auto space-y-8">
         {/* Mobile Controls */}
-        <Toolbar
-          actions={[
-            {
-              icon: Settings2,
-              label: 'Reading controls',
-              onClick: () => setShowReadingControlsDialog(true),
-            },
-            {
-              icon: Plus,
-              label: 'Add highlight',
-              onClick: () => setShowHighlightsDialog(true),
-            },
-            {
-              icon: Pencil,
-              label: 'Toggle edit mode',
-              onClick: toggleEditControls,
-            },
-          ]}
-          className="flex items-center gap-3 mb-4"
-        />
+        <Toolbar actions={toolbarActions} className="flex items-center gap-3 mb-4" />
 
         {/* Book Details */}
         <div className="flex flex-col md:flex-row gap-6">
@@ -235,9 +233,13 @@ function BookDetailsContent() {
         </div>
 
         {/* Book Highlights Section */}
-        <div className="space-y-4 py-8">
-          <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={false} onClose={() => setShowHighlightsDialog(false)} />
-        </div>
+        <BookHighlights
+          bookId={book.id}
+          currentPage={book.currentPage || 0}
+          showForm={false}
+          onClose={() => setShowHighlightsDialog(false)}
+          className="space-y-4 py-8"
+        />
 
         {/* Book Progress Section */}
         <div className="space-y-4 py-8 border-t">

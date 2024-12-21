@@ -2,63 +2,11 @@ import { BookMarked, Plus, Search } from 'lucide-react';
 
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  coverUrl?: string;
-  totalPages: number;
-  currentPage?: number;
-  startDate?: Date;
-  completedDate?: Date;
-}
-
-interface Highlight {
-  id: string;
-  bookId: string;
-  text: string;
-  page: number;
-  isFavorite: boolean;
-  createdAt: Date;
-}
-
-interface BookStore {
-  books: Book[];
-  highlights: Highlight[];
-  addBook: (book: Book) => void;
-  addHighlight: (highlight: Highlight) => void;
-  toggleFavoriteHighlight: (id: string) => void;
-  updateReadingProgress: (bookId: string, currentPage: number) => void;
-}
-
-// Store
-const useBookStore = create<BookStore>()(
-  persist(
-    (set) => ({
-      books: [],
-      highlights: [],
-      addBook: (book) => set((state) => ({ books: [...state.books, book] })),
-      addHighlight: (highlight) => set((state) => ({ highlights: [...state.highlights, highlight] })),
-      toggleFavoriteHighlight: (id) =>
-        set((state) => ({
-          highlights: state.highlights.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h)),
-        })),
-      updateReadingProgress: (bookId, currentPage) =>
-        set((state) => ({
-          books: state.books.map((b) => (b.id === bookId ? { ...b, currentPage } : b)),
-        })),
-    }),
-    { name: 'book-store' }
-  )
-);
+import { Book } from '../types/books';
 
 const WishlistOnboarding = () => {
-  const { books } = useBookStore();
-
-  const wishlist = books.filter((b) => !b.startDate);
+  // For now, just set wishlist to empty array
+  const wishlist: Book[] = [];
 
   const handleAddToWishlist = () => {
     // setIsWishlistModalOpen(true);

@@ -12,9 +12,9 @@ interface ReadingProgressBarProps {
 const ReadingProgressBar = ({ currentPage, totalPages, progress, className = '', variant = 'default' }: ReadingProgressBarProps) => {
   if (variant === 'bleed') {
     return (
-      <div className="absolute top-0 left-0 right-0 h-1.5">
+      <div className="absolute top-0 left-0 right-0 h-2">
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 to-transparent">
-          <ProgressBar value={progress} />
+          <ProgressBar value={progress} bleed={true} />
         </div>
       </div>
     );

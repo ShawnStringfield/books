@@ -109,7 +109,7 @@ function BookDetailsContent() {
   return (
     <DashboardLayout>
       {/* Progress Bar - Moved from footer to top */}
-      <div className="relative -mt-[1px] bg-white">
+      <div className="relative -mt-[1px] bg-white overflow-visible">
         <ReadingProgressBar
           currentPage={book.currentPage || 0}
           totalPages={book.totalPages || 0}

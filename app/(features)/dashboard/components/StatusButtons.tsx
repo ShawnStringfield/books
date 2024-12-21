@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { ReadingStatus } from '../types/books';
-import { BookX, BookOpen, CheckCircle } from 'lucide-react';
+import { StatusOption, readingStatusOptions } from '../config/readingStatusConfig';
 
 export interface StatusButtonsProps {
   bookId: string;
@@ -9,15 +9,18 @@ export interface StatusButtonsProps {
   size?: 'default' | 'small' | 'xs';
   align?: 'left' | 'center' | 'right';
   className?: string;
+  statusOptions?: StatusOption[];
 }
 
-const statusOptions: { value: ReadingStatus; label: string; icon: React.ReactNode }[] = [
-  { value: ReadingStatus.NOT_STARTED, label: 'Not Started', icon: <BookX className="h-3.5 w-3.5" /> },
-  { value: ReadingStatus.IN_PROGRESS, label: 'In Progress', icon: <BookOpen className="h-3.5 w-3.5" /> },
-  { value: ReadingStatus.COMPLETED, label: 'Completed', icon: <CheckCircle className="h-3.5 w-3.5" /> },
-];
-
-const StatusButtons = ({ bookId, currentStatus, onStatusChange, size = 'xs', align = 'left', className }: StatusButtonsProps) => {
+const StatusButtons = ({
+  bookId,
+  currentStatus,
+  onStatusChange,
+  size = 'xs',
+  align = 'left',
+  className,
+  statusOptions = readingStatusOptions,
+}: StatusButtonsProps) => {
   return (
     <div
       className={cn(

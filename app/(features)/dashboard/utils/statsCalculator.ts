@@ -49,7 +49,17 @@ export const getValidHighlights = (highlights: Highlight[], books: Book[]): High
 
 /**
  * Calculates the percentage complete of a book
+ * @param currentPage - Current page number (can be null/undefined)
+ * @param totalPages - Total pages in the book (can be null/undefined)
+ * @returns number between 0 and 100
  */
-export const calculatePercentComplete = (currentPage: number, totalPages: number): number => {
-  return Math.min(Math.round((currentPage / totalPages) * 100), 100);
+export const calculatePercentComplete = (currentPage: number | null | undefined, totalPages: number | null | undefined): number => {
+  const current = currentPage ?? 0;
+  const total = totalPages ?? 0;
+
+  if (!total || total <= 0) return 0;
+  if (current < 0) return 0;
+  if (current > total) return 100;
+
+  return Math.min(Math.round((current / total) * 100), 100);
 };

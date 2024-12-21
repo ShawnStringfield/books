@@ -10,6 +10,7 @@ import BookHighlights from './BookHighlights';
 import { DeleteBookDialog } from './DeleteBookDialog';
 import Toolbar, { ToolbarAction } from './Toolbar';
 import ReadingControls from './ReadingControls';
+import { calculatePercentComplete } from '../utils/statsCalculator';
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -77,7 +78,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
         <ReadingProgressBar
           currentPage={book.currentPage}
           totalPages={book.totalPages}
-          progress={Math.min(Math.round((book.currentPage / book.totalPages) * 100), 100)}
+          progress={calculatePercentComplete(book.currentPage, book.totalPages)}
           variant="bleed"
         />
 

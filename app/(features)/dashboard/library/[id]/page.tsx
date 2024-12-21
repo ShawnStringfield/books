@@ -17,6 +17,7 @@ import ReadingControls from '../../components/ReadingControls';
 import EditableGenre from '../../components/EditableGenre';
 import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
 import Toolbar from '../../components/Toolbar';
+import { calculatePercentComplete } from '../../utils/statsCalculator';
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -111,7 +112,7 @@ function BookDetailsContent() {
         <ReadingProgressBar
           currentPage={book.currentPage || 0}
           totalPages={book.totalPages || 0}
-          progress={book.totalPages ? Math.round(((book.currentPage || 0) / book.totalPages) * 100) : 0}
+          progress={calculatePercentComplete(book.currentPage, book.totalPages)}
           variant="bleed"
         />
       </div>
@@ -258,7 +259,7 @@ function BookDetailsContent() {
           <ReadingProgressBar
             currentPage={book.currentPage || 0}
             totalPages={book.totalPages}
-            progress={Math.round(((book.currentPage || 0) / book.totalPages) * 100)}
+            progress={calculatePercentComplete(book.currentPage, book.totalPages)}
             variant="default"
           />
         </div>

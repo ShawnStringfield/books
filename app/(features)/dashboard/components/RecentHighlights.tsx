@@ -1,37 +1,70 @@
 import { Button } from '@/app/components/ui/button';
 import { BookText, Highlighter } from 'lucide-react';
-import { useBookStore, selectBooks, selectHighlights } from '../stores/useBookStore';
-import { formatDistanceToNow } from 'date-fns';
 import type { EnrichedHighlight } from '../stores/useBookStore';
-import { useMemo } from 'react';
-import { enrichHighlights } from '../utils/highlightUtils';
+import { memo, useMemo } from 'react';
+import { useRecentHighlights } from '../hooks/useRecentHighlights';
+import { formatRelativeDate } from '@/app/utils/dateUtils';
 
-const RecentHighlights = () => {
-  // Get raw data from store
-  const books = useBookStore(selectBooks);
-  const highlights = useBookStore(selectHighlights);
+interface RecentHighlightsProps {
+  limit?: number;
+}
 
-  // Memoize the enriched data
-  const enrichedData = useMemo(() => {
-    const enrichedHighlights = enrichHighlights(highlights, books);
-    const sortedHighlights = enrichedHighlights.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    const recentHighlights = sortedHighlights.slice(0, 5);
-    const totalHighlights = enrichedHighlights.length;
+interface HighlightCardProps {
+  highlight: EnrichedHighlight;
+}
 
-    const now = new Date();
-    const highlightsThisMonth = enrichedHighlights.filter((highlight) => {
-      const highlightDate = new Date(highlight.createdAt);
-      return highlightDate.getMonth() === now.getMonth() && highlightDate.getFullYear() === now.getFullYear();
-    }).length;
+const HighlightCard = memo(({ highlight }: HighlightCardProps) => {
+  const dateInfo = useMemo(() => formatRelativeDate(highlight.createdAt), [highlight.createdAt]);
 
-    return {
-      recentHighlights,
-      totalHighlights,
-      highlightsThisMonth,
-    };
-  }, [books, highlights]);
+  return (
+    <div className="group rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex flex-col h-full">
+        <div className="flex justify-between items-start mb-2">
+          <span className="text-gray-500 font-medium text-sm">{highlight.bookTitle}</span>
+          <span className="text-xs text-gray-500">{highlight.readingProgress}% complete</span>
+        </div>
+        <p className="text-gray-900 text-sm leading-normal mb-3">&ldquo;{highlight.text}&rdquo;</p>
+        <div className="flex justify-between items-center text-xs text-gray-500 pt-2 border-t border-gray-50">
+          <div className="flex gap-2">
+            <span className="bg-gray-50 px-2 py-1 rounded-full">
+              Page {highlight.page} of {highlight.bookTotalPages}
+            </span>
+            {highlight.isFavorite && <span className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full">Favorite</span>}
+          </div>
+          <time dateTime={dateInfo.iso} className="text-gray-500 font-medium whitespace-nowrap">
+            {dateInfo.formatted}
+          </time>
+        </div>
+      </div>
+    </div>
+  );
+});
 
-  const { recentHighlights, totalHighlights, highlightsThisMonth } = enrichedData;
+HighlightCard.displayName = 'HighlightCard';
+
+const EmptyRecentHighlightsState = memo(() => (
+  <div className="text-center space-y-4 py-6">
+    <div className="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
+      <BookText className="w-6 h-6 text-indigo-600" />
+    </div>
+    <div className="space-y-2">
+      <h3 className="text-lg font-semibold">Capture Your First Highlight</h3>
+      <p className="text-sm text-gray-600 max-w-xs mx-auto">
+        Save memorable quotes, insights, and passages from your books. They&apos;ll appear here for easy reference.
+      </p>
+    </div>
+  </div>
+));
+
+EmptyRecentHighlightsState.displayName = 'EmptyRecentHighlightsState';
+
+const RecentHighlights = memo(({ limit = 5 }: RecentHighlightsProps) => {
+  const { recentHighlights, totalHighlights, highlightsThisMonth } = useRecentHighlights(limit);
+
+  const highlightsList = useMemo(
+    () => recentHighlights.map((highlight) => <HighlightCard key={highlight.id} highlight={highlight} />),
+    [recentHighlights]
+  );
 
   return (
     <div className="my-16">
@@ -46,30 +79,7 @@ const RecentHighlights = () => {
       <div>
         {recentHighlights.length > 0 ? (
           <div>
-            <div className="grid gap-4">
-              {recentHighlights.map((highlight: EnrichedHighlight) => (
-                <div key={highlight.id} className="group rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-                  <div className="flex flex-col h-full">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-gray-500 font-medium text-sm">{highlight.bookTitle}</span>
-                      <span className="text-xs text-gray-500">{highlight.readingProgress}% complete</span>
-                    </div>
-                    <p className="text-gray-900 text-sm leading-normal mb-3">&ldquo;{highlight.text}&rdquo;</p>
-                    <div className="flex justify-between items-center text-xs text-gray-500 pt-2 border-t border-gray-50">
-                      <div className="flex gap-2">
-                        <span className="bg-gray-50 px-2 py-1 rounded-full">
-                          Page {highlight.page} of {highlight.bookTotalPages}
-                        </span>
-                        {highlight.isFavorite && <span className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full">Favorite</span>}
-                      </div>
-                      <time dateTime={new Date(highlight.createdAt).toISOString()} className="text-gray-500 font-medium whitespace-nowrap">
-                        {formatDistanceToNow(new Date(highlight.createdAt), { addSuffix: true })}
-                      </time>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div className="grid gap-4">{highlightsList}</div>
             {totalHighlights > 5 && (
               <div className="mt-6">
                 <Button variant="outline" className="w-full text-sm font-medium text-gray-700 hover:bg-gray-50">
@@ -84,22 +94,8 @@ const RecentHighlights = () => {
       </div>
     </div>
   );
-};
+});
 
-function EmptyRecentHighlightsState() {
-  return (
-    <div className="text-center space-y-4 py-6">
-      <div className="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
-        <BookText className="w-6 h-6 text-indigo-600" />
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Capture Your First Highlight</h3>
-        <p className="text-sm text-gray-600 max-w-xs mx-auto">
-          Save memorable quotes, insights, and passages from your books. They&apos;ll appear here for easy reference.
-        </p>
-      </div>
-    </div>
-  );
-}
+RecentHighlights.displayName = 'RecentHighlights';
 
 export default RecentHighlights;

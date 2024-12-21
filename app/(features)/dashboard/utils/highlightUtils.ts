@@ -1,5 +1,6 @@
 import { Book, Highlight } from '../types/books';
 import { EnrichedHighlight } from '../stores/useBookStore';
+import { isCurrentMonth } from '@/app/utils/dateUtils';
 
 /**
  * Enriches highlights with book data
@@ -59,14 +60,7 @@ export const filterHighlightsByBook = <T extends Highlight>(highlights: T[], boo
  * Filters highlights created in the current month
  */
 export const filterHighlightsThisMonth = <T extends Highlight>(highlights: T[]): T[] => {
-  const now = new Date();
-  const currentMonth = now.getUTCMonth();
-  const currentYear = now.getUTCFullYear();
-
-  return highlights.filter((highlight) => {
-    const createdDate = new Date(highlight.createdAt);
-    return createdDate.getUTCMonth() === currentMonth && createdDate.getUTCFullYear() === currentYear;
-  });
+  return highlights.filter((highlight) => isCurrentMonth(highlight.createdAt));
 };
 
 /**

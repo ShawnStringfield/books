@@ -1,4 +1,5 @@
 import { Book, ReadingStatus } from '../types/books';
+import { safeDate, isCurrentMonth, isCurrentYear } from '@/app/utils/dateUtils';
 
 interface ReadingStats {
   booksCompletedThisMonth: number;
@@ -44,33 +45,12 @@ export const calculateReadingStats = (books: Book[]): ReadingStats => {
 };
 
 /**
- * Safely creates a Date object from a string
- * @returns Date object or null if invalid
- */
-const safeDate = (dateString: string | undefined | null): Date | null => {
-  if (!dateString) return null;
-  try {
-    const date = new Date(dateString);
-    // Ensure we're working with UTC
-    const utcDate = new Date(
-      Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds())
-    );
-    return isNaN(utcDate.getTime()) ? null : utcDate;
-  } catch {
-    return null;
-  }
-};
-
-/**
  * Counts books completed in the current year
  */
 const getBooksCompletedThisYear = (books: Book[]): number => {
-  const now = new Date();
-  const currentYear = now.getUTCFullYear();
-
   return getCompletedBooks(books).filter((book) => {
     const completedDate = safeDate(book.completedDate);
-    return completedDate?.getUTCFullYear() === currentYear;
+    return completedDate && isCurrentYear(completedDate);
   }).length;
 };
 
@@ -78,13 +58,9 @@ const getBooksCompletedThisYear = (books: Book[]): number => {
  * Counts books completed in the current month
  */
 const getBooksCompletedThisMonth = (books: Book[]): number => {
-  const now = new Date();
-  const currentMonth = now.getUTCMonth();
-  const currentYear = now.getUTCFullYear();
-
   return getCompletedBooks(books).filter((book) => {
     const completedDate = safeDate(book.completedDate);
-    return completedDate?.getUTCMonth() === currentMonth && completedDate?.getUTCFullYear() === currentYear;
+    return completedDate && isCurrentMonth(completedDate);
   }).length;
 };
 

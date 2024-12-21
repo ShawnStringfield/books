@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { Book, Highlight, ReadingStatus } from '../types/books';
 import { v4 as uuidv4 } from 'uuid';
 import { enrichHighlights } from '../utils/highlightUtils';
+import { getCurrentISODate } from '@/app/utils/dateUtils';
 
 interface HighlightFilters {
   bookId?: string;
@@ -130,11 +131,11 @@ export const useBookStore = create<BookStore>()(
             completedDate = undefined;
           } else if (currentPage === book.totalPages) {
             status = ReadingStatus.COMPLETED;
-            startDate = startDate || new Date().toISOString();
-            completedDate = new Date().toISOString();
+            startDate = startDate || getCurrentISODate();
+            completedDate = getCurrentISODate();
           } else if (currentPage > 0) {
             status = ReadingStatus.IN_PROGRESS;
-            startDate = startDate || new Date().toISOString();
+            startDate = startDate || getCurrentISODate();
             completedDate = undefined;
           }
 
@@ -176,8 +177,8 @@ export const useBookStore = create<BookStore>()(
             return state;
           }
 
-          const completedDate = status === ReadingStatus.COMPLETED ? new Date().toISOString() : undefined;
-          const startDate = status === ReadingStatus.IN_PROGRESS && !book.startDate ? new Date().toISOString() : book.startDate;
+          const completedDate = status === ReadingStatus.COMPLETED ? getCurrentISODate() : undefined;
+          const startDate = status === ReadingStatus.IN_PROGRESS && !book.startDate ? getCurrentISODate() : book.startDate;
 
           return {
             books: state.books.map((b) =>
@@ -283,34 +284,67 @@ export const selectBooks = (state: BookStore): Book[] => state.books;
 export const selectHighlights = (state: BookStore): Highlight[] => state.highlights;
 
 // Memoized selectors using Zustand's built-in memoization
+let cachedEnrichedHighlights: EnrichedHighlight[] | null = null;
+let lastBooksRef: Book[] | null = null;
+let lastHighlightsRef: Highlight[] | null = null;
+
 export const selectEnrichedHighlights = (state: BookStore): EnrichedHighlight[] => {
   const books = selectBooks(state);
   const highlights = selectHighlights(state);
-  const enriched = enrichHighlights(highlights, books);
-  return enriched.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  // Check if we need to recompute
+  if (cachedEnrichedHighlights === null || books !== lastBooksRef || highlights !== lastHighlightsRef) {
+    lastBooksRef = books;
+    lastHighlightsRef = highlights;
+    cachedEnrichedHighlights = enrichHighlights(highlights, books).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  return cachedEnrichedHighlights;
 };
+
+// Cache for recent highlights data
+let cachedRecentHighlightsData: {
+  recentHighlights: EnrichedHighlight[];
+  totalHighlights: number;
+  highlightsThisMonth: number;
+} | null = null;
+let lastEnrichedHighlightsRef: EnrichedHighlight[] | null = null;
+let lastLimit: number | null = null;
 
 // Combined selector for recent highlights data
 export const selectRecentHighlightsData = (
-  state: BookStore
+  state: BookStore,
+  limit: number = 5
 ): {
   recentHighlights: EnrichedHighlight[];
   totalHighlights: number;
   highlightsThisMonth: number;
 } => {
   const enrichedHighlights = selectEnrichedHighlights(state);
-  const now = new Date();
 
-  const highlightsThisMonth = enrichedHighlights.filter((highlight: EnrichedHighlight) => {
-    const highlightDate = new Date(highlight.createdAt);
-    return highlightDate.getMonth() === now.getMonth() && highlightDate.getFullYear() === now.getFullYear();
-  }).length;
+  // Check if we need to recompute
+  if (cachedRecentHighlightsData === null || enrichedHighlights !== lastEnrichedHighlightsRef || limit !== lastLimit) {
+    lastEnrichedHighlightsRef = enrichedHighlights;
+    lastLimit = limit;
 
-  return {
-    recentHighlights: enrichedHighlights.slice(0, 5),
-    totalHighlights: enrichedHighlights.length,
-    highlightsThisMonth,
-  };
+    const totalHighlights = enrichedHighlights.length;
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    const highlightsThisMonth = enrichedHighlights.reduce((count, highlight) => {
+      const highlightDate = new Date(highlight.createdAt);
+      return highlightDate.getMonth() === currentMonth && highlightDate.getFullYear() === currentYear ? count + 1 : count;
+    }, 0);
+
+    cachedRecentHighlightsData = {
+      recentHighlights: enrichedHighlights.slice(0, limit),
+      totalHighlights,
+      highlightsThisMonth,
+    };
+  }
+
+  return cachedRecentHighlightsData;
 };
 
 // Enhanced selectors for better performance

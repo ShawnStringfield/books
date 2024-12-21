@@ -10,14 +10,14 @@ import { Plus, Settings2, Pencil, ExternalLink, Info } from 'lucide-react';
 import { selectIsLastBook } from '../../stores/useBookStore';
 import DashboardLayout from '../../components/DashboardLayout';
 import BookHighlights from '../../components/BookHighlights';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 import ReadingProgressBar from '../../components/ReadingProgressBar';
 import EditableBookDescription from '../../components/EditableBookDescription';
-import ReadingControls from '../../components/ReadingControls';
 import EditableGenre from '../../components/EditableGenre';
 import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
 import Toolbar from '../../components/Toolbar';
 import { calculatePercentComplete } from '../../utils/statsCalculator';
+import ReadingControlsDialog from '../../components/dialogs/ReadingControlsDialog';
+import BookHighlightsDialog from '../../components/dialogs/BookHighlightsDialog';
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -118,37 +118,22 @@ function BookDetailsContent() {
         />
       </div>
 
-      {/* Highlights Dialog */}
-      <Dialog open={showHighlightsDialog} onOpenChange={setShowHighlightsDialog}>
-        <DialogContent className="sm:max-w-[600px] focus-visible:outline-none [&>button]:bg-slate-200 [&>button]:hover:bg-slate-300 [&>button]:transition-colors [&>button]:duration-200 [&>button]:p-1.5 [&>button]:rounded-full [&>button]:scale-85">
-          <BookHighlights bookId={book.id} currentPage={book.currentPage || 0} showForm={true} onClose={() => setShowHighlightsDialog(false)} />
-        </DialogContent>
-      </Dialog>
-
       {/* Reading Controls Dialog */}
-      <Dialog open={showReadingControlsDialog} onOpenChange={setShowReadingControlsDialog}>
-        <DialogContent className="sm:max-w-[600px] focus-visible:outline-none [&>button]:bg-slate-200 [&>button]:hover:bg-slate-300 [&>button]:transition-colors [&>button]:duration-200 [&>button]:p-1.5 [&>button]:rounded-full [&>button]:scale-85">
-          <DialogHeader className="border-b pb-4 -mx-6 px-6">
-            <DialogTitle className="flex items-center gap-2">
-              <Settings2 className="h-5 w-5" />
-              Reading Controls
-            </DialogTitle>
-          </DialogHeader>
-          <ReadingControls
-            bookId={book.id}
-            currentPage={book.currentPage || 0}
-            totalPages={book.totalPages}
-            status={book.status}
-            uniqueId={book.id}
-            variant="mobile"
-            onStatusChange={handleStatusChange}
-            onProgressChange={handleProgressChange}
-            onDelete={handleDelete}
-            onCancel={() => setShowReadingControlsDialog(false)}
-            isLastBook={isLastBook}
-          />
-        </DialogContent>
-      </Dialog>
+      <ReadingControlsDialog
+        open={showReadingControlsDialog}
+        onOpenChange={setShowReadingControlsDialog}
+        bookId={book.id}
+        currentPage={book.currentPage || 0}
+        totalPages={book.totalPages}
+        status={book.status}
+        onStatusChange={handleStatusChange}
+        onProgressChange={handleProgressChange}
+        onDelete={handleDelete}
+        isLastBook={isLastBook}
+      />
+
+      {/* Highlights Dialog */}
+      <BookHighlightsDialog open={showHighlightsDialog} onOpenChange={setShowHighlightsDialog} bookId={book.id} currentPage={book.currentPage || 0} />
 
       <div className="p-6 pb-12 max-w-4xl mx-auto space-y-8">
         {/* Mobile Controls */}

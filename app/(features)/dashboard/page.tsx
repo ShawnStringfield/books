@@ -26,11 +26,10 @@ export default function DashboardPage() {
         <DashboardStats />
         <CurrentlyReading books={currentlyReadingBooks} />
 
+        <FavHighlightsOnboarding />
         <RecentHighlights limit={5} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-          <WishlistOnboarding />
-          <FavHighlightsOnboarding />
-        </div>
+
+        <WishlistOnboarding />
       </div>
     </DashboardLayout>
   );

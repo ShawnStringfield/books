@@ -18,7 +18,7 @@ const RecentHighlights = memo(({ limit = 5 }: RecentHighlightsProps) => {
 
   return (
     <div className="my-16">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
         <h2 className="text-lg font-semibold">Recent Highlights ({totalHighlights})</h2>
         <div className="flex items-center gap-1.5 text-sm text-gray-500">
           <Highlighter className="w-4 h-4" />

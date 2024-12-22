@@ -1,4 +1,4 @@
-import AddHighlightForm from '@/app/(features)/dashboard/components/AddHighlightForm';
+import AddHighlightForm from './AddHighlightForm';
 import HighlightsList from './HighlightsList';
 import { cn } from '@/app/utils/cn';
 

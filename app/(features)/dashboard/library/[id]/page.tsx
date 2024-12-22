@@ -152,7 +152,7 @@ function BookDetailsContent() {
             <div className="flex items-start justify-between">
               <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-bold leading-0 ">{book.title}</h1>
-                <h2 className="text-lg font-semibold leading-tight">{book.subtitle}</h2>
+                <h2 className="text-mono text-lg font-semibold leading-tight">{book.subtitle}</h2>
               </div>
               <div className="flex items-center gap-2">
                 {showEditControls ? (

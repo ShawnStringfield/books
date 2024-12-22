@@ -28,7 +28,7 @@ const Toolbar = ({ actions, className = '' }: ToolbarProps) => {
             className={`rounded-full p-2 ${
               action.variant === 'destructive'
                 ? 'text-destructive hover:text-destructive/90 bg-destructive/10 hover:bg-destructive/20'
-                : 'text-slate-700 bg-brand-fillweak/30 hover:bg-slate-200'
+                : 'text-brand-emphasis bg-brand-subtle hover:bg-brand-surface'
             } ${action.className || ''}`}
             onClick={action.onClick}
             disabled={action.disabled}

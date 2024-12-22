@@ -15,9 +15,9 @@ const ColorBox: React.FC<ColorBoxProps> = ({ colorClass, name, value }) => (
 );
 
 const ColorSection: React.FC<{ title: string; colors: Array<{ name: string; colorClass: string; value: string }> }> = ({ title, colors }) => (
-  <div className="mb-12 last:mb-0">
+  <div className="mb-12 last:mb-0 text-center">
     <h2 className="text-2xl font-heading font-bold mb-6">{title}</h2>
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+    <div className="grid grid-cols-4 gap-8">
       {colors.map((color) => (
         <ColorBox key={color.name} colorClass={color.colorClass} name={color.name} value={color.value} />
       ))}
@@ -30,7 +30,7 @@ export const ColorPalette: React.FC = () => {
     { name: 'Brand Surface', colorClass: 'bg-brand-surface', value: 'hsla(220, 100%, 97%, 1)' },
     { name: 'Brand Subtle', colorClass: 'bg-brand-subtle', value: 'hsla(220, 100%, 90%, 1)' },
     { name: 'Brand Muted', colorClass: 'bg-brand-muted', value: 'hsla(220, 100%, 80%, 1)' },
-    { name: 'Brand Default', colorClass: 'bg-brand-default', value: 'hsla(220, 100%, 46%, 1)' },
+    { name: 'Brand Default', colorClass: 'bg-brand', value: 'hsla(220, 100%, 46%, 1)' },
     { name: 'Brand Emphasis', colorClass: 'bg-brand-emphasis', value: 'hsla(220, 100%, 37%, 1)' },
     { name: 'Brand Strong', colorClass: 'bg-brand-strong', value: 'hsla(220, 100%, 28%, 1)' },
   ];
@@ -40,7 +40,7 @@ export const ColorPalette: React.FC = () => {
     { name: 'Mono Divider', colorClass: 'bg-mono-divider', value: 'hsla(210, 40%, 96%, 1)' },
     { name: 'Mono Subtle', colorClass: 'bg-mono-subtle', value: 'hsla(215, 31%, 91%, 1)' },
     { name: 'Mono Muted', colorClass: 'bg-mono-muted', value: 'hsla(215, 25%, 84%, 1)' },
-    { name: 'Mono Default', colorClass: 'bg-mono-default', value: 'hsla(215, 16%, 47%, 1)' },
+    { name: 'Mono Default', colorClass: 'bg-mono', value: 'hsla(215, 16%, 47%, 1)' },
     { name: 'Mono Emphasis', colorClass: 'bg-mono-emphasis', value: 'hsla(215, 25%, 27%, 1)' },
     { name: 'Mono Strong', colorClass: 'bg-mono-strong', value: 'hsla(217, 33%, 17%, 1)' },
   ];

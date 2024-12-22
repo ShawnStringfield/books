@@ -79,7 +79,7 @@ const ReadingControls = ({
         <Button
           variant="ghost"
           size="icon"
-          className={cn('h-10 w-10 rounded-full hover:bg-brand-fillweak')}
+          className={cn('h-10 w-10 rounded-full hover:bg-brand-muted')}
           aria-expanded="true"
           aria-controls={`reading-controls-${uniqueId}`}
         >

@@ -20,7 +20,7 @@ const config: Config = {
           surface: 'hsla(220, 100%, 97%, 1)',
           subtle: 'hsla(220, 100%, 90%, 1)',
           muted: 'hsla(220, 100%, 80%, 1)',
-          default: 'hsla(220, 100%, 46%, 1)', // #004eeb
+          DEFAULT: 'hsla(220, 100%, 46%, 1)', // #004eeb
           emphasis: 'hsla(220, 100%, 37%, 1)',
           strong: 'hsla(220, 100%, 28%, 1)',
         },
@@ -29,7 +29,7 @@ const config: Config = {
           divider: 'hsla(210, 40%, 96%, 1)', // slate-100
           subtle: 'hsla(215, 31%, 91%, 1)', // slate-200
           muted: 'hsla(215, 25%, 84%, 1)', // slate-300
-          default: 'hsla(215, 16%, 47%, 1)', // slate-500
+          DEFAULT: 'hsla(215, 16%, 47%, 1)', // slate-500
           emphasis: 'hsla(215, 25%, 27%, 1)', // slate-700
           strong: 'hsla(217, 33%, 17%, 1)', // slate-800
         },

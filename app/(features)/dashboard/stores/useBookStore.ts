@@ -70,7 +70,6 @@ export const useBookStore = create<BookStore>()(
                 description: book?.description || '',
                 status,
                 currentPage,
-                highlights: [],
                 startDate,
                 categories,
                 genre: categories[0] || 'Unknown',
@@ -91,28 +90,14 @@ export const useBookStore = create<BookStore>()(
             isFavorite: false,
           };
 
-          const updatedBooks = state.books.map((book) =>
-            book.id === bookId
-              ? {
-                  ...book,
-                  highlights: [newHighlight, ...(book.highlights || [])],
-                }
-              : book
-          );
-
           return {
             highlights: [newHighlight, ...state.highlights],
-            books: updatedBooks,
           };
         }),
 
       toggleFavoriteHighlight: (id) =>
         set((state) => ({
           highlights: state.highlights.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h)),
-          books: state.books.map((book) => ({
-            ...book,
-            highlights: book.highlights?.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h)) || [],
-          })),
         })),
 
       updateReadingProgress: (bookId, currentPage) =>
@@ -226,22 +211,9 @@ export const useBookStore = create<BookStore>()(
       },
 
       deleteHighlight: (highlightId: string) =>
-        set((state) => {
-          const highlight = state.highlights.find((h) => h.id === highlightId);
-          if (!highlight) return state;
-
-          return {
-            highlights: state.highlights.filter((h) => h.id !== highlightId),
-            books: state.books.map((book) =>
-              book.id === highlight.bookId
-                ? {
-                    ...book,
-                    highlights: book.highlights?.filter((h) => h.id !== highlightId) || [],
-                  }
-                : book
-            ),
-          };
-        }),
+        set((state) => ({
+          highlights: state.highlights.filter((h) => h.id !== highlightId),
+        })),
 
       filterHighlights: (filters: HighlightFilters) => {
         const state = get();
@@ -388,3 +360,13 @@ export const selectHasHydrated = (state: BookStore) => state.hasHydrated;
 export const selectCurrentlyReading = (state: BookStore) => state.books.filter((book) => book.status === ReadingStatus.IN_PROGRESS);
 export const selectFirstCurrentlyReading = (state: BookStore) => state.books.find((book) => book.status === ReadingStatus.IN_PROGRESS);
 export const selectIsLastBook = (state: BookStore) => state.books.length === 1;
+
+export const selectRecentHighlightsByBook = (bookId: string, limit?: number) => (state: BookStore) => {
+  const bookHighlights = state.highlights
+    .filter((h) => h.bookId === bookId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  return limit ? bookHighlights.slice(0, limit) : bookHighlights;
+};
+
+export const selectFavoriteHighlightsByBook = (bookId: string) => (state: BookStore) =>
+  state.highlights.filter((h) => h.bookId === bookId && h.isFavorite);

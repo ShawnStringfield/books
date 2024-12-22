@@ -1,12 +1,13 @@
 import { cn } from '@/lib/utils';
 import { ReadingStatus } from '@/app/stores/types';
 import { StatusOption, readingStatusOptions } from '@/app/config/readingStatusConfig';
+import { AnimatedButton } from '@/app/components/ui/animated-button';
 
 export interface StatusButtonsProps {
   bookId: string;
   currentStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus];
   onStatusChange: (bookId: string, status: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => void;
-  size?: 'default' | 'small' | 'xs';
+  size?: 'default' | 'sm' | 'lg';
   align?: 'left' | 'center' | 'right';
   className?: string;
   statusOptions?: StatusOption[];
@@ -16,7 +17,7 @@ const StatusButtons = ({
   bookId,
   currentStatus,
   onStatusChange,
-  size = 'xs',
+  size = 'sm',
   align = 'left',
   className,
   statusOptions = readingStatusOptions,
@@ -31,24 +32,28 @@ const StatusButtons = ({
         className
       )}
     >
-      <div className="inline-flex gap-4">
+      <div className="grid w-full grid-cols-3 gap-1">
         {statusOptions.map((option) => (
-          <button
+          <AnimatedButton
             key={option.value}
             onClick={() => onStatusChange(bookId, option.value)}
+            variant="ghost"
+            size={size}
+            transitionColors={{
+              from: currentStatus === option.value ? 'bg-brand-muted/20' : 'bg-transparent',
+              to: currentStatus === option.value ? 'bg-brand-surface' : 'bg-brand-subtle/20',
+            }}
             className={cn(
-              'inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-surface',
-              size === 'default' && 'text-sm',
-              size === 'small' && 'text-sm',
-              size === 'xs' && 'text-xs',
-              currentStatus === option.value
-                ? ' bg-brand-subtle text-brand-emphasis py-1 px-2 rounded-full font-medium'
-                : 'text-mono hover:text-mono-strong'
+              'h-7 w-full inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-sm',
+              size === 'lg' && 'text-sm',
+              size === 'default' && 'text-xs',
+              size === 'sm' && 'text-[10px]',
+              currentStatus === option.value ? 'text-brand-emphasis font-bold ' : 'text-mono hover:text-mono-strong'
             )}
           >
-            {option.icon}
-            {option.label}
-          </button>
+            <span className="shrink-0">{option.icon}</span>
+            <span className="truncate">{option.label}</span>
+          </AnimatedButton>
         ))}
       </div>
     </div>

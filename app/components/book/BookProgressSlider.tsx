@@ -37,8 +37,8 @@ const BookProgressSlider = ({
   return (
     <div className={cn('w-full', className)}>
       <div className="flex items-center justify-between">
-        <label htmlFor={inputId} className="flex items-center gap-2 text-xs font-medium">
-          <BookOpen className="w-4 h-4" />
+        <label htmlFor={inputId} className="flex items-center gap-2 text-xs font-medium ">
+          <BookOpen className="w-4 h-4 " />
           Current Page:
         </label>
         <div className="flex items-center gap-2">
@@ -69,7 +69,7 @@ const BookProgressSlider = ({
               className="py-2"
             />
           </div>
-          <div className="flex justify-between items-center text-xs text-gray-500">
+          <div className="flex justify-between items-center text-xs">
             <span>{pagesRemaining} pages remaining</span>
             {showPercentage && <BookProgressPercentage currentPage={currentPage} totalPages={totalPages} />}
           </div>

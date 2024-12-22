@@ -4,7 +4,6 @@ import StatusButtons from './StatusButtons';
 import BookProgressSlider from './BookProgressSlider';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/button';
-import { Separator } from '@/app/components/ui/separator';
 import { useState } from 'react';
 import WarningAlert from '@/app/components/ui/warning-alert';
 
@@ -15,7 +14,7 @@ interface ReadingControlsProps {
   status: (typeof ReadingStatus)[keyof typeof ReadingStatus];
   uniqueId: string;
   variant: 'mobile' | 'desktop' | 'icon';
-  size?: 'default' | 'small';
+  size?: 'default' | 'sm';
   className?: string;
   onStatusChange: (bookId: string, status: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => void;
   onProgressChange: (value: number[]) => void;
@@ -112,16 +111,15 @@ const ReadingControls = ({
         variant={variant}
         uniqueId={uniqueId}
         showPercentage={true}
-        className="space-y-1"
+        className="py-4"
       />
 
       {/* Action Buttons */}
       {onDelete !== undefined && (
         <>
-          <Separator className="my-2 " />
           <div className="space-y-3">
             <div className="flex items-center justify-end gap-2">
-              <Button variant="secondary" size="sm" className="text-xs py-1 px-2 bg-brand-fill text-brand-textweak" onClick={onCancel}>
+              <Button variant="secondary" size="sm" className="text-xs py-1 px-2" onClick={onCancel}>
                 Close
               </Button>
               <Button

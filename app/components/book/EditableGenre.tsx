@@ -27,7 +27,7 @@ export default function EditableGenre({ genre, isEditing, onChange }: EditableGe
 
   if (!isEditing) {
     return (
-      <div className="inline-flex items-center gap-2 text-gray-600">
+      <div className="inline-flex items-center gap-2 text-mono">
         <BookMarked className="h-4 w-4" />
         <span>{genre || 'No genre'}</span>
       </div>

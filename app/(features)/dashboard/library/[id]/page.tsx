@@ -160,7 +160,7 @@ function BookDetailsContent() {
                     <Button variant="outline" size="sm" onClick={toggleEditControls} className="text-xs py-1 px-2">
                       Cancel
                     </Button>
-                    <Button size="sm" onClick={handleSaveChanges} className="text-xs py-1 px-2">
+                    <Button size="sm" onClick={handleSaveChanges} className="text-xs py-1 px-2 bg-brand">
                       Save Changes
                     </Button>
                   </>
@@ -168,18 +168,20 @@ function BookDetailsContent() {
               </div>
             </div>
             <div className="mt-2">
-              <p className="text-sm ">
-                By: {book.author} • {book.totalPages} pages
-              </p>
-              <div className="flex items-center gap-2 text-sm  mt-2">
-                <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
-                {book.isbn && (
-                  <>
-                    <span>•</span>
-                    <span>ISBN: {book.isbn}</span>
-                  </>
-                )}
-                {!book.genre && !book.isbn && <span className="italic">No additional details available</span>}
+              <div className="my-4">
+                <p className="text-sm text-mono">
+                  By: {book.author} • {book.totalPages} pages
+                </p>
+                <div className="flex items-center gap-2 text-sm  mt-1 text-mono">
+                  <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
+                  {book.isbn && (
+                    <>
+                      <span>•</span>
+                      <span>ISBN: {book.isbn}</span>
+                    </>
+                  )}
+                  {!book.genre && !book.isbn && <span className="italic">No additional details available</span>}
+                </div>
               </div>
               <div className="flex items-center gap-4 mt-3">
                 {book.previewLink && (

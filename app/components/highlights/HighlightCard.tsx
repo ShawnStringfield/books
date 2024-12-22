@@ -41,14 +41,14 @@ const HighlightCard = memo(({ highlight, variant = 'default' }: HighlightCardPro
   }, [highlight.id, deleteHighlight]);
 
   return (
-    <div className="group rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex flex-col h-full space-y-4">
         <div className="flex items-center gap-2">
           {variant === 'verbose' && (
             <>
               <Link
                 href={`/dashboard/library/${highlight.bookId}`}
-                className="text-xs text-brand-textstrong font-medium hover:text-indigo-600 transition-colors"
+                className="text-xs text-brand-emphasis font-medium hover:text-brand-emphasis transition-colors"
               >
                 {highlight.bookTitle}
               </Link>

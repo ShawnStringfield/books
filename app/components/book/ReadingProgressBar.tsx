@@ -1,5 +1,6 @@
 import { ProgressBar } from '@/app/components/progress/ProgressBar';
 import { cn } from '@/app/utils/cn';
+import BookProgressPercentage from './BookProgressPercentage';
 
 interface ReadingProgressBarProps {
   currentPage: number;
@@ -35,7 +36,7 @@ const ReadingProgressBar = ({ currentPage, totalPages, progress, className = '',
         <span>
           {currentPage} of {totalPages} pages
         </span>
-        <span>{progress}% complete</span>
+        <BookProgressPercentage currentPage={currentPage} totalPages={totalPages} variant="verbose" className="mr-1" />
       </div>
     </div>
   );

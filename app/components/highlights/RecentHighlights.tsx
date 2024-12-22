@@ -12,7 +12,7 @@ const RecentHighlights = memo(({ limit = 5 }: RecentHighlightsProps) => {
   const { recentHighlights, totalHighlights, highlightsThisMonth } = useRecentHighlights(limit);
 
   const highlightsList = useMemo(
-    () => recentHighlights.map((highlight) => <HighlightCard key={highlight.id} highlight={highlight} />),
+    () => recentHighlights.map((highlight) => <HighlightCard key={highlight.id} highlight={highlight} variant="verbose" />),
     [recentHighlights]
   );
 

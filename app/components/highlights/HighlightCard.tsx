@@ -7,6 +7,7 @@ import { Button } from '@/app/components/ui/button';
 
 interface HighlightCardProps {
   highlight: EnrichedHighlight;
+  variant?: 'default' | 'verbose';
 }
 
 export const EmptyHighlightState = memo(() => (
@@ -25,7 +26,7 @@ export const EmptyHighlightState = memo(() => (
 
 EmptyHighlightState.displayName = 'EmptyHighlightState';
 
-const HighlightCard = memo(({ highlight }: HighlightCardProps) => {
+const HighlightCard = memo(({ highlight, variant = 'default' }: HighlightCardProps) => {
   const dateInfo = useMemo(() => formatRelativeDate(highlight.createdAt), [highlight.createdAt]);
   const toggleFavorite = useBookStore((state) => state.toggleFavoriteHighlight);
   const deleteHighlight = useBookStore((state) => state.deleteHighlight);
@@ -40,21 +41,38 @@ const HighlightCard = memo(({ highlight }: HighlightCardProps) => {
 
   return (
     <div className="group rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex flex-col h-full">
-        <div className="flex justify-between items-start mb-2">
-          <div className="flex items-center gap-2">
-            <span className="text-gray-500 font-medium text-sm">{highlight.bookTitle}</span>
-            <span className="text-xs text-gray-500">{highlight.readingProgress}% complete</span>
+      <div className="flex flex-col h-full space-y-4">
+        <div className="flex items-center gap-2">
+          {variant === 'verbose' && (
+            <>
+              <span className="text-xs text-gray-500 font-medium">{highlight.bookTitle}</span>
+              <span className="text-xs text-gray-500">·</span>
+              <span className="text-xs text-gray-500">{highlight.readingProgress}% complete</span>
+            </>
+          )}
+        </div>
+        <p className="text-gray-900 text-sm leading-normal">&ldquo;{highlight.text}&rdquo;</p>
+        <div className="flex justify-between items-center text-xs text-gray-500">
+          <div className="flex items-center gap-4">
+            <div className="flex gap-2">
+              <span className="bg-gray-50 px-2 py-1 rounded-full">
+                Page {highlight.page} of {highlight.bookTotalPages}
+              </span>
+              {highlight.isFavorite && <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full">Favorite</span>}
+            </div>
+            <time dateTime={dateInfo.iso} className="text-gray-500 font-medium whitespace-nowrap">
+              {dateInfo.formatted}
+            </time>
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-gray-500 hover:text-yellow-500 transition-colors"
+              className="h-8 w-8 text-gray-500 hover:text-red-500 transition-colors"
               onClick={handleToggleFavorite}
               aria-label={highlight.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             >
-              <Heart className={`w-4 h-4 ${highlight.isFavorite ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+              <Heart className={`w-4 h-4 ${highlight.isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
             </Button>
             <Button
               variant="ghost"
@@ -66,18 +84,6 @@ const HighlightCard = memo(({ highlight }: HighlightCardProps) => {
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
-        </div>
-        <p className="text-gray-900 text-sm leading-normal mb-3">&ldquo;{highlight.text}&rdquo;</p>
-        <div className="flex justify-between items-center text-xs text-gray-500 pt-2 border-t border-gray-50">
-          <div className="flex gap-2">
-            <span className="bg-gray-50 px-2 py-1 rounded-full">
-              Page {highlight.page} of {highlight.bookTotalPages}
-            </span>
-            {highlight.isFavorite && <span className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full">Favorite</span>}
-          </div>
-          <time dateTime={dateInfo.iso} className="text-gray-500 font-medium whitespace-nowrap">
-            {dateInfo.formatted}
-          </time>
         </div>
       </div>
     </div>

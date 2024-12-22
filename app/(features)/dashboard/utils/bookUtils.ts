@@ -1,5 +1,7 @@
 import { Book, ReadingStatus } from '../types/books';
 import { safeDate, isCurrentMonth, isCurrentYear } from '@/app/utils/dateUtils';
+import { filterHighlightsByBook, sortHighlightsByDate } from '../utils/highlightUtils';
+import { EnrichedHighlight } from '../stores/useBookStore';
 
 interface ReadingStats {
   booksCompletedThisMonth: number;
@@ -83,22 +85,12 @@ export const calculatePercentComplete = (currentPage: number | null | undefined,
 
 /**
  * Sort books by completion date (newest first)
+ * Used for displaying reading history and completed books in chronological order
  */
 export const sortBooksByCompletionDate = (books: Book[]): Book[] => {
   return [...books].sort((a, b) => {
     const dateA = a.completedDate ? new Date(a.completedDate).getTime() : 0;
     const dateB = b.completedDate ? new Date(b.completedDate).getTime() : 0;
-    return dateB - dateA;
-  });
-};
-
-/**
- * Sort books by start date (newest first)
- */
-export const sortBooksByStartDate = (books: Book[]): Book[] => {
-  return [...books].sort((a, b) => {
-    const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
-    const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
     return dateB - dateA;
   });
 };
@@ -126,4 +118,13 @@ export const sortBooksByProgress = (books: Book[]): Book[] => {
     const progressB = calculatePercentComplete(b.currentPage, b.totalPages);
     return progressB - progressA;
   });
+};
+
+/**
+ * Filter highlights by book ID and sort by creation date (newest first)
+ */
+export const getBookHighlightsSorted = (highlights: EnrichedHighlight[], bookId: string, limit?: number) => {
+  const bookHighlights = filterHighlightsByBook(highlights, bookId);
+  const sortedHighlights = sortHighlightsByDate(bookHighlights);
+  return limit ? sortedHighlights.slice(0, limit) : sortedHighlights;
 };

@@ -1,7 +1,7 @@
 import { useBookStore, selectEnrichedHighlights } from '../stores/useBookStore';
 import { useMemo } from 'react';
 import HighlightCard, { EmptyHighlightState } from './HighlightCard';
-import { safeDate } from '@/app/utils/dateUtils';
+import { getBookHighlightsSorted } from '../utils/bookUtils';
 
 interface HighlightsListProps {
   bookId: string;
@@ -12,14 +12,7 @@ const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
   const enrichedHighlights = useBookStore(selectEnrichedHighlights);
 
   const highlights = useMemo(() => {
-    const bookHighlights = enrichedHighlights
-      .filter((h) => h.bookId === bookId)
-      .sort((a, b) => {
-        const dateA = safeDate(a.createdAt)?.getTime() ?? 0;
-        const dateB = safeDate(b.createdAt)?.getTime() ?? 0;
-        return dateB - dateA;
-      });
-    return limit ? bookHighlights.slice(0, limit) : bookHighlights;
+    return getBookHighlightsSorted(enrichedHighlights, bookId, limit);
   }, [enrichedHighlights, bookId, limit]);
 
   if (highlights.length === 0) {

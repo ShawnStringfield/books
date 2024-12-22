@@ -69,6 +69,7 @@ interface BookActions {
   addBook: (book: Book) => void;
   addHighlight: (bookId: string, highlight: Omit<Highlight, 'id' | 'bookId' | 'createdAt'>) => void;
   toggleFavoriteHighlight: (id: string) => void;
+  updateHighlight: (id: string, text: string) => void;
   updateReadingProgress: (bookId: string, currentPage: number) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -142,6 +143,19 @@ export const useBookStore = create<BookStore>()(
       toggleFavoriteHighlight: (id) =>
         set((state) => ({
           highlights: state.highlights.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h)),
+        })),
+
+      updateHighlight: (id, text) =>
+        set((state) => ({
+          highlights: state.highlights.map((h) =>
+            h.id === id
+              ? {
+                  ...h,
+                  text,
+                  modifiedAt: getCurrentISODate(),
+                }
+              : h
+          ),
         })),
 
       updateReadingProgress: (bookId, currentPage) =>
@@ -284,8 +298,8 @@ export const selectEnrichedHighlights = (state: BookStore): EnrichedHighlight[] 
     lastBooksRef = books;
     lastHighlightsRef = highlights;
     cachedEnrichedHighlights = enrichHighlights(highlights, books).sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
+      const dateA = new Date(a.modifiedAt || a.createdAt).getTime();
+      const dateB = new Date(b.modifiedAt || b.createdAt).getTime();
       return dateB - dateA;
     });
   }

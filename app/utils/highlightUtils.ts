@@ -43,7 +43,11 @@ interface SortFunctions {
 
 // Sort functions for different highlight sorting options
 const sortFunctions: SortFunctions = {
-  date: (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  date: (a, b) => {
+    const dateA = new Date(a.modifiedAt || a.createdAt).getTime();
+    const dateB = new Date(b.modifiedAt || b.createdAt).getTime();
+    return dateB - dateA;
+  },
   book: (a, b) => a.bookTitle.localeCompare(b.bookTitle),
   page: (a, b) => {
     const bookCompare = a.bookTitle.localeCompare(b.bookTitle);
@@ -52,7 +56,9 @@ const sortFunctions: SortFunctions = {
   length: (a, b) => b.text.length - a.text.length,
   favorite: (a, b) => {
     if (a.isFavorite === b.isFavorite) {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      const dateA = new Date(a.modifiedAt || a.createdAt).getTime();
+      const dateB = new Date(b.modifiedAt || b.createdAt).getTime();
+      return dateB - dateA;
     }
     return a.isFavorite ? -1 : 1;
   },
@@ -81,7 +87,11 @@ export const getRecentHighlightsData = (
 export const getHighlightsByBook = (highlights: EnrichedHighlight[], bookId: string, limit?: number): EnrichedHighlight[] => {
   const bookHighlights = highlights
     .filter((h) => h.bookId === bookId)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    .sort((a, b) => {
+      const dateA = new Date(a.modifiedAt || a.createdAt).getTime();
+      const dateB = new Date(b.modifiedAt || b.createdAt).getTime();
+      return dateB - dateA;
+    });
 
   return limit ? bookHighlights.slice(0, limit) : bookHighlights;
 };

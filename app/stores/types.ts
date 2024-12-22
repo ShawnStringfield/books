@@ -46,6 +46,7 @@ export interface Highlight {
   page: number;
   isFavorite: boolean;
   createdAt: string;
+  modifiedAt?: string;
 }
 
 export interface EnrichedHighlight extends Highlight {
@@ -64,6 +65,7 @@ export interface BookHighlight {
   note?: string;
   isFavorite: boolean;
   createdAt: string;
+  modifiedAt?: string;
 }
 
 interface GoogleBookVolumeInfo {

@@ -25,7 +25,12 @@ export function SignOut({ onSignOut, error, authAction }: SignOutProps) {
       )}
 
       <div className="flex justify-center space-x-4">
-        <Button onClick={onSignOut} disabled={authAction !== null} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]" aria-busy={authAction === 'signout'}>
+        <Button
+          onClick={onSignOut}
+          disabled={authAction !== null}
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
+          aria-busy={authAction === 'signout'}
+        >
           {authAction === 'signout' ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -35,7 +40,12 @@ export function SignOut({ onSignOut, error, authAction }: SignOutProps) {
             'Sign Out'
           )}
         </Button>
-        <a href="/" className={`px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 ${authAction !== null ? 'pointer-events-none opacity-50' : ''}`} tabIndex={authAction !== null ? -1 : 0} aria-disabled={authAction !== null}>
+        <a
+          href="/"
+          className={`px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 ${authAction !== null ? 'pointer-events-none opacity-50' : ''}`}
+          tabIndex={authAction !== null ? -1 : 0}
+          aria-disabled={authAction !== null}
+        >
           Cancel
         </a>
       </div>

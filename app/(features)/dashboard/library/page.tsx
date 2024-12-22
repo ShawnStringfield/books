@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useLayoutEffect } from 'react';
-import DashboardLayout from '../components/DashboardLayout';
-import { BooksList } from '../components/BooksList';
+import DashboardLayout from '@/app/components/dashboard/DashboardLayout';
+import { BooksList } from '@/app/components/book/BooksList';
 import { Plus } from 'lucide-react';
-import { AddBookForm } from '../components/AddBookForm';
+import { AddBookForm } from '@/app/components/book/AddBookForm';
 import { useBookStore } from '../stores/useBookStore';
-import Toolbar, { ToolbarAction } from '../components/Toolbar';
+import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
 
 export default function LibraryPage() {
   const [mounted, setMounted] = useState(false);

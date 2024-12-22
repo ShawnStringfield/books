@@ -1,5 +1,5 @@
 import { Settings2, Trash2, AlertCircle } from 'lucide-react';
-import { ReadingStatus } from '../types/books';
+import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
 import StatusButtons from './StatusButtons';
 import BookProgressSlider from './BookProgressSlider';
 import { cn } from '@/lib/utils';

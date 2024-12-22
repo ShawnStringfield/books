@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/app/components/ui/dialog';
-import BookHighlights from '../BookHighlights';
+import BookHighlights from './BookHighlights';
 
 interface BookHighlightsDialogProps {
   open: boolean;

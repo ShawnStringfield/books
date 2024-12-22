@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Progress } from '@/app/components/ui/progress';
-import { Book, ReadingStatus } from '../types/books';
+import { Book, ReadingStatus } from '@/app/(features)/dashboard/types/books';
 import Link from 'next/link';
 import StatusButtons from './StatusButtons';
 import BookDetailsSheet from './BookDetailsSheet';

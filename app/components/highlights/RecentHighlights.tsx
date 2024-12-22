@@ -1,7 +1,7 @@
 import { Button } from '@/app/components/ui/button';
 import { Highlighter } from 'lucide-react';
 import { memo, useMemo } from 'react';
-import { useRecentHighlights } from '../hooks/useRecentHighlights';
+import { useRecentHighlights } from '@/app/(features)/dashboard/hooks/useRecentHighlights';
 import HighlightCard, { EmptyHighlightState } from './HighlightCard';
 
 interface RecentHighlightsProps {

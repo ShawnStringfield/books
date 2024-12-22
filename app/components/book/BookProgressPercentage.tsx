@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { calculatePercentComplete } from '../utils/bookUtils';
+import { calculatePercentComplete } from '@/app/(features)/dashboard/utils/bookUtils';
 
 interface BookProgressPercentageProps {
   currentPage: number;

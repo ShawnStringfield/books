@@ -1,5 +1,5 @@
 import React from 'react';
-import TopNav from './TopNav';
+import TopNav from '@/app/(features)/dashboard/components/TopNav';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;

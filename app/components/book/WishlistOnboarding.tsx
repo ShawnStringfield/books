@@ -2,7 +2,7 @@ import { BookMarked, Plus, Search } from 'lucide-react';
 
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
-import { Book } from '../types/books';
+import { Book } from '@/app/(features)/dashboard/types/books';
 
 const WishlistOnboarding = () => {
   // For now, just set wishlist to empty array

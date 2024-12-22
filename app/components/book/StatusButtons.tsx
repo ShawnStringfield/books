@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
-import { ReadingStatus } from '../types/books';
-import { StatusOption, readingStatusOptions } from '../config/readingStatusConfig';
+import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
+import { StatusOption, readingStatusOptions } from '@/app/(features)/dashboard/config/readingStatusConfig';
 
 export interface StatusButtonsProps {
   bookId: string;

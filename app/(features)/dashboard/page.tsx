@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { useOnboardingCheck } from '@/app/(features)/profile-onboarding/hooks/useOnboardingCheck';
-import CurrentlyReading from './components/CurrentlyReading';
-import WishlistOnboarding from './components/WishlistOnboarding';
-import FavHighlightsOnboarding from './components/FavHighlightsOnboarding';
-import RecentHighlights from './components/RecentHighlights';
+import CurrentlyReading from '@/app/components/book/CurrentlyReading';
+import WishlistOnboarding from '@/app/components/book/WishlistOnboarding';
+import FavHighlightsOnboarding from '@/app/components/highlights/FavHighlightsOnboarding';
+import RecentHighlights from '@/app/components/highlights/RecentHighlights';
 import { useBookStore, selectBooks, selectHasHydrated } from './stores/useBookStore';
-import DashboardLayout from './components/DashboardLayout';
+import DashboardLayout from '@/app/components/dashboard/DashboardLayout';
 import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
-import DashboardStats from './components/stats/DashboardStats';
+import DashboardStats from '@/app/components/dashboard/stats/DashboardStats';
 
 export default function DashboardPage() {
   useOnboardingCheck();

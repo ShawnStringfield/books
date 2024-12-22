@@ -1,16 +1,16 @@
 import { Eye, Link as LinkIcon, X, Plus, Trash2, Settings2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle, SheetClose, SheetHeader } from '@/app/components/ui/sheet';
-import { Book } from '../types/books';
+import { Book } from '@/app/(features)/dashboard/types/books';
 import { useId, useState } from 'react';
 import ReadingProgressBar from './ReadingProgressBar';
-import { useBookStore, selectIsLastBook } from '../stores/useBookStore';
+import { useBookStore, selectIsLastBook } from '@/app/(features)/dashboard/stores/useBookStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import BookHighlights from './BookHighlights';
+import BookHighlights from '@/app/components/highlights/BookHighlights';
 import { DeleteBookDialog } from './DeleteBookDialog';
-import Toolbar, { ToolbarAction } from './Toolbar';
-import ReadingControls from './ReadingControls';
-import { calculatePercentComplete } from '../utils/bookUtils';
+import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
+import ReadingControls from '@/app/components/book/ReadingControls';
+import { calculatePercentComplete } from '@/app/(features)/dashboard/utils/bookUtils';
 
 interface BookDetailsSheetProps {
   book: Book;

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { useDebounce } from '@/app/hooks/useDebounce';
-import { GoogleBook, GoogleBooksResponse, ReadingStatus } from '../types/books';
+import { GoogleBook, GoogleBooksResponse, ReadingStatus } from '@/app/(features)/dashboard/types/books';
 import Image from 'next/image';
 import { Input } from '@/app/components/ui/input';
 import { Button } from '@/app/components/ui/button';

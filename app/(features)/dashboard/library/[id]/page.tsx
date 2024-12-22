@@ -8,16 +8,16 @@ import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
 import { Plus, Settings2, Pencil, ExternalLink, Info } from 'lucide-react';
 import { selectIsLastBook } from '../../stores/useBookStore';
-import DashboardLayout from '../../components/DashboardLayout';
-import BookHighlights from '../../components/BookHighlights';
-import ReadingProgressBar from '../../components/ReadingProgressBar';
-import EditableBookDescription from '../../components/EditableBookDescription';
-import EditableGenre from '../../components/EditableGenre';
+import DashboardLayout from '@/app/components/dashboard/DashboardLayout';
+import BookHighlights from '@/app/components/highlights/BookHighlights';
+import ReadingProgressBar from '@/app/components/book/ReadingProgressBar';
+import EditableBookDescription from '@/app/components/book/EditableBookDescription';
+import EditableGenre from '@/app/components/book/EditableGenre';
 import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
-import Toolbar, { ToolbarAction } from '../../components/Toolbar';
+import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
 import { calculatePercentComplete } from '../../utils/bookUtils';
-import ReadingControlsDialog from '../../components/dialogs/ReadingControlsDialog';
-import BookHighlightsDialog from '../../components/dialogs/BookHighlightsDialog';
+import ReadingControlsDialog from '@/app/components/book/dialogs/ReadingControlsDialog';
+import BookHighlightsDialog from '@/app/components/highlights/BookHighlightsDialog';
 
 function BookDetailsContent() {
   const router = useRouter();

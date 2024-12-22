@@ -1,8 +1,8 @@
 import { memo, useMemo, useCallback } from 'react';
-import type { EnrichedHighlight } from '../stores/useBookStore';
+import type { EnrichedHighlight } from '@/app/(features)/dashboard/stores/useBookStore';
 import { formatRelativeDate } from '@/app/utils/dateUtils';
 import { BookText, Heart, Trash2 } from 'lucide-react';
-import { useBookStore } from '../stores/useBookStore';
+import { useBookStore } from '@/app/(features)/dashboard/stores/useBookStore';
 import { Button } from '@/app/components/ui/button';
 
 interface HighlightCardProps {

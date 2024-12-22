@@ -1,9 +1,9 @@
 import React from 'react';
-import { MonthlyStats } from './MonthlyStats';
-import { YearlyStats } from './YearlyStats';
-import { useBookStore, selectBooks, selectIsLoading, selectError, selectHasHydrated } from '../../stores/useBookStore';
+import { MonthlyStats } from '@/app/(features)/dashboard/components/stats/MonthlyStats';
+import { YearlyStats } from '@/app/(features)/dashboard/components/stats/YearlyStats';
+import { useBookStore, selectBooks, selectIsLoading, selectError, selectHasHydrated } from '@/app/(features)/dashboard/stores/useBookStore';
 import { useBookGoals } from '@/app/(features)/profile-onboarding/hooks/useOnboardingStore';
-import { calculateReadingStats } from '../../utils/bookUtils';
+import { calculateReadingStats } from '@/app/(features)/dashboard/utils/bookUtils';
 import { Skeleton } from '@/app/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/app/components/ui/alert';
 import { AlertCircle } from 'lucide-react';

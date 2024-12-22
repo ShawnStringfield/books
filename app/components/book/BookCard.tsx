@@ -57,18 +57,18 @@ const BookCard = ({ book, onStatusChange, onDelete, isLastBook = false, progress
       className={`bg-white border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 h-[280px] focus:outline-none ${className} relative`}
     >
       <CardContent className="p-6 flex flex-col h-full">
-        <div className="flex justify-between items-start">
-          <div>
+        <div className="flex justify-between items-start gap-4">
+          <div className="min-w-0 flex-1">
             <Link
               href={`/dashboard/library/${book.id}`}
               className="block group focus:outline-none focus-visible:outline-none"
               aria-label={`View details for ${book.title}`}
             >
-              <h4 className="font-semibold text-sm group-hover:text-blue-600 transition-colors leading-tight outline-none">{book.title}</h4>
+              <h4 className="font-semibold text-sm group-hover:text-blue-600 transition-colors leading-tight outline-none truncate">{book.title}</h4>
             </Link>
-            <p className="text-xs text-gray-600 py-1">by {book.author}</p>
+            <p className="text-xs text-gray-600 py-1 truncate">by {book.author}</p>
           </div>
-          <div className="flex items-center gap-1 text-xs text-gray-500">
+          <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
             <Highlighter size={14} className="text-gray-400" />
             <span>
               {highlightsCount} highlight{highlightsCount !== 1 ? 's' : ''}

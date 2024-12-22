@@ -8,11 +8,13 @@ export interface GoogleBooksResponse {
   totalItems: number;
 }
 
-export enum ReadingStatus {
-  NOT_STARTED = 'not-started',
-  IN_PROGRESS = 'in-progress',
-  COMPLETED = 'completed',
-}
+export const ReadingStatus = {
+  NOT_STARTED: 'not-started',
+  IN_PROGRESS: 'in-progress',
+  COMPLETED: 'completed',
+} as const;
+
+export type ReadingStatusType = (typeof ReadingStatus)[keyof typeof ReadingStatus];
 
 export interface Book {
   id: string;
@@ -21,7 +23,7 @@ export interface Book {
   author: string;
   totalPages: number;
   currentPage: number;
-  status: ReadingStatus;
+  status: ReadingStatusType;
   categories: string[];
   previewLink?: string;
   infoLink?: string;

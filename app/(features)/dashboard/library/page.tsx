@@ -5,7 +5,7 @@ import DashboardLayout from '@/app/components/dashboard/DashboardLayout';
 import { BooksList } from '@/app/components/book/BooksList';
 import { Plus } from 'lucide-react';
 import { AddBookForm } from '@/app/components/book/AddBookForm';
-import { useBookStore } from '../stores/useBookStore';
+import { useBookStore } from '@/app/stores/useBookStore';
 import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
 
 export default function LibraryPage() {

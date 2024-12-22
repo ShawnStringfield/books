@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { useDebounce } from '@/app/hooks/useDebounce';
-import { GoogleBook, GoogleBooksResponse, ReadingStatus } from '@/app/(features)/dashboard/types/books';
+import { GoogleBook, GoogleBooksResponse, ReadingStatus } from '@/app/stores/types';
 import Image from 'next/image';
 import { Input } from '@/app/components/ui/input';
 import { Button } from '@/app/components/ui/button';
-import { useBookStore } from '@/app/(features)/dashboard/stores/useBookStore';
+import { useBookStore } from '@/app/stores/useBookStore';
 import { v4 as uuidv4 } from 'uuid';
 import { Separator } from '@/app/components/ui/separator';
 

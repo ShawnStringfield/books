@@ -1,7 +1,7 @@
 import { Settings2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/app/components/ui/dialog';
 import ReadingControls from '../book/ReadingControls';
-import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
+import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
 
 interface ReadingControlsDialogProps {
   open: boolean;

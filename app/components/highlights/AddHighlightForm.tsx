@@ -1,5 +1,5 @@
 import { Button } from '@/app/components/ui/button';
-import { useBookStore } from '@/app/(features)/dashboard/stores/useBookStore';
+import { useBookStore } from '@/app/stores/useBookStore';
 import { useState, useCallback } from 'react';
 import { Highlighter } from 'lucide-react';
 

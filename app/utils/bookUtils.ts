@@ -1,7 +1,8 @@
-import { Book, ReadingStatus } from '../types/books';
+import { Book } from '@/app/stores/types';
+import { ReadingStatus } from '@/app/stores/types';
 import { safeDate, isCurrentMonth, isCurrentYear } from '@/app/utils/dateUtils';
-import { filterHighlightsByBook, sortHighlightsByDate } from '../utils/highlightUtils';
-import { EnrichedHighlight } from '../stores/useBookStore';
+import { filterHighlightsByBook, sortHighlightsByDate } from '@/app/utils/highlightUtils';
+import { EnrichedHighlight } from '@/app/stores/useBookStore';
 
 interface ReadingStats {
   booksCompletedThisMonth: number;
@@ -11,7 +12,7 @@ interface ReadingStats {
 /**
  * Filter books by reading status
  */
-export const filterBooksByStatus = (books: Book[], status: ReadingStatus): Book[] => {
+export const filterBooksByStatus = (books: Book[], status: (typeof ReadingStatus)[keyof typeof ReadingStatus]): Book[] => {
   return books.filter((book) => book.status === status);
 };
 

@@ -1,7 +1,7 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Heart } from 'lucide-react';
-import { useBookStore, type BookStore } from '@/app/(features)/dashboard/stores/useBookStore';
+import { useBookStore, type BookStore } from '@/app/stores/useBookStore';
 import { useEffect, useState } from 'react';
 
 const FavHighlightsOnboarding = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Book } from '../types/books';
+import { Book } from '@/app/stores/types';
 import { toTitleCase } from '@/app/utils/textUtils';
 
 // Utility function to determine status color

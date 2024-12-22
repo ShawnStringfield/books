@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
+import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
 import { StatusOption, readingStatusOptions } from '@/app/(features)/dashboard/config/readingStatusConfig';
 
 export interface StatusButtonsProps {

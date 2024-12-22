@@ -1,19 +1,19 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/app/hooks/use-toast';
-import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
-import { useBookStore } from '@/app/(features)/dashboard/stores/useBookStore';
+import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
+import { useBookStore } from '@/app/stores/useBookStore';
 
 interface Book {
   id: string;
   title: string;
-  status: ReadingStatus;
+  status: ReadingStatusType;
   currentPage: number;
   totalPages: number;
 }
 
 interface UseBookStatusResult {
-  canChangeStatus: (book: Book, newStatus: ReadingStatus) => boolean;
-  changeBookStatus: (book: Book, newStatus: ReadingStatus) => Promise<boolean>;
+  canChangeStatus: (book: Book, newStatus: ReadingStatusType) => boolean;
+  changeBookStatus: (book: Book, newStatus: ReadingStatusType) => Promise<boolean>;
   isChangingStatus: boolean;
   error: Error | null;
 }
@@ -25,7 +25,7 @@ export const useBookStatus = (books: Book[]): UseBookStatusResult => {
   const [error, setError] = useState<Error | null>(null);
 
   const canChangeStatus = useCallback(
-    (book: Book, newStatus: ReadingStatus): boolean => {
+    (book: Book, newStatus: ReadingStatusType): boolean => {
       // Don't allow changing to the current status
       if (book.status === newStatus) {
         return false;
@@ -53,7 +53,7 @@ export const useBookStatus = (books: Book[]): UseBookStatusResult => {
   );
 
   const changeBookStatus = useCallback(
-    async (book: Book, newStatus: ReadingStatus): Promise<boolean> => {
+    async (book: Book, newStatus: ReadingStatusType): Promise<boolean> => {
       if (!canChangeStatus(book, newStatus)) {
         toast({
           title: "Can't Change Book Status",

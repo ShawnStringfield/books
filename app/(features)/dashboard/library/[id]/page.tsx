@@ -1,13 +1,12 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useBookStore, selectHasHydrated } from '../../stores/useBookStore';
+import { useBookStore, selectHasHydrated, selectIsLastBook } from '@/app/stores/useBookStore';
 import { Button } from '@/app/components/ui/button';
-import { ReadingStatus } from '../../types/books';
+import { ReadingStatus } from '@/app/stores/types';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
 import { Plus, Settings2, Pencil, ExternalLink, Info } from 'lucide-react';
-import { selectIsLastBook } from '../../stores/useBookStore';
 import DashboardLayout from '@/app/components/dashboard/DashboardLayout';
 import BookHighlights from '@/app/components/highlights/BookHighlights';
 import ReadingProgressBar from '@/app/components/book/ReadingProgressBar';
@@ -15,7 +14,7 @@ import EditableBookDescription from '@/app/components/book/EditableBookDescripti
 import EditableGenre from '@/app/components/book/EditableGenre';
 import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
 import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
-import { calculatePercentComplete } from '../../utils/bookUtils';
+import { calculatePercentComplete } from '@/app/utils/bookUtils';
 import ReadingControlsDialog from '@/app/components/dialogs/ReadingControlsDialog';
 import BookHighlightsDialog from '@/app/components/dialogs/BookHighlightsDialog';
 
@@ -26,7 +25,7 @@ function BookDetailsContent() {
   const { books: rawBooks = [], updateBookStatus, updateReadingProgress, updateBookDescription, updateBookGenre, deleteBook } = useBookStore();
   const isLoading = useBookStore((state) => state.isLoading);
   const hasHydrated = useBookStore(selectHasHydrated);
-  const books = rawBooks.map((b) => ({ ...b, status: b.status as ReadingStatus }));
+  const books = rawBooks.map((b) => ({ ...b, status: b.status as (typeof ReadingStatus)[keyof typeof ReadingStatus] }));
   const { changeBookStatus, isChangingStatus } = useBookStatus(books);
   const book = books.find((b) => b.id === id);
   const isLastBook = useBookStore(selectIsLastBook);
@@ -85,7 +84,7 @@ function BookDetailsContent() {
     },
   ];
 
-  const handleStatusChange = async (bookId: string, newStatus: ReadingStatus) => {
+  const handleStatusChange = async (bookId: string, newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => {
     if (isChangingStatus) return;
 
     if (await changeBookStatus(book, newStatus)) {

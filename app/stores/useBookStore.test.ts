@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useBookStore } from './useBookStore';
-import { ReadingStatus } from '../types/books';
+import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
 
 describe('useBookStore', () => {
   beforeEach(() => {

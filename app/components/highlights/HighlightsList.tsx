@@ -1,7 +1,7 @@
-import { useBookStore, selectEnrichedHighlights } from '@/app/(features)/dashboard/stores/useBookStore';
+import { useBookStore, selectEnrichedHighlights } from '@/app/stores/useBookStore';
 import { useMemo } from 'react';
 import HighlightCard, { EmptyHighlightState } from './HighlightCard';
-import { getBookHighlightsSorted } from '@/app/(features)/dashboard/utils/bookUtils';
+import { getBookHighlightsSorted } from '@/app/utils/bookUtils';
 
 interface HighlightsListProps {
   bookId: string;

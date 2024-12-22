@@ -1,10 +1,10 @@
 import { BookX, BookOpen, CheckCircle } from 'lucide-react';
-import { ReadingStatus } from '../types/books';
+import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
 
 export interface StatusOption {
-  value: ReadingStatus;
+  value: ReadingStatusType;
   label: string;
-  icon: React.ReactNode;
+  icon: JSX.Element;
 }
 
 export const readingStatusOptions: StatusOption[] = [

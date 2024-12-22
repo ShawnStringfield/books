@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useBookStore, selectIsLastBook } from '@/app/(features)/dashboard/stores/useBookStore';
+import { useBookStore, selectIsLastBook } from '@/app/stores/useBookStore';
 import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
 import BookCard from './BookCard';
-import { ReadingStatus } from '@/app/(features)/dashboard/types/books';
+import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
 
 export function BooksList() {
   const { books, deleteBook, updateBookStatus } = useBookStore();

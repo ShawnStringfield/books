@@ -1,4 +1,4 @@
-import { Book, ReadingStatus } from '../types/books';
+import { Book, ReadingStatus } from '@/app/stores/types';
 import { calculateReadingStats, calculatePercentComplete } from './bookUtils';
 
 describe('bookUtils', () => {

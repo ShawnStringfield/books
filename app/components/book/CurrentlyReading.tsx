@@ -3,8 +3,9 @@ import { Card, CardContent } from '@/app/components/ui/card';
 import { Library, PlusCircle } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
-import { Book } from '@/app/(features)/dashboard/types/books';
-import { useBookStore, selectIsLastBook } from '@/app/(features)/dashboard/stores/useBookStore';
+import { Book } from '@/app/stores/useBookStore';
+import { useBookStore, selectIsLastBook } from '@/app/stores/useBookStore';
+import type { BookStore } from '@/app/stores/useBookStore';
 import BookCard from './BookCard';
 import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
 import { useState } from 'react';
@@ -14,7 +15,8 @@ interface CurrentlyReadingProps {
 }
 
 const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
-  const { updateBookStatus, deleteBook } = useBookStore();
+  const updateBookStatus = useBookStore((state: BookStore) => state.updateBookStatus);
+  const deleteBook = useBookStore((state: BookStore) => state.deleteBook);
   const isLastBook = useBookStore(selectIsLastBook);
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
 

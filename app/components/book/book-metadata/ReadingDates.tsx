@@ -1,5 +1,5 @@
 import { Calendar, BookOpen } from 'lucide-react';
-import { Book } from '@/app/(features)/dashboard/types/books';
+import { Book } from '@/app/stores/types';
 import { formatLongDate } from '@/app/utils/dateUtils';
 
 interface ReadingDatesProps {

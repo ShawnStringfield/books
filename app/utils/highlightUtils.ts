@@ -1,5 +1,5 @@
-import { Book, Highlight } from '../types/books';
-import { EnrichedHighlight } from '../stores/useBookStore';
+import { Book, Highlight } from '@/app/stores/types';
+import { EnrichedHighlight } from '@/app/stores/useBookStore';
 import { isCurrentMonth } from '@/app/utils/dateUtils';
 
 /**

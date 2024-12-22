@@ -17,6 +17,7 @@ import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
 import { calculatePercentComplete } from '@/app/utils/bookUtils';
 import ReadingControlsDialog from '@/app/components/dialogs/ReadingControlsDialog';
 import BookHighlightsDialog from '@/app/components/dialogs/BookHighlightsDialog';
+import { ReadingDates } from '@/app/components/book/book-metadata';
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -147,68 +148,61 @@ function BookDetailsContent() {
         <Toolbar actions={toolbarActions} className="flex items-center gap-3 mb-4" />
 
         {/* Book Details */}
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1">
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold leading-0 ">{book.title}</h1>
-                <h2 className="text-mono text-lg font-semibold leading-tight">{book.subtitle}</h2>
-              </div>
-              <div className="flex items-center gap-2">
-                {showEditControls ? (
-                  <>
-                    <Button variant="outline" size="sm" onClick={toggleEditControls} className="text-xs py-1 px-2">
-                      Cancel
-                    </Button>
-                    <Button size="sm" onClick={handleSaveChanges} className="text-xs py-1 px-2 bg-brand">
-                      Save Changes
-                    </Button>
-                  </>
-                ) : null}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl font-bold leading-0 ">{book.title}</h1>
+              <h2 className="text-mono text-lg font-semibold leading-tight">{book.subtitle}</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              {showEditControls ? (
+                <>
+                  <Button variant="outline" size="sm" onClick={toggleEditControls} className="text-xs py-1 px-2">
+                    Cancel
+                  </Button>
+                  <Button size="sm" onClick={handleSaveChanges} className="text-xs py-1 px-2 bg-brand">
+                    Save Changes
+                  </Button>
+                </>
+              ) : null}
+            </div>
+          </div>
+          <div className="mt-2">
+            <div className="my-4">
+              <p className="text-sm text-mono">
+                By: {book.author} • {book.totalPages} pages
+              </p>
+              <div className="flex flex-col gap-1.5 mt-1">
+                <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
+                <ReadingDates book={book} />
+                {!book.genre && !book.isbn && <span className="italic text-sm text-mono">No additional details available</span>}
               </div>
             </div>
-            <div className="mt-2">
-              <div className="my-4">
-                <p className="text-sm text-mono">
-                  By: {book.author} • {book.totalPages} pages
-                </p>
-                <div className="flex items-center gap-2 text-sm  mt-1 text-mono">
-                  <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
-                  {book.isbn && (
-                    <>
-                      <span>•</span>
-                      <span>ISBN: {book.isbn}</span>
-                    </>
-                  )}
-                  {!book.genre && !book.isbn && <span className="italic">No additional details available</span>}
-                </div>
-              </div>
-              <div className="flex items-center gap-4 mt-3">
-                {book.previewLink && (
-                  <a
-                    href={book.previewLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm text-brand hover:text-blue-800 transition-colors"
-                    aria-label="Preview book"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Preview
-                  </a>
-                )}
-                {book.infoLink && (
-                  <a
-                    href={book.infoLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm text-brand hover:text-blue-800 transition-colors"
-                    aria-label="More information about book"
-                  >
-                    <Info className="h-4 w-4" />
-                    More Information
-                  </a>
-                )}
-              </div>
+            <div className="flex items-center gap-4 mt-3">
+              {book.previewLink && (
+                <a
+                  href={book.previewLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-sm text-brand hover:text-blue-800 transition-colors"
+                  aria-label="Preview book"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Preview
+                </a>
+              )}
+              {book.infoLink && (
+                <a
+                  href={book.infoLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-sm text-brand hover:text-blue-800 transition-colors"
+                  aria-label="More information about book"
+                >
+                  <Info className="h-4 w-4" />
+                  More Information
+                </a>
+              )}
             </div>
           </div>
         </div>

@@ -52,13 +52,13 @@ const HighlightCard = memo(({ highlight, variant = 'default' }: HighlightCardPro
               >
                 {highlight.bookTitle}
               </Link>
-              <span className="text-xs text-brand-textweak">·</span>
-              <span className="text-xs text-brand-textweak">{highlight.readingProgress}% complete</span>
+              <span className="text-xs text-mono/75">·</span>
+              <span className="text-xs text-mono/75">{highlight.readingProgress}% complete</span>
             </>
           )}
         </div>
-        <p className="text-sm leading-normal">{highlight.text}</p>
-        <div className="flex justify-between items-center text-xs ">
+        <p className="text-sm leading-normal text-mono-emphasis">{highlight.text}</p>
+        <div className="flex justify-between items-center text-xs text-mono/75">
           <div className="flex items-center gap-2">
             <span className="">
               Page {highlight.page} of {highlight.bookTotalPages}

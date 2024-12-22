@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/button';
 import { useState } from 'react';
 import WarningAlert from '@/app/components/ui/warning-alert';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ReadingControlsProps {
   bookId: string;
@@ -49,11 +50,6 @@ const ReadingControls = ({
     }
   };
 
-  const handleDeleteClick = () => {
-    if (isLastBook) return;
-    setShowDeleteWarning(true);
-  };
-
   const warningActions = [
     {
       label: 'Cancel',
@@ -68,9 +64,14 @@ const ReadingControls = ({
         onStatusChange(bookId, ReadingStatus.NOT_STARTED);
       },
       variant: 'ghost' as const,
-      className: 'text-amber-800 ',
+      className: 'text-amber-800',
     },
   ];
+
+  const handleDeleteClick = () => {
+    if (isLastBook) return;
+    setShowDeleteWarning(true);
+  };
 
   if (variant === 'icon') {
     return (
@@ -94,13 +95,26 @@ const ReadingControls = ({
       <div className="space-y-3">
         <StatusButtons bookId={bookId} currentStatus={status} onStatusChange={handleStatusChange} size={size} align="left" className="my-4" />
 
-        {showWarning && (
-          <WarningAlert
-            message="Changing to &ldquo;Not Started&rdquo; will reset your reading progress to 0 pages."
-            variant="warning"
-            actions={warningActions}
-          />
-        )}
+        <AnimatePresence mode="sync">
+          {showWarning && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{
+                duration: 0.2,
+                ease: [0.4, 0, 0.2, 1],
+              }}
+              className="overflow-hidden"
+            >
+              <WarningAlert
+                message="Changing to &ldquo;Not Started&rdquo; will reset your reading progress to 0 pages."
+                variant="warning"
+                actions={warningActions}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Reading Progress Section */}

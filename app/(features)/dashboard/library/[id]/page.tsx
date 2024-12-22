@@ -16,8 +16,8 @@ import EditableGenre from '@/app/components/book/EditableGenre';
 import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
 import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
 import { calculatePercentComplete } from '../../utils/bookUtils';
-import ReadingControlsDialog from '@/app/components/book/dialogs/ReadingControlsDialog';
-import BookHighlightsDialog from '@/app/components/highlights/BookHighlightsDialog';
+import ReadingControlsDialog from '@/app/components/dialogs/ReadingControlsDialog';
+import BookHighlightsDialog from '@/app/components/dialogs/BookHighlightsDialog';
 
 function BookDetailsContent() {
   const router = useRouter();

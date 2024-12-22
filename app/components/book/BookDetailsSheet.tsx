@@ -7,7 +7,7 @@ import { useBookStore, selectIsLastBook } from '@/app/(features)/dashboard/store
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import BookHighlights from '@/app/components/highlights/BookHighlights';
-import { DeleteBookDialog } from './DeleteBookDialog';
+import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
 import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
 import ReadingControls from '@/app/components/book/ReadingControls';
 import { calculatePercentComplete } from '@/app/(features)/dashboard/utils/bookUtils';

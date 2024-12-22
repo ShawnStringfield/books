@@ -6,7 +6,7 @@ import { AddBookForm } from './AddBookForm';
 import { Book } from '@/app/(features)/dashboard/types/books';
 import { useBookStore, selectIsLastBook } from '@/app/(features)/dashboard/stores/useBookStore';
 import BookCard from './BookCard';
-import { DeleteBookDialog } from './DeleteBookDialog';
+import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
 import { useState } from 'react';
 
 interface CurrentlyReadingProps {

@@ -12,7 +12,7 @@ import BookHighlights from '@/app/components/highlights/BookHighlights';
 import ReadingProgressBar from '@/app/components/book/ReadingProgressBar';
 import EditableBookDescription from '@/app/components/book/EditableBookDescription';
 import EditableGenre from '@/app/components/book/EditableGenre';
-import { EditModeProvider, useEditMode } from '../../contexts/EditModeContext';
+import { EditModeProvider, useEditMode } from '@/app/contexts/EditModeContext';
 import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
 import { calculatePercentComplete } from '@/app/utils/bookUtils';
 import ReadingControlsDialog from '@/app/components/dialogs/ReadingControlsDialog';

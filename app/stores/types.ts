@@ -48,6 +48,14 @@ export interface Highlight {
   createdAt: string;
 }
 
+export interface EnrichedHighlight extends Highlight {
+  bookTitle: string;
+  bookAuthor: string;
+  bookCurrentPage: number;
+  bookTotalPages: number;
+  readingProgress: number;
+}
+
 export interface BookHighlight {
   id: string;
   bookId: string;

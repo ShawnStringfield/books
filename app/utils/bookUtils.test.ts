@@ -51,6 +51,72 @@ describe('bookUtils', () => {
   ];
 
   describe('calculateReadingStats', () => {
+    beforeEach(() => {
+      // Set a fixed date for all tests
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2024-01-15T12:00:00Z'));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should count books completed this year correctly', () => {
+      const books: Book[] = [
+        {
+          id: '1',
+          title: 'Book 1',
+          author: 'Author 1',
+          totalPages: 100,
+          currentPage: 100,
+          status: ReadingStatus.COMPLETED,
+          categories: ['Fiction'],
+          completedDate: '2024-01-01T00:00:00Z', // This year
+        },
+        {
+          id: '2',
+          title: 'Book 2',
+          author: 'Author 2',
+          totalPages: 100,
+          currentPage: 100,
+          status: ReadingStatus.COMPLETED,
+          categories: ['Fiction'],
+          completedDate: '2023-12-31T23:59:59Z', // Last year
+        },
+      ];
+
+      const stats = calculateReadingStats(books);
+      expect(stats.booksCompletedThisYear).toBe(1);
+    });
+
+    it('should count books completed this month correctly', () => {
+      const books: Book[] = [
+        {
+          id: '1',
+          title: 'Book 1',
+          author: 'Author 1',
+          totalPages: 100,
+          currentPage: 100,
+          status: ReadingStatus.COMPLETED,
+          categories: ['Fiction'],
+          completedDate: '2024-01-01T00:00:00Z', // This month
+        },
+        {
+          id: '2',
+          title: 'Book 2',
+          author: 'Author 2',
+          totalPages: 100,
+          currentPage: 100,
+          status: ReadingStatus.COMPLETED,
+          categories: ['Fiction'],
+          completedDate: '2023-12-31T23:59:59Z', // Last month
+        },
+      ];
+
+      const stats = calculateReadingStats(books);
+      expect(stats.booksCompletedThisMonth).toBe(1);
+    });
+
     describe('with standard data', () => {
       it('should calculate correct stats for the current month and year', () => {
         const stats = calculateReadingStats(standardMockBooks);

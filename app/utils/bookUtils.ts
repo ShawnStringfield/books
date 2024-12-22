@@ -1,70 +1,22 @@
-import { Book } from '@/app/stores/types';
-import { ReadingStatus } from '@/app/stores/types';
-import { safeDate, isCurrentMonth, isCurrentYear } from '@/app/utils/dateUtils';
-import { filterHighlightsByBook, sortHighlightsByDate } from '@/app/utils/highlightUtils';
 import { EnrichedHighlight } from '@/app/stores/useBookStore';
+import { getHighlightsByBook } from '@/app/utils/highlightUtils';
+import { Book, ReadingStatus } from '@/app/stores/types';
 
-interface ReadingStats {
-  booksCompletedThisMonth: number;
-  booksCompletedThisYear: number;
+export interface ReadingStats {
+  totalBooks: number;
+  booksInProgress: number;
+  booksCompleted: number;
+  totalPages: number;
+  pagesRead: number;
+  readingProgress: number;
 }
 
 /**
- * Filter books by reading status
+ * Gets sorted highlights for a specific book with optional limit
  */
-export const filterBooksByStatus = (books: Book[], status: (typeof ReadingStatus)[keyof typeof ReadingStatus]): Book[] => {
-  return books.filter((book) => book.status === status);
-};
-
-/**
- * Get currently reading books
- */
-export const getCurrentlyReadingBooks = (books: Book[]): Book[] => {
-  return filterBooksByStatus(books, ReadingStatus.IN_PROGRESS);
-};
-
-/**
- * Get completed books
- */
-export const getCompletedBooks = (books: Book[]): Book[] => {
-  return filterBooksByStatus(books, ReadingStatus.COMPLETED);
-};
-
-/**
- * Get not started books
- */
-export const getNotStartedBooks = (books: Book[]): Book[] => {
-  return filterBooksByStatus(books, ReadingStatus.NOT_STARTED);
-};
-
-/**
- * Calculates reading statistics for the dashboard
- */
-export const calculateReadingStats = (books: Book[]): ReadingStats => {
-  return {
-    booksCompletedThisMonth: getBooksCompletedThisMonth(books),
-    booksCompletedThisYear: getBooksCompletedThisYear(books),
-  };
-};
-
-/**
- * Counts books completed in the current year
- */
-const getBooksCompletedThisYear = (books: Book[]): number => {
-  return getCompletedBooks(books).filter((book) => {
-    const completedDate = safeDate(book.completedDate);
-    return completedDate && isCurrentYear(completedDate);
-  }).length;
-};
-
-/**
- * Counts books completed in the current month
- */
-const getBooksCompletedThisMonth = (books: Book[]): number => {
-  return getCompletedBooks(books).filter((book) => {
-    const completedDate = safeDate(book.completedDate);
-    return completedDate && isCurrentMonth(completedDate);
-  }).length;
+export const getBookHighlightsSorted = (highlights: EnrichedHighlight[], bookId: string, limit?: number) => {
+  // getHighlightsByBook already includes sorting by date and filtering by bookId
+  return getHighlightsByBook(highlights, bookId, limit);
 };
 
 /**
@@ -85,47 +37,40 @@ export const calculatePercentComplete = (currentPage: number | null | undefined,
 };
 
 /**
- * Sort books by completion date (newest first)
- * Used for displaying reading history and completed books in chronological order
+ * Calculates reading statistics for completed books
+ * @param books - Array of books to calculate stats for
+ * @returns Object containing books completed this month and year
  */
-export const sortBooksByCompletionDate = (books: Book[]): Book[] => {
-  return [...books].sort((a, b) => {
-    const dateA = a.completedDate ? new Date(a.completedDate).getTime() : 0;
-    const dateB = b.completedDate ? new Date(b.completedDate).getTime() : 0;
-    return dateB - dateA;
+export const calculateReadingStats = (books: Book[]) => {
+  const now = new Date();
+  const currentYear = now.getUTCFullYear();
+  const currentMonth = now.getUTCMonth();
+
+  const completedBooks = books.filter((book) => {
+    if (!book.completedDate || book.status !== ReadingStatus.COMPLETED) {
+      return false;
+    }
+
+    try {
+      const completedDate = new Date(book.completedDate);
+      return !isNaN(completedDate.getTime()); // Check for valid date
+    } catch {
+      return false; // Handle invalid date strings
+    }
   });
-};
 
-/**
- * Sort books by title
- */
-export const sortBooksByTitle = (books: Book[]): Book[] => {
-  return [...books].sort((a, b) => a.title.localeCompare(b.title));
-};
+  const booksCompletedThisMonth = completedBooks.filter((book) => {
+    const completedDate = new Date(book.completedDate!);
+    return completedDate.getUTCFullYear() === currentYear && completedDate.getUTCMonth() === currentMonth;
+  }).length;
 
-/**
- * Sort books by author
- */
-export const sortBooksByAuthor = (books: Book[]): Book[] => {
-  return [...books].sort((a, b) => a.author.localeCompare(b.author));
-};
+  const booksCompletedThisYear = completedBooks.filter((book) => {
+    const completedDate = new Date(book.completedDate!);
+    return completedDate.getUTCFullYear() === currentYear;
+  }).length;
 
-/**
- * Sort books by reading progress
- */
-export const sortBooksByProgress = (books: Book[]): Book[] => {
-  return [...books].sort((a, b) => {
-    const progressA = calculatePercentComplete(a.currentPage, a.totalPages);
-    const progressB = calculatePercentComplete(b.currentPage, b.totalPages);
-    return progressB - progressA;
-  });
-};
-
-/**
- * Filter highlights by book ID and sort by creation date (newest first)
- */
-export const getBookHighlightsSorted = (highlights: EnrichedHighlight[], bookId: string, limit?: number) => {
-  const bookHighlights = filterHighlightsByBook(highlights, bookId);
-  const sortedHighlights = sortHighlightsByDate(bookHighlights);
-  return limit ? sortedHighlights.slice(0, limit) : sortedHighlights;
+  return {
+    booksCompletedThisMonth,
+    booksCompletedThisYear,
+  };
 };

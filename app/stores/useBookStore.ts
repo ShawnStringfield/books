@@ -1,10 +1,20 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { Book, Highlight, ReadingStatus, ReadingStatusType } from './types';
-export type { Book, Highlight, ReadingStatusType, GoogleBook, GoogleBooksResponse } from './types';
+import { Book, Highlight, ReadingStatus, ReadingStatusType, EnrichedHighlight } from './types';
+export type { Book, Highlight, ReadingStatusType, GoogleBook, GoogleBooksResponse, EnrichedHighlight } from './types';
 import { v4 as uuidv4 } from 'uuid';
-import { enrichHighlights } from '@/app/utils/highlightUtils';
+import { enrichHighlights, filterHighlights } from '@/app/utils/highlightUtils';
 import { getCurrentISODate } from '@/app/utils/dateUtils';
+import { canChangeBookStatus } from '@/app/utils/bookStatusUtils';
+import {
+  sortHighlights,
+  getRecentHighlightsData,
+  getHighlightsByBook,
+  getFavoriteHighlightsByBook,
+  getFavoriteHighlights,
+  getHighlightsThisMonth,
+  HighlightSortOption,
+} from '@/app/utils/highlightUtils';
 
 interface HighlightFilters {
   bookId?: string;
@@ -14,6 +24,35 @@ interface HighlightFilters {
     end: Date;
   };
 }
+
+// Utility function to handle book status and dates
+const getUpdatedBookStatus = (
+  currentStatus: ReadingStatusType,
+  currentPage: number,
+  totalPages: number,
+  existingStartDate?: string,
+  existingCompletedDate?: string
+) => {
+  let status = currentStatus;
+  let startDate = existingStartDate;
+  let completedDate = existingCompletedDate;
+
+  if (currentPage === 0) {
+    status = ReadingStatus.NOT_STARTED;
+    startDate = undefined;
+    completedDate = undefined;
+  } else if (currentPage === totalPages) {
+    status = ReadingStatus.COMPLETED;
+    startDate = startDate || getCurrentISODate();
+    completedDate = getCurrentISODate();
+  } else if (currentPage > 0) {
+    status = ReadingStatus.IN_PROGRESS;
+    startDate = startDate || getCurrentISODate();
+    completedDate = undefined;
+  }
+
+  return { status, startDate, completedDate };
+};
 
 interface BookState {
   books: Book[];
@@ -63,7 +102,7 @@ export const useBookStore = create<BookStore>()(
         set((state) => {
           const isFirstBook = state.books.length === 0;
           const status = isFirstBook ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED;
-          const startDate = isFirstBook ? new Date().toISOString() : undefined;
+          const startDate = isFirstBook ? getCurrentISODate() : undefined;
           const currentPage = isFirstBook ? 1 : 0;
           const categories = book.categories || [];
 
@@ -91,7 +130,7 @@ export const useBookStore = create<BookStore>()(
             id: uuidv4(),
             bookId,
             ...highlight,
-            createdAt: new Date().toISOString(),
+            createdAt: getCurrentISODate(),
             isFavorite: false,
           };
 
@@ -110,24 +149,13 @@ export const useBookStore = create<BookStore>()(
           const book = state.books.find((b) => b.id === bookId);
           if (!book) return state;
 
-          let status = book.status;
-          let startDate = book.startDate;
-          let completedDate = book.completedDate;
-
-          // Update status and dates based on progress
-          if (currentPage === 0) {
-            status = ReadingStatus.NOT_STARTED;
-            startDate = undefined;
-            completedDate = undefined;
-          } else if (currentPage === book.totalPages) {
-            status = ReadingStatus.COMPLETED;
-            startDate = startDate || getCurrentISODate();
-            completedDate = getCurrentISODate();
-          } else if (currentPage > 0) {
-            status = ReadingStatus.IN_PROGRESS;
-            startDate = startDate || getCurrentISODate();
-            completedDate = undefined;
-          }
+          const { status, startDate, completedDate } = getUpdatedBookStatus(
+            book.status,
+            currentPage,
+            book.totalPages,
+            book.startDate,
+            book.completedDate
+          );
 
           return {
             books: state.books.map((b) =>
@@ -157,18 +185,16 @@ export const useBookStore = create<BookStore>()(
           const book = state.books.find((b) => b.id === bookId);
           if (!book) return state;
 
-          // Prevent changing from COMPLETED to NOT_STARTED
-          if (book.status === ReadingStatus.COMPLETED && status === ReadingStatus.NOT_STARTED) {
+          const isOnlyBook = state.books.length === 1;
+          const statusChange = canChangeBookStatus({ book, newStatus: status, isOnlyBook });
+
+          if (!statusChange.allowed) {
             return state;
           }
 
-          // Only allow NOT_STARTED if current status is IN_PROGRESS
-          if (status === ReadingStatus.NOT_STARTED && book.status !== ReadingStatus.IN_PROGRESS) {
-            return state;
-          }
+          const currentPage = status === ReadingStatus.COMPLETED ? book.totalPages : status === ReadingStatus.NOT_STARTED ? 0 : book.currentPage;
 
-          const completedDate = status === ReadingStatus.COMPLETED ? getCurrentISODate() : undefined;
-          const startDate = status === ReadingStatus.IN_PROGRESS && !book.startDate ? getCurrentISODate() : book.startDate;
+          const { startDate, completedDate } = getUpdatedBookStatus(status, currentPage, book.totalPages, book.startDate, book.completedDate);
 
           return {
             books: state.books.map((b) =>
@@ -176,6 +202,7 @@ export const useBookStore = create<BookStore>()(
                 ? {
                     ...b,
                     status,
+                    currentPage,
                     completedDate,
                     startDate,
                   }
@@ -222,16 +249,7 @@ export const useBookStore = create<BookStore>()(
 
       filterHighlights: (filters: HighlightFilters) => {
         const state = get();
-        return state.highlights.filter((highlight) => {
-          if (filters.bookId && highlight.bookId !== filters.bookId) return false;
-          if (filters.favorite && !highlight.isFavorite) return false;
-          if (filters.dateRange) {
-            const { start, end } = filters.dateRange;
-            const highlightDate = new Date(highlight.createdAt);
-            if (highlightDate < start || highlightDate > end) return false;
-          }
-          return true;
-        });
+        return filterHighlights(state.highlights, filters);
       },
     }),
     {
@@ -248,14 +266,6 @@ export const useBookStore = create<BookStore>()(
 );
 
 // Types
-export interface EnrichedHighlight extends Highlight {
-  bookTitle: string;
-  bookAuthor: string;
-  bookCurrentPage: number;
-  bookTotalPages: number;
-  readingProgress: number;
-}
-
 // Base selectors
 export const selectBooks = (state: BookStore): Book[] => state.books;
 export const selectHighlights = (state: BookStore): Highlight[] => state.highlights;
@@ -273,7 +283,11 @@ export const selectEnrichedHighlights = (state: BookStore): EnrichedHighlight[] 
   if (cachedEnrichedHighlights === null || books !== lastBooksRef || highlights !== lastHighlightsRef) {
     lastBooksRef = books;
     lastHighlightsRef = highlights;
-    cachedEnrichedHighlights = enrichHighlights(highlights, books).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    cachedEnrichedHighlights = enrichHighlights(highlights, books).sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    });
   }
 
   return cachedEnrichedHighlights;
@@ -303,60 +317,50 @@ export const selectRecentHighlightsData = (
   if (cachedRecentHighlightsData === null || enrichedHighlights !== lastEnrichedHighlightsRef || limit !== lastLimit) {
     lastEnrichedHighlightsRef = enrichedHighlights;
     lastLimit = limit;
-
-    const totalHighlights = enrichedHighlights.length;
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-
-    const highlightsThisMonth = enrichedHighlights.reduce((count, highlight) => {
-      const highlightDate = new Date(highlight.createdAt);
-      return highlightDate.getMonth() === currentMonth && highlightDate.getFullYear() === currentYear ? count + 1 : count;
-    }, 0);
-
-    cachedRecentHighlightsData = {
-      recentHighlights: enrichedHighlights.slice(0, limit),
-      totalHighlights,
-      highlightsThisMonth,
-    };
+    cachedRecentHighlightsData = getRecentHighlightsData(enrichedHighlights, limit);
   }
 
   return cachedRecentHighlightsData;
 };
 
 // Enhanced selectors for better performance
-export const selectRecentHighlights = (state: BookStore) => state.highlights.slice(0, 5);
-export const selectFavoriteHighlights = (state: BookStore) => state.highlights.filter((h) => h.isFavorite);
-export const selectHighlightsByBook = (bookId: string) => (state: BookStore) => state.highlights.filter((h) => h.bookId === bookId);
-export const selectTotalHighlights = (state: BookStore) => state.highlights.length;
+export const selectRecentHighlights = (state: BookStore) => selectEnrichedHighlights(state).slice(0, 5);
+export const selectFavoriteHighlights = (state: BookStore) => getFavoriteHighlights(selectEnrichedHighlights(state));
+export const selectHighlightsByBook = (bookId: string) => (state: BookStore) => getHighlightsByBook(selectEnrichedHighlights(state), bookId);
+export const selectTotalHighlights = (state: BookStore) => selectEnrichedHighlights(state).length;
+export const selectHighlightsThisMonth = (state: BookStore) => getHighlightsThisMonth(selectEnrichedHighlights(state));
 
-// New selector for monthly highlights count
-export const selectHighlightsThisMonth = (state: BookStore) => {
-  const now = new Date();
-  return state.highlights.filter((highlight) => {
-    const highlightDate = new Date(highlight.createdAt);
-    return highlightDate.getMonth() === now.getMonth() && highlightDate.getFullYear() === now.getFullYear();
-  }).length;
-};
-
-// Sort options for highlights
-export type HighlightSortOption = 'date' | 'book' | 'page';
+// Memoization cache for sorted highlights
+let sortedHighlightsCache: {
+  highlights: EnrichedHighlight[];
+  sortBy: HighlightSortOption;
+} | null = null;
+let sortedHighlightsRef: EnrichedHighlight[] | null = null;
+let sortedOptionRef: HighlightSortOption | null = null;
 
 export const selectSortedHighlights =
   (sortBy: HighlightSortOption) =>
   (state: BookStore): EnrichedHighlight[] => {
     const enrichedHighlights = selectEnrichedHighlights(state);
 
-    switch (sortBy) {
-      case 'date':
-        return enrichedHighlights; // Already sorted by date in selectEnrichedHighlights
-      case 'book':
-        return [...enrichedHighlights].sort((a, b) => a.bookTitle.localeCompare(b.bookTitle) || a.page - b.page);
-      case 'page':
-        return [...enrichedHighlights].sort((a, b) => a.bookTitle.localeCompare(b.bookTitle) || a.page - b.page);
-      default:
-        return enrichedHighlights;
+    // Check if we can use cached results
+    if (sortedHighlightsCache !== null && enrichedHighlights === sortedHighlightsRef && sortBy === sortedOptionRef) {
+      return sortedHighlightsCache.highlights;
     }
+
+    // Update cache references
+    sortedHighlightsRef = enrichedHighlights;
+    sortedOptionRef = sortBy;
+
+    const sortedHighlights = sortHighlights(enrichedHighlights, sortBy);
+
+    // Update cache
+    sortedHighlightsCache = {
+      highlights: sortedHighlights,
+      sortBy,
+    };
+
+    return sortedHighlights;
   };
 
 export const selectIsLoading = (state: BookStore) => state.isLoading;
@@ -366,12 +370,16 @@ export const selectCurrentlyReading = (state: BookStore) => state.books.filter((
 export const selectFirstCurrentlyReading = (state: BookStore) => state.books.find((book) => book.status === ReadingStatus.IN_PROGRESS);
 export const selectIsLastBook = (state: BookStore) => state.books.length === 1;
 
-export const selectRecentHighlightsByBook = (bookId: string, limit?: number) => (state: BookStore) => {
-  const bookHighlights = state.highlights
-    .filter((h) => h.bookId === bookId)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  return limit ? bookHighlights.slice(0, limit) : bookHighlights;
-};
+export const selectRecentHighlightsByBook = (bookId: string, limit?: number) => (state: BookStore) =>
+  getHighlightsByBook(selectEnrichedHighlights(state), bookId, limit);
 
 export const selectFavoriteHighlightsByBook = (bookId: string) => (state: BookStore) =>
-  state.highlights.filter((h) => h.bookId === bookId && h.isFavorite);
+  getFavoriteHighlightsByBook(selectEnrichedHighlights(state), bookId);
+
+export const sortBooksByCompletionDate = (books: Book[]): Book[] => {
+  return [...books].sort((a, b) => {
+    const dateA = a.completedDate ? new Date(a.completedDate).getTime() : 0;
+    const dateB = b.completedDate ? new Date(b.completedDate).getTime() : 0;
+    return dateB - dateA;
+  });
+};

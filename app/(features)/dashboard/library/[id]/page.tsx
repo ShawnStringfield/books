@@ -95,15 +95,6 @@ function BookDetailsContent() {
   const handleProgressChange = (value: number[]) => {
     const newPage = value[0];
     updateReadingProgress(book.id, newPage);
-
-    // Automatically update status based on pages read
-    if (newPage === 0) {
-      updateBookStatus(book.id, ReadingStatus.NOT_STARTED);
-    } else if (newPage === book.totalPages) {
-      updateBookStatus(book.id, ReadingStatus.COMPLETED);
-    } else if (newPage > 0) {
-      updateBookStatus(book.id, ReadingStatus.IN_PROGRESS);
-    }
   };
 
   const handleSaveChanges = () => {

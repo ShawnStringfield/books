@@ -61,3 +61,15 @@ export const isCurrentYear = (dateInput: string | Date): boolean => {
 export const getCurrentISODate = (): string => {
   return new Date().toISOString();
 };
+
+/**
+ * Checks if a date falls within a given date range
+ * @param dateInput - The date to check
+ * @param range - The date range to check against
+ * @returns boolean indicating if the date is within the range
+ */
+export const isWithinDateRange = (dateInput: string | Date, range: { start: Date; end: Date }): boolean => {
+  const date = safeDate(dateInput);
+  if (!date) return false;
+  return date >= range.start && date <= range.end;
+};

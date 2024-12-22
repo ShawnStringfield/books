@@ -28,12 +28,12 @@ const Toolbar = ({ actions, className = '' }: ToolbarProps) => {
             className={`rounded-full p-2 ${
               action.variant === 'destructive'
                 ? 'text-destructive hover:text-destructive/90 bg-destructive/10 hover:bg-destructive/20'
-                : 'text-slate-700 bg-slate-100 hover:bg-slate-200'
+                : 'text-slate-700 bg-brand-fillweak/30 hover:bg-slate-200'
             } ${action.className || ''}`}
             onClick={action.onClick}
             disabled={action.disabled}
           >
-            <Icon className="h-5 w-5" />
+            <Icon className="h-5 w-5 text-brand-textweak" />
             <span className="sr-only">{action.label}</span>
           </Button>
         );

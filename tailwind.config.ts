@@ -18,8 +18,8 @@ const config: Config = {
         foreground: 'hsl(var(--foreground))',
         brand: {
           fill: 'hsla(215, 33%, 95%, 1.0)',
-          strokeweak: 'hsla(215, 33%, 80%, 1.0)',
-          strokestrong: 'hsla(215, 33%, 60%, 1.0)',
+          fillweak: 'hsla(215, 33%, 80%, 1.0)',
+          fillstrong: 'hsla(215, 33%, 60%, 1.0)',
           textweak: 'hsla(215, 33%, 40%, 1.0)',
           textstrong: 'hsla(215, 33%, 25%, 1.0)',
           DEFAULT: 'hsla(204, 54%, 52%, 1.0)', // Base color

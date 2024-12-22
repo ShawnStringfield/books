@@ -41,7 +41,7 @@ const StatusButtons = ({
               size === 'default' && 'text-sm',
               size === 'small' && 'text-sm',
               size === 'xs' && 'text-xs',
-              currentStatus === option.value ? 'text-slate-900 font-medium' : 'text-slate-400 hover:text-slate-600'
+              currentStatus === option.value ? 'text-brand-textstrong font-medium' : 'text-brand-fillstrong hover:text-brand-textstrong'
             )}
           >
             {option.icon}

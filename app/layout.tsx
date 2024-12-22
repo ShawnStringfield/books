@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${workSans.variable} ${inter.variable}`}>
-      <body className="antialiased">
+      <body className="antialiased bg-brand-fill/50 text-brand-textweak">
         <Providers>
           {children}
           <Toaster />

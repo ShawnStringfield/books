@@ -1,6 +1,6 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
-import { Library, PlusCircle } from 'lucide-react';
+import { Library, PlusCircle, BookOpen } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 import { Book } from '@/app/stores/useBookStore';
@@ -31,7 +31,10 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
     <div className="space-y-4 my-16">
       {books.length > 0 ? (
         <>
-          <h2 className="text-lg font-semibold flex items-center gap-2">Currently Reading</h2>
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <BookOpen className="w-5 h-5" />
+            Currently Reading
+          </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {books.map((book) => (
               <BookCard

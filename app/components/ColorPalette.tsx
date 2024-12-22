@@ -33,8 +33,8 @@ export const ColorPalette: React.FC = () => {
 
   const brandColors = [
     { name: 'Brand Fill', colorClass: 'bg-brand-fill', value: 'hsla(215, 33%, 95%, 1.0)' },
-    { name: 'Brand Stroke Weak', colorClass: 'bg-brand-strokeweak', value: 'hsla(215, 33%, 80%, 1.0)' },
-    { name: 'Brand Stroke Strong', colorClass: 'bg-brand-strokestrong', value: 'hsla(215, 33%, 60%, 1.0)' },
+    { name: 'Brand Stroke Weak', colorClass: 'bg-brand-fillweak', value: 'hsla(215, 33%, 80%, 1.0)' },
+    { name: 'Brand Stroke Strong', colorClass: 'bg-brand-fillstrong', value: 'hsla(215, 33%, 60%, 1.0)' },
     { name: 'Brand Text Weak', colorClass: 'bg-brand-textweak', value: 'hsla(215, 33%, 40%, 1.0)' },
     { name: 'Brand Text Strong', colorClass: 'bg-brand-textstrong', value: 'hsla(215, 33%, 25%, 1.0)' },
     { name: 'Brand Default', colorClass: 'bg-brand', value: 'hsla(204, 54%, 52%, 1.0)' },

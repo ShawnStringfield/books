@@ -14,7 +14,7 @@ const BookProgressPercentage = ({ currentPage, totalPages, className, variant = 
   const percentComplete = calculatePercentComplete(currentPage, totalPages);
 
   return (
-    <span className={cn('text-xs text-gray-500', className)}>
+    <span className={cn('text-xs', className)}>
       {percentComplete}%{variant === 'verbose' && ' Complete'}
     </span>
   );

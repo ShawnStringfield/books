@@ -1,4 +1,4 @@
-import { Settings2, Trash2, AlertCircle } from 'lucide-react';
+import { Settings2, Trash2 } from 'lucide-react';
 import { ReadingStatus } from '@/app/stores/types';
 import StatusButtons from './StatusButtons';
 import BookProgressSlider from './BookProgressSlider';
@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/button';
 import { Separator } from '@/app/components/ui/separator';
 import { useState } from 'react';
+import WarningAlert from '@/app/components/ui/warning-alert';
 
 interface ReadingControlsProps {
   bookId: string;
@@ -54,13 +55,31 @@ const ReadingControls = ({
     setShowDeleteWarning(true);
   };
 
+  const warningActions = [
+    {
+      label: 'Cancel',
+      onClick: () => setShowWarning(false),
+      variant: 'ghost' as const,
+      className: 'text-amber-500',
+    },
+    {
+      label: 'Confirm',
+      onClick: () => {
+        setShowWarning(false);
+        onStatusChange(bookId, ReadingStatus.NOT_STARTED);
+      },
+      variant: 'ghost' as const,
+      className: 'text-amber-800 ',
+    },
+  ];
+
   if (variant === 'icon') {
     return (
       <div className={cn('flex items-center gap-2', className)}>
         <Button
           variant="ghost"
           size="icon"
-          className={cn('h-10 w-10 rounded-full hover:bg-slate-100')}
+          className={cn('h-10 w-10 rounded-full hover:bg-brand-fillweak')}
           aria-expanded="true"
           aria-controls={`reading-controls-${uniqueId}`}
         >
@@ -77,48 +96,32 @@ const ReadingControls = ({
         <StatusButtons bookId={bookId} currentStatus={status} onStatusChange={handleStatusChange} size={size} align="left" className="my-4" />
 
         {showWarning && (
-          <div className="flex items-center gap-2 p-3 text-sm bg-amber-50 border border-amber-200 rounded-md">
-            <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-            <div className="flex-1 text-amber-800">Changing to &ldquo;Not Started&rdquo; will reset your reading progress to 0 pages.</div>
-            <div className="flex gap-2">
-              <Button variant="ghost" size="sm" className="text-xs hover:bg-amber-100" onClick={() => setShowWarning(false)}>
-                Cancel
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs hover:bg-amber-100"
-                onClick={() => {
-                  setShowWarning(false);
-                  onStatusChange(bookId, ReadingStatus.NOT_STARTED);
-                }}
-              >
-                Confirm
-              </Button>
-            </div>
-          </div>
+          <WarningAlert
+            message="Changing to &ldquo;Not Started&rdquo; will reset your reading progress to 0 pages."
+            variant="warning"
+            actions={warningActions}
+          />
         )}
       </div>
 
       {/* Reading Progress Section */}
-      <div className="space-y-4">
-        <BookProgressSlider
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onProgressChange}
-          variant={variant}
-          uniqueId={uniqueId}
-          showPercentage={true}
-        />
-      </div>
+      <BookProgressSlider
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onProgressChange}
+        variant={variant}
+        uniqueId={uniqueId}
+        showPercentage={true}
+        className="space-y-1"
+      />
 
       {/* Action Buttons */}
       {onDelete !== undefined && (
         <>
-          <Separator className="my-2" />
+          <Separator className="my-2 " />
           <div className="space-y-3">
             <div className="flex items-center justify-end gap-2">
-              <Button variant="secondary" size="sm" className="text-xs py-1 px-2" onClick={onCancel}>
+              <Button variant="secondary" size="sm" className="text-xs py-1 px-2 bg-brand-fill text-brand-textweak" onClick={onCancel}>
                 Close
               </Button>
               <Button
@@ -134,26 +137,24 @@ const ReadingControls = ({
             </div>
 
             {showDeleteWarning && (
-              <div className="flex items-center gap-2 p-3 text-sm bg-red-50 border border-red-200 rounded-md">
-                <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
-                <div className="flex-1 text-red-800">Are you sure you want to delete this book? This action cannot be undone.</div>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" className="text-xs hover:bg-red-100" onClick={() => setShowDeleteWarning(false)}>
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-red-600 hover:bg-red-100 hover:text-red-700"
-                    onClick={() => {
+              <WarningAlert
+                message="Are you sure you want to delete this book? This action cannot be undone."
+                variant="danger"
+                actions={[
+                  {
+                    label: 'Cancel',
+                    onClick: () => setShowDeleteWarning(false),
+                  },
+                  {
+                    label: 'Delete',
+                    onClick: () => {
                       setShowDeleteWarning(false);
                       onDelete();
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
+                    },
+                    variant: 'destructive',
+                  },
+                ]}
+              />
             )}
           </div>
         </>

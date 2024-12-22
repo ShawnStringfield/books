@@ -37,7 +37,7 @@ const BookProgressSlider = ({
   return (
     <div className={cn('w-full', className)}>
       <div className="flex items-center justify-between">
-        <label htmlFor={inputId} className="flex items-center gap-2 text-xs font-medium text-gray-700">
+        <label htmlFor={inputId} className="flex items-center gap-2 text-xs font-medium">
           <BookOpen className="w-4 h-4" />
           Current Page:
         </label>
@@ -50,10 +50,10 @@ const BookProgressSlider = ({
             onBlur={handleInputBlur}
             min={0}
             max={totalPages}
-            className="w-10 px-2 py-1 text-xs border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-10 px-2 py-1 text-xs border rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fill"
             aria-label="Enter current page number"
           />
-          <span className="text-xs text-gray-500">/ {totalPages}</span>
+          <span className="text-xs">/ {totalPages}</span>
         </div>
       </div>
       {showSlider && (

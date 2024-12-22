@@ -151,8 +151,8 @@ function BookDetailsContent() {
           <div className="flex-1">
             <div className="flex items-start justify-between">
               <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold leading-0 text-slate-600">{book.title}</h1>
-                <h2 className="text-lg font-semibold leading-tight text-slate-500">{book.subtitle}</h2>
+                <h1 className="text-3xl font-bold leading-0 ">{book.title}</h1>
+                <h2 className="text-lg font-semibold leading-tight">{book.subtitle}</h2>
               </div>
               <div className="flex items-center gap-2">
                 {showEditControls ? (
@@ -168,18 +168,18 @@ function BookDetailsContent() {
               </div>
             </div>
             <div className="mt-2">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm ">
                 By: {book.author} • {book.totalPages} pages
               </p>
-              <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+              <div className="flex items-center gap-2 text-sm  mt-2">
                 <EditableGenre genre={book.genre || ''} bookId={book.id} isEditing={showEditControls} onChange={setEditedGenre} />
                 {book.isbn && (
                   <>
-                    <span className="text-gray-400">•</span>
+                    <span>•</span>
                     <span>ISBN: {book.isbn}</span>
                   </>
                 )}
-                {!book.genre && !book.isbn && <span className="text-gray-400 italic">No additional details available</span>}
+                {!book.genre && !book.isbn && <span className="italic">No additional details available</span>}
               </div>
               <div className="flex items-center gap-4 mt-3">
                 {book.previewLink && (
@@ -187,7 +187,7 @@ function BookDetailsContent() {
                     href={book.previewLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                    className="flex items-center gap-1 text-sm text-brand hover:text-blue-800 transition-colors"
                     aria-label="Preview book"
                   >
                     <ExternalLink className="h-4 w-4" />
@@ -199,7 +199,7 @@ function BookDetailsContent() {
                     href={book.infoLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                    className="flex items-center gap-1 text-sm text-brand hover:text-blue-800 transition-colors"
                     aria-label="More information about book"
                   >
                     <Info className="h-4 w-4" />
@@ -213,7 +213,7 @@ function BookDetailsContent() {
 
         {/* About Section */}
         <div className="space-y-4 pt-8">
-          <h2 className="text-lg font-semibold leading-tight text-slate-500">About This Book</h2>
+          <h2 className="text-lg font-semibold leading-tight">About This Book</h2>
           <EditableBookDescription
             description={book.description || ''}
             bookId={book.id}
@@ -233,7 +233,7 @@ function BookDetailsContent() {
 
         {/* Book Progress Section */}
         <div className="space-y-4 py-8 border-t">
-          <h2 className="text-lg font-semibold leading-tight text-slate-500">Reading Progress</h2>
+          <h2 className="text-lg font-semibold leading-tight">Reading Progress</h2>
           <ReadingProgressBar
             currentPage={book.currentPage || 0}
             totalPages={book.totalPages}

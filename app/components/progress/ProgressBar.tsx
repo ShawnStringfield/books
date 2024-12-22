@@ -10,9 +10,12 @@ interface ProgressBarProps {
 export const ProgressBar = ({ value, showKnob = false, bleed = false, variant = 'default' }: ProgressBarProps) => {
   const isBleed = bleed || variant === 'bleed';
   return (
-    <div role="progressbar" className={`relative h-2 w-full bg-gray-100 ${isBleed ? '' : 'rounded-full'} ${!isBleed ? 'overflow-hidden' : ''}`}>
+    <div
+      role="progressbar"
+      className={`relative h-2 w-full bg-brand-fillweak/50 ${isBleed ? '' : 'rounded-full'} ${!isBleed ? 'overflow-hidden' : ''}`}
+    >
       <motion.div
-        className={`absolute left-0 top-0 bottom-0 bg-blue-600 ${isBleed ? '' : 'rounded-full'}`}
+        className={`absolute left-0 top-0 bottom-0 bg-brand ${isBleed ? '' : 'rounded-full'}`}
         initial={{ width: 0 }}
         animate={{ width: `${value}%` }}
         transition={{

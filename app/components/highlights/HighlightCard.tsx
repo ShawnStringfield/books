@@ -48,33 +48,31 @@ const HighlightCard = memo(({ highlight, variant = 'default' }: HighlightCardPro
             <>
               <Link
                 href={`/dashboard/library/${highlight.bookId}`}
-                className="text-xs text-gray-500 font-medium hover:text-indigo-600 transition-colors"
+                className="text-xs text-brand-textstrong font-medium hover:text-indigo-600 transition-colors"
               >
                 {highlight.bookTitle}
               </Link>
-              <span className="text-xs text-gray-500">·</span>
-              <span className="text-xs text-gray-500">{highlight.readingProgress}% complete</span>
+              <span className="text-xs text-brand-textweak">·</span>
+              <span className="text-xs text-brand-textweak">{highlight.readingProgress}% complete</span>
             </>
           )}
         </div>
-        <p className="text-gray-900 text-sm leading-normal">{highlight.text}</p>
-        <div className="flex justify-between items-center text-xs text-gray-500">
+        <p className="text-sm leading-normal">{highlight.text}</p>
+        <div className="flex justify-between items-center text-xs ">
           <div className="flex items-center gap-2">
-            <span className="text-gray-500">
+            <span className="">
               Page {highlight.page} of {highlight.bookTotalPages}
             </span>
-            <span className="text-gray-500">·</span>
-            <time dateTime={dateInfo.iso} className="text-gray-500 font-medium whitespace-nowrap">
+            <span className="">·</span>
+            <time dateTime={dateInfo.iso} className=" font-medium whitespace-nowrap">
               {dateInfo.formatted}
             </time>
-            {highlight.isFavorite && <span className="text-gray-500">·</span>}
-            {highlight.isFavorite && <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full">Favorite</span>}
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-gray-500 hover:text-red-500 transition-colors"
+              className="h-8 w-8  hover:text-red-500 transition-colors"
               onClick={handleToggleFavorite}
               aria-label={highlight.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             >
@@ -83,7 +81,7 @@ const HighlightCard = memo(({ highlight, variant = 'default' }: HighlightCardPro
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-gray-500 hover:text-red-500 transition-colors"
+              className="h-8 w-8  hover:text-red-500 transition-colors"
               onClick={handleDelete}
               aria-label="Delete highlight"
             >

@@ -32,7 +32,7 @@ const ReadingProgressBar = ({ currentPage, totalPages, progress, className = '',
   return (
     <div className={cn('space-y-2', className)}>
       <ProgressBar value={progress} />
-      <div className="flex justify-between text-sm text-gray-600">
+      <div className="flex justify-between text-sm">
         <span>
           {currentPage} of {totalPages} pages
         </span>

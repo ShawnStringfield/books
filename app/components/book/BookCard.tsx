@@ -1,7 +1,6 @@
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Progress } from '@/app/components/ui/progress';
-import { Book } from '@/app/(features)/dashboard/types/books';
-import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
+import { Book, ReadingStatusType } from '@/app/stores/types';
 import Link from 'next/link';
 import StatusButtons from './StatusButtons';
 import BookDetailsSheet from './BookDetailsSheet';
@@ -12,7 +11,7 @@ type ProgressDisplayVariant = 'hidden' | 'compact' | 'detailed';
 
 interface BookCardProps {
   book: Book;
-  onStatusChange: (bookId: string, status: ReadingStatus) => void;
+  onStatusChange: (bookId: string, status: ReadingStatusType) => void;
   onDelete?: (bookId: string) => void;
   isLastBook?: boolean;
   progressDisplay?: ProgressDisplayVariant;
@@ -52,7 +51,7 @@ const BookCard = ({ book, onStatusChange, onDelete, isLastBook = false, progress
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-auto gap-2">
-          <StatusButtons bookId={book.id} currentStatus={book.status as ReadingStatus} onStatusChange={onStatusChange} size="small" align="left" />
+          <StatusButtons bookId={book.id} currentStatus={book.status} onStatusChange={onStatusChange} size="small" align="left" />
         </div>
 
         {progressDisplay === 'detailed' && (

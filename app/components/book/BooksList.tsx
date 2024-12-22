@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useBookStore, selectIsLastBook } from '@/app/stores/useBookStore';
 import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
 import BookCard from './BookCard';
-import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
+import { ReadingStatusType } from '@/app/stores/types';
 
 export function BooksList() {
   const { books, deleteBook, updateBookStatus } = useBookStore();
@@ -16,7 +16,7 @@ export function BooksList() {
     }
   };
 
-  const handleStatusChange = (bookId: string, status: ReadingStatus) => {
+  const handleStatusChange = (bookId: string, status: ReadingStatusType) => {
     updateBookStatus(bookId, status);
   };
 

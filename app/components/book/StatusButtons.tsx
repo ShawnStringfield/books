@@ -1,11 +1,11 @@
 import { cn } from '@/lib/utils';
-import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
+import { ReadingStatus } from '@/app/stores/types';
 import { StatusOption, readingStatusOptions } from '@/app/(features)/dashboard/config/readingStatusConfig';
 
 export interface StatusButtonsProps {
   bookId: string;
-  currentStatus: ReadingStatus;
-  onStatusChange: (bookId: string, status: ReadingStatus) => void;
+  currentStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus];
+  onStatusChange: (bookId: string, status: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => void;
   size?: 'default' | 'small' | 'xs';
   align?: 'left' | 'center' | 'right';
   className?: string;

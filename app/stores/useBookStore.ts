@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { Book, Highlight, ReadingStatus, GoogleBook, GoogleBooksResponse } from './types';
-export type { Book, Highlight, ReadingStatus, GoogleBook, GoogleBooksResponse } from './types';
+import { Book, Highlight, ReadingStatus, ReadingStatusType } from './types';
+export type { Book, Highlight, ReadingStatusType, GoogleBook, GoogleBooksResponse } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { enrichHighlights } from '@/app/utils/highlightUtils';
 import { getCurrentISODate } from '@/app/utils/dateUtils';
@@ -18,6 +18,8 @@ interface HighlightFilters {
 interface BookState {
   books: Book[];
   highlights: Highlight[];
+  currentBook: Book | null;
+  currentStatus: ReadingStatusType;
   isLoading: boolean;
   error: string | null;
   isAddBookDrawerOpen: boolean;
@@ -33,7 +35,7 @@ interface BookActions {
   setError: (error: string | null) => void;
   setAddBookDrawerOpen: (isOpen: boolean) => void;
   setHasHydrated: (state: boolean) => void;
-  updateBookStatus: (bookId: string, status: ReadingStatus) => void;
+  updateBookStatus: (bookId: string, status: ReadingStatusType) => void;
   updateBookDescription: (bookId: string, description: string) => void;
   updateBookGenre: (bookId: string, genre: string) => void;
   deleteBook: (bookId: string) => void;
@@ -49,6 +51,8 @@ export const useBookStore = create<BookStore>()(
       // Initial state
       books: [],
       highlights: [],
+      currentBook: null,
+      currentStatus: ReadingStatus.NOT_STARTED,
       isLoading: false,
       error: null,
       isAddBookDrawerOpen: false,

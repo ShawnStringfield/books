@@ -1,7 +1,7 @@
 import { Settings2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/app/components/ui/dialog';
 import ReadingControls from '../book/ReadingControls';
-import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
+import { ReadingStatus } from '@/app/stores/types';
 
 interface ReadingControlsDialogProps {
   open: boolean;
@@ -9,8 +9,8 @@ interface ReadingControlsDialogProps {
   bookId: string;
   currentPage: number;
   totalPages: number;
-  status: ReadingStatus;
-  onStatusChange: (bookId: string, newStatus: ReadingStatus) => Promise<void>;
+  status: (typeof ReadingStatus)[keyof typeof ReadingStatus];
+  onStatusChange: (bookId: string, newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => Promise<void>;
   onProgressChange: (value: number[]) => void;
   onDelete: () => void;
   isLastBook: boolean;

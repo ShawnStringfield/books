@@ -1,5 +1,5 @@
 import { Settings2, Trash2, AlertCircle } from 'lucide-react';
-import { ReadingStatus, ReadingStatusType } from '@/app/stores/types';
+import { ReadingStatus } from '@/app/stores/types';
 import StatusButtons from './StatusButtons';
 import BookProgressSlider from './BookProgressSlider';
 import { cn } from '@/lib/utils';
@@ -11,12 +11,12 @@ interface ReadingControlsProps {
   bookId: string;
   currentPage: number;
   totalPages: number;
-  status: ReadingStatus;
+  status: (typeof ReadingStatus)[keyof typeof ReadingStatus];
   uniqueId: string;
   variant: 'mobile' | 'desktop' | 'icon';
   size?: 'default' | 'small';
   className?: string;
-  onStatusChange: (bookId: string, status: ReadingStatus) => void;
+  onStatusChange: (bookId: string, status: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => void;
   onProgressChange: (value: number[]) => void;
   onDelete: () => void;
   onCancel?: () => void;
@@ -41,7 +41,7 @@ const ReadingControls = ({
   const [showWarning, setShowWarning] = useState(false);
   const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
-  const handleStatusChange = (bookId: string, newStatus: ReadingStatus) => {
+  const handleStatusChange = (bookId: string, newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => {
     if (newStatus === ReadingStatus.NOT_STARTED && currentPage > 0) {
       setShowWarning(true);
     } else {

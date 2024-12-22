@@ -1,6 +1,7 @@
 import { EnrichedHighlight } from '@/app/stores/useBookStore';
 import { getHighlightsByBook } from '@/app/utils/highlightUtils';
 import { Book, ReadingStatus } from '@/app/stores/types';
+import { safeDate } from '@/app/utils/dateUtils';
 
 export interface ReadingStats {
   totalBooks: number;
@@ -42,7 +43,7 @@ export const calculatePercentComplete = (currentPage: number | null | undefined,
  * @returns Object containing books completed this month and year
  */
 export const calculateReadingStats = (books: Book[]) => {
-  const now = new Date();
+  const now = safeDate(new Date().toISOString())!;
   const currentYear = now.getUTCFullYear();
   const currentMonth = now.getUTCMonth();
 
@@ -51,21 +52,28 @@ export const calculateReadingStats = (books: Book[]) => {
       return false;
     }
 
-    try {
-      const completedDate = new Date(book.completedDate);
-      return !isNaN(completedDate.getTime()); // Check for valid date
-    } catch {
-      return false; // Handle invalid date strings
+    const completedDate = safeDate(book.completedDate);
+    if (!completedDate) {
+      return false;
     }
+
+    // Compare using UTC timestamps and ensure we're only comparing dates, not times
+    const completedDateTime = Date.UTC(completedDate.getUTCFullYear(), completedDate.getUTCMonth(), completedDate.getUTCDate());
+    const nowDateTime = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    return completedDateTime <= nowDateTime;
   });
 
   const booksCompletedThisMonth = completedBooks.filter((book) => {
-    const completedDate = new Date(book.completedDate!);
+    const completedDate = safeDate(book.completedDate!);
+    if (!completedDate) return false;
+    // Compare only year and month, ignoring day and time
     return completedDate.getUTCFullYear() === currentYear && completedDate.getUTCMonth() === currentMonth;
   }).length;
 
   const booksCompletedThisYear = completedBooks.filter((book) => {
-    const completedDate = new Date(book.completedDate!);
+    const completedDate = safeDate(book.completedDate!);
+    if (!completedDate) return false;
+    // Compare only year
     return completedDate.getUTCFullYear() === currentYear;
   }).length;
 

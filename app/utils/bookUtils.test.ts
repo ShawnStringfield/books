@@ -1,5 +1,6 @@
 import { Book, ReadingStatus } from '@/app/stores/types';
-import { calculateReadingStats, calculatePercentComplete } from './bookUtils';
+import { calculateReadingStats, calculatePercentComplete, getBookHighlightsSorted } from './bookUtils';
+import { EnrichedHighlight } from '@/app/stores/useBookStore';
 
 describe('bookUtils', () => {
   // Use a fixed date for testing
@@ -301,6 +302,44 @@ describe('bookUtils', () => {
         const stats = calculateReadingStats(booksWithTimezones);
         expect(stats.booksCompletedThisMonth).toBe(2);
       });
+
+      it('should handle books with future completion dates', () => {
+        const booksWithFutureDate: Book[] = [
+          {
+            id: '1',
+            title: 'Future Book',
+            author: 'Author',
+            totalPages: 100,
+            currentPage: 100,
+            status: ReadingStatus.COMPLETED,
+            categories: ['Fiction'],
+            completedDate: '2024-12-31T23:59:59Z', // Future date
+          },
+        ];
+
+        const stats = calculateReadingStats(booksWithFutureDate);
+        expect(stats.booksCompletedThisYear).toBe(0); // Should not count future completions
+        expect(stats.booksCompletedThisMonth).toBe(0);
+      });
+
+      it('should handle books with status COMPLETED but no completedDate', () => {
+        const booksWithNoDate: Book[] = [
+          {
+            id: '1',
+            title: 'No Date Book',
+            author: 'Author',
+            totalPages: 100,
+            currentPage: 100,
+            status: ReadingStatus.COMPLETED,
+            categories: ['Fiction'],
+            // completedDate intentionally omitted
+          },
+        ];
+
+        const stats = calculateReadingStats(booksWithNoDate);
+        expect(stats.booksCompletedThisYear).toBe(0);
+        expect(stats.booksCompletedThisMonth).toBe(0);
+      });
     });
 
     describe('data validation', () => {
@@ -365,6 +404,73 @@ describe('bookUtils', () => {
       expect(calculatePercentComplete(33, 100)).toBe(33);
       expect(calculatePercentComplete(66, 100)).toBe(66);
       expect(calculatePercentComplete(1, 3)).toBe(33); // 33.33... should round to 33
+    });
+  });
+
+  describe('getBookHighlightsSorted', () => {
+    const mockHighlights: EnrichedHighlight[] = [
+      {
+        id: '1',
+        bookId: 'book1',
+        text: 'First highlight',
+        page: 1,
+        createdAt: '2024-01-15T10:00:00Z',
+        isFavorite: false,
+        bookTitle: 'Test Book',
+        bookAuthor: 'Test Author',
+        bookCurrentPage: 100,
+        bookTotalPages: 200,
+        readingProgress: 50,
+      },
+      {
+        id: '2',
+        bookId: 'book1',
+        text: 'Second highlight',
+        page: 2,
+        createdAt: '2024-01-15T11:00:00Z',
+        isFavorite: false,
+        bookTitle: 'Test Book',
+        bookAuthor: 'Test Author',
+        bookCurrentPage: 100,
+        bookTotalPages: 200,
+        readingProgress: 50,
+      },
+      {
+        id: '3',
+        bookId: 'book2',
+        text: 'Different book highlight',
+        page: 1,
+        createdAt: '2024-01-15T12:00:00Z',
+        isFavorite: false,
+        bookTitle: 'Another Book',
+        bookAuthor: 'Another Author',
+        bookCurrentPage: 50,
+        bookTotalPages: 100,
+        readingProgress: 50,
+      },
+    ];
+
+    it('should return sorted highlights for a book', () => {
+      const result = getBookHighlightsSorted(mockHighlights, 'book1');
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe('2'); // Most recent first
+      expect(result[1].id).toBe('1');
+    });
+
+    it('should respect the limit parameter', () => {
+      const result = getBookHighlightsSorted(mockHighlights, 'book1', 1);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('2'); // Most recent highlight
+    });
+
+    it('should return empty array for non-existent book', () => {
+      const result = getBookHighlightsSorted(mockHighlights, 'nonexistentId');
+      expect(result).toEqual([]);
+    });
+
+    it('should handle empty highlights array', () => {
+      const result = getBookHighlightsSorted([], 'book1');
+      expect(result).toEqual([]);
     });
   });
 });

@@ -9,8 +9,8 @@ interface ColorBoxProps {
 const ColorBox: React.FC<ColorBoxProps> = ({ colorClass, name, value }) => (
   <div className="flex flex-col items-center">
     <div className={`w-24 h-24 rounded-lg shadow-md ${colorClass}`} aria-label={`Color sample for ${name}`} />
-    <p className="mt-2 text-sm font-medium">{name}</p>
-    <p className="text-xs text-gray-500">{value}</p>
+    <p className="mt-2 text-xs font-medium">{name}</p>
+    <p className="text-[12px] text-gray-500">{value}</p>
   </div>
 );
 
@@ -26,70 +26,29 @@ const ColorSection: React.FC<{ title: string; colors: Array<{ name: string; colo
 );
 
 export const ColorPalette: React.FC = () => {
-  const baseColors = [
-    { name: 'Background', colorClass: 'bg-background', value: 'hsl(var(--background))' },
-    { name: 'Foreground', colorClass: 'bg-foreground', value: 'hsl(var(--foreground))' },
-  ];
-
   const brandColors = [
-    { name: 'Brand Fill', colorClass: 'bg-brand-fill', value: 'hsla(215, 33%, 95%, 1.0)' },
-    { name: 'Brand Stroke Weak', colorClass: 'bg-brand-fillweak', value: 'hsla(215, 33%, 80%, 1.0)' },
-    { name: 'Brand Stroke Strong', colorClass: 'bg-brand-fillstrong', value: 'hsla(215, 33%, 60%, 1.0)' },
-    { name: 'Brand Text Weak', colorClass: 'bg-brand-textweak', value: 'hsla(215, 33%, 40%, 1.0)' },
-    { name: 'Brand Text Strong', colorClass: 'bg-brand-textstrong', value: 'hsla(215, 33%, 25%, 1.0)' },
-    { name: 'Brand Default', colorClass: 'bg-brand', value: 'hsla(204, 54%, 52%, 1.0)' },
+    { name: 'Brand Surface', colorClass: 'bg-brand-surface', value: 'hsla(220, 100%, 97%, 1)' },
+    { name: 'Brand Subtle', colorClass: 'bg-brand-subtle', value: 'hsla(220, 100%, 90%, 1)' },
+    { name: 'Brand Muted', colorClass: 'bg-brand-muted', value: 'hsla(220, 100%, 80%, 1)' },
+    { name: 'Brand Default', colorClass: 'bg-brand-default', value: 'hsla(220, 100%, 46%, 1)' },
+    { name: 'Brand Emphasis', colorClass: 'bg-brand-emphasis', value: 'hsla(220, 100%, 37%, 1)' },
+    { name: 'Brand Strong', colorClass: 'bg-brand-strong', value: 'hsla(220, 100%, 28%, 1)' },
   ];
 
-  const componentColors = [
-    { name: 'Card', colorClass: 'bg-card', value: 'hsl(var(--card))' },
-    { name: 'Card Foreground', colorClass: 'bg-card-foreground', value: 'hsl(var(--card-foreground))' },
-    { name: 'Popover', colorClass: 'bg-popover', value: 'hsl(var(--popover))' },
-    { name: 'Popover Foreground', colorClass: 'bg-popover-foreground', value: 'hsl(var(--popover-foreground))' },
-    { name: 'Primary', colorClass: 'bg-primary', value: 'hsl(var(--primary))' },
-    { name: 'Primary Foreground', colorClass: 'bg-primary-foreground', value: 'hsl(var(--primary-foreground))' },
-    { name: 'Secondary', colorClass: 'bg-secondary', value: 'hsl(var(--secondary))' },
-    { name: 'Secondary Foreground', colorClass: 'bg-secondary-foreground', value: 'hsl(var(--secondary-foreground))' },
-    { name: 'Muted', colorClass: 'bg-muted', value: 'hsl(var(--muted))' },
-    { name: 'Muted Foreground', colorClass: 'bg-muted-foreground', value: 'hsl(var(--muted-foreground))' },
-    { name: 'Accent', colorClass: 'bg-accent', value: 'hsl(var(--accent))' },
-    { name: 'Accent Foreground', colorClass: 'bg-accent-foreground', value: 'hsl(var(--accent-foreground))' },
-    { name: 'Destructive', colorClass: 'bg-destructive', value: 'hsl(var(--destructive))' },
-    { name: 'Destructive Foreground', colorClass: 'bg-destructive-foreground', value: 'hsl(var(--destructive-foreground))' },
-  ];
-
-  const utilityColors = [
-    { name: 'Border', colorClass: 'bg-border', value: 'hsl(var(--border))' },
-    { name: 'Input', colorClass: 'bg-input', value: 'hsl(var(--input))' },
-    { name: 'Ring', colorClass: 'bg-ring', value: 'hsl(var(--ring))' },
-  ];
-
-  const chartColors = [
-    { name: 'Chart 1', colorClass: 'bg-chart-1', value: 'hsl(var(--chart-1))' },
-    { name: 'Chart 2', colorClass: 'bg-chart-2', value: 'hsl(var(--chart-2))' },
-    { name: 'Chart 3', colorClass: 'bg-chart-3', value: 'hsl(var(--chart-3))' },
-    { name: 'Chart 4', colorClass: 'bg-chart-4', value: 'hsl(var(--chart-4))' },
-    { name: 'Chart 5', colorClass: 'bg-chart-5', value: 'hsl(var(--chart-5))' },
-  ];
-
-  const sidebarColors = [
-    { name: 'Sidebar', colorClass: 'bg-sidebar', value: 'hsl(var(--sidebar-background))' },
-    { name: 'Sidebar Foreground', colorClass: 'bg-sidebar-foreground', value: 'hsl(var(--sidebar-foreground))' },
-    { name: 'Sidebar Primary', colorClass: 'bg-sidebar-primary', value: 'hsl(var(--sidebar-primary))' },
-    { name: 'Sidebar Primary Foreground', colorClass: 'bg-sidebar-primary-foreground', value: 'hsl(var(--sidebar-primary-foreground))' },
-    { name: 'Sidebar Accent', colorClass: 'bg-sidebar-accent', value: 'hsl(var(--sidebar-accent))' },
-    { name: 'Sidebar Accent Foreground', colorClass: 'bg-sidebar-accent-foreground', value: 'hsl(var(--sidebar-accent-foreground))' },
-    { name: 'Sidebar Border', colorClass: 'bg-sidebar-border', value: 'hsl(var(--sidebar-border))' },
-    { name: 'Sidebar Ring', colorClass: 'bg-sidebar-ring', value: 'hsl(var(--sidebar-ring))' },
+  const monoColors = [
+    { name: 'Mono Surface', colorClass: 'bg-mono-surface', value: 'hsla(210, 40%, 98%, 1)' },
+    { name: 'Mono Divider', colorClass: 'bg-mono-divider', value: 'hsla(210, 40%, 96%, 1)' },
+    { name: 'Mono Subtle', colorClass: 'bg-mono-subtle', value: 'hsla(215, 31%, 91%, 1)' },
+    { name: 'Mono Muted', colorClass: 'bg-mono-muted', value: 'hsla(215, 25%, 84%, 1)' },
+    { name: 'Mono Default', colorClass: 'bg-mono-default', value: 'hsla(215, 16%, 47%, 1)' },
+    { name: 'Mono Emphasis', colorClass: 'bg-mono-emphasis', value: 'hsla(215, 25%, 27%, 1)' },
+    { name: 'Mono Strong', colorClass: 'bg-mono-strong', value: 'hsla(217, 33%, 17%, 1)' },
   ];
 
   return (
     <section className="p-8 bg-white rounded-xl shadow-sm">
-      <ColorSection title="Base Colors" colors={baseColors} />
       <ColorSection title="Brand Colors" colors={brandColors} />
-      <ColorSection title="Component Colors" colors={componentColors} />
-      <ColorSection title="Utility Colors" colors={utilityColors} />
-      <ColorSection title="Chart Colors" colors={chartColors} />
-      <ColorSection title="Sidebar Colors" colors={sidebarColors} />
+      <ColorSection title="Mono Colors" colors={monoColors} />
     </section>
   );
 };

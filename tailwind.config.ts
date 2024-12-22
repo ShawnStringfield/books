@@ -17,12 +17,21 @@ const config: Config = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         brand: {
-          fill: 'hsla(215, 33%, 95%, 1.0)',
-          fillweak: 'hsla(215, 33%, 80%, 1.0)',
-          fillstrong: 'hsla(215, 33%, 60%, 1.0)',
-          textweak: 'hsla(215, 33%, 40%, 1.0)',
-          textstrong: 'hsla(215, 33%, 25%, 1.0)',
-          DEFAULT: 'hsla(204, 54%, 52%, 1.0)', // Base color
+          surface: 'hsla(220, 100%, 97%, 1)',
+          subtle: 'hsla(220, 100%, 90%, 1)',
+          muted: 'hsla(220, 100%, 80%, 1)',
+          default: 'hsla(220, 100%, 46%, 1)', // #004eeb
+          emphasis: 'hsla(220, 100%, 37%, 1)',
+          strong: 'hsla(220, 100%, 28%, 1)',
+        },
+        mono: {
+          surface: 'hsla(210, 40%, 98%, 1)', // slate-50
+          divider: 'hsla(210, 40%, 96%, 1)', // slate-100
+          subtle: 'hsla(215, 31%, 91%, 1)', // slate-200
+          muted: 'hsla(215, 25%, 84%, 1)', // slate-300
+          default: 'hsla(215, 16%, 47%, 1)', // slate-500
+          emphasis: 'hsla(215, 25%, 27%, 1)', // slate-700
+          strong: 'hsla(217, 33%, 17%, 1)', // slate-800
         },
         slateDark: {},
         card: {

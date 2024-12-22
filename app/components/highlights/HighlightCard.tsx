@@ -1,4 +1,5 @@
 import { memo, useMemo, useCallback } from 'react';
+import Link from 'next/link';
 import type { EnrichedHighlight } from '@/app/stores/useBookStore';
 import { formatRelativeDate } from '@/app/utils/dateUtils';
 import { BookText, Heart, Trash2 } from 'lucide-react';
@@ -45,24 +46,29 @@ const HighlightCard = memo(({ highlight, variant = 'default' }: HighlightCardPro
         <div className="flex items-center gap-2">
           {variant === 'verbose' && (
             <>
-              <span className="text-xs text-gray-500 font-medium">{highlight.bookTitle}</span>
+              <Link
+                href={`/dashboard/library/${highlight.bookId}`}
+                className="text-xs text-gray-500 font-medium hover:text-indigo-600 transition-colors"
+              >
+                {highlight.bookTitle}
+              </Link>
               <span className="text-xs text-gray-500">·</span>
               <span className="text-xs text-gray-500">{highlight.readingProgress}% complete</span>
             </>
           )}
         </div>
-        <p className="text-gray-900 text-sm leading-normal">&ldquo;{highlight.text}&rdquo;</p>
+        <p className="text-gray-900 text-sm leading-normal">{highlight.text}</p>
         <div className="flex justify-between items-center text-xs text-gray-500">
-          <div className="flex items-center gap-4">
-            <div className="flex gap-2">
-              <span className="bg-gray-50 px-2 py-1 rounded-full">
-                Page {highlight.page} of {highlight.bookTotalPages}
-              </span>
-              {highlight.isFavorite && <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full">Favorite</span>}
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="text-gray-500">
+              Page {highlight.page} of {highlight.bookTotalPages}
+            </span>
+            <span className="text-gray-500">·</span>
             <time dateTime={dateInfo.iso} className="text-gray-500 font-medium whitespace-nowrap">
               {dateInfo.formatted}
             </time>
+            {highlight.isFavorite && <span className="text-gray-500">·</span>}
+            {highlight.isFavorite && <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full">Favorite</span>}
           </div>
           <div className="flex items-center gap-2">
             <Button

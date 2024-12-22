@@ -248,16 +248,6 @@ describe('bookUtils', () => {
 
         // Debug information
         const stats = calculateReadingStats(booksAtYearTransition);
-        console.log('Current system time:', new Date().toISOString());
-        console.log(
-          'Books:',
-          booksAtYearTransition.map((book) => ({
-            title: book.title,
-            completedDate: book.completedDate,
-            year: book.completedDate ? new Date(book.completedDate).getFullYear() : 'undefined',
-          }))
-        );
-        console.log('Stats:', stats);
 
         // Test both year and month stats
         expect(stats.booksCompletedThisYear).toBe(1); // Only the 2024 book

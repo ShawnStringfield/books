@@ -12,15 +12,17 @@ interface HighlightCardProps {
 }
 
 export const EmptyHighlightState = memo(() => (
-  <div className="text-center space-y-4 py-6">
-    <div className="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
-      <BookText className="w-6 h-6 text-indigo-600" />
-    </div>
-    <div className="space-y-2">
-      <h3 className="text-lg font-semibold">Capture Your First Highlight</h3>
-      <p className="text-sm text-gray-600 max-w-xs mx-auto">
-        Save memorable quotes, insights, and passages from your books. They&apos;ll appear here for easy reference.
-      </p>
+  <div className="group rounded-lg border border-mono-subtle/40 bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
+    <div className="text-center space-y-4">
+      <div className="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
+        <BookText className="w-6 h-6 text-indigo-600" />
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Capture Your First Highlight</h3>
+        <p className="text-sm text-gray-600 max-w-xs mx-auto">
+          Save memorable quotes, insights, and passages from your books. They&apos;ll appear here for easy reference.
+        </p>
+      </div>
     </div>
   </div>
 ));

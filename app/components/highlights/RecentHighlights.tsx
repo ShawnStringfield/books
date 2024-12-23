@@ -18,20 +18,22 @@ const RecentHighlights = memo(({ limit = 5 }: RecentHighlightsProps) => {
 
   return (
     <div className="my-16">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-        <h2 className="text-lg font-semibold flex items-center gap-2">
-          <Highlighter className="w-5 h-5" />
-          Recent Highlights ({totalHighlights})
-        </h2>
-        <div className="flex items-center gap-1.5 text-sm text-gray-500">
-          <span>{highlightsThisMonth} highlights this month</span>
+      {recentHighlights.length > 0 && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Highlighter className="w-5 h-5" />
+            Recent Highlights ({totalHighlights})
+          </h2>
+          <div className="flex items-center gap-1.5 text-sm text-gray-500">
+            <span>{highlightsThisMonth} highlights this month</span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div>
         {recentHighlights.length > 0 ? (
           <div>
-            <div className="grid gap-4">{highlightsList}</div>
+            <div className={`grid gap-4 ${recentHighlights.length > 1 ? 'md:grid-cols-2' : ''}`}>{highlightsList}</div>
             {totalHighlights > 5 && (
               <div className="mt-6">
                 <Button variant="outline" className="w-full text-sm font-medium text-gray-700 hover:bg-gray-50">

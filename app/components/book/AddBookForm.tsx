@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useDebounce } from '@/app/hooks/useDebounce';
 import { GoogleBook, GoogleBooksResponse, ReadingStatus } from '@/app/stores/types';
 import Image from 'next/image';
@@ -125,21 +125,16 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center h-8">
         <h3 className="font-semibold">Add New Book</h3>
-        <button onClick={onCancel} className="text-gray-500 hover:text-gray-700" aria-label="Close">
-          <X className="h-4 w-4" />
-        </button>
       </div>
-
-      {error && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">{error}</div>}
 
       <div className="relative">
         <Input placeholder="Search for a book..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pr-10" autoFocus />
         <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
 
         {searchResults.length > 0 && !selectedBook && (
-          <div className="fixed inset-x-4 mt-2 bg-white rounded-md shadow-lg border border-gray-200 max-h-[40vh] overflow-y-auto overscroll-contain">
+          <div className="absolute left-0 right-0 mt-2 bg-white rounded-md shadow-lg border border-gray-200 max-h-[40vh] overflow-y-auto overscroll-contain z-[100]">
             {searchResults.map((book) => (
               <button
                 key={book.id}
@@ -160,9 +155,13 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         )}
 
         {isSearching && (
-          <div className="fixed inset-x-4 mt-2 p-4 bg-white rounded-md shadow-lg border border-gray-200 text-center text-sm">Searching...</div>
+          <div className="absolute left-0 right-0 mt-2 p-4 bg-white rounded-md shadow-lg border border-gray-200 text-center text-sm z-[100]">
+            Searching...
+          </div>
         )}
       </div>
+
+      {error && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">{error}</div>}
 
       {selectedBook && (
         <div className="space-y-4">

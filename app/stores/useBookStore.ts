@@ -61,7 +61,7 @@ interface BookState {
   currentStatus: ReadingStatusType;
   isLoading: boolean;
   error: string | null;
-  isAddBookDrawerOpen: boolean;
+  isAddBookSheetOpen: boolean;
   hasHydrated: boolean;
 }
 
@@ -73,7 +73,7 @@ interface BookActions {
   updateReadingProgress: (bookId: string, currentPage: number) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  setAddBookDrawerOpen: (isOpen: boolean) => void;
+  setAddBookSheetOpen: (isOpen: boolean) => void;
   setHasHydrated: (state: boolean) => void;
   updateBookStatus: (bookId: string, status: ReadingStatusType) => void;
   updateBookDescription: (bookId: string, description: string) => void;
@@ -95,7 +95,7 @@ export const useBookStore = create<BookStore>()(
       currentStatus: ReadingStatus.NOT_STARTED,
       isLoading: false,
       error: null,
-      isAddBookDrawerOpen: false,
+      isAddBookSheetOpen: false,
       hasHydrated: false,
 
       // Actions
@@ -121,7 +121,7 @@ export const useBookStore = create<BookStore>()(
               },
             ],
             error: null,
-            isAddBookDrawerOpen: false,
+            isAddBookSheetOpen: false,
           };
         }),
 
@@ -190,7 +190,7 @@ export const useBookStore = create<BookStore>()(
 
       setError: (error) => set({ error }),
 
-      setAddBookDrawerOpen: (isOpen) => set({ isAddBookDrawerOpen: isOpen }),
+      setAddBookSheetOpen: (isOpen) => set({ isAddBookSheetOpen: isOpen }),
 
       setHasHydrated: (state) => set({ hasHydrated: state }),
 

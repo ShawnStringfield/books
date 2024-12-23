@@ -4,12 +4,12 @@ import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
 import BookCard from './BookCard';
 import { ReadingStatusType } from '@/app/stores/types';
 import { Button } from '@/app/components/ui/button';
-import { Library, PlusCircle } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
+import { Library, PlusCircle, X } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/app/components/ui/sheet';
 import { AddBookForm } from './AddBookForm';
 
 function EmptyLibraryState() {
-  const { isAddBookDrawerOpen, setAddBookDrawerOpen } = useBookStore();
+  const { isAddBookSheetOpen, setAddBookSheetOpen } = useBookStore();
 
   return (
     <div className="group rounded-lg border border-mono-subtle/40 bg-white p-8 shadow-sm transition-shadow hover:shadow-md max-w-lg w-full">
@@ -24,23 +24,28 @@ function EmptyLibraryState() {
           </p>
         </div>
         <div className="flex justify-center">
-          <Drawer open={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen}>
-            <DrawerTrigger asChild>
+          <Sheet open={isAddBookSheetOpen} onOpenChange={setAddBookSheetOpen}>
+            <SheetTrigger asChild>
               <Button className="flex items-center gap-2">
                 <PlusCircle className="w-4 h-4" />
                 Add Your First Book
               </Button>
-            </DrawerTrigger>
-            <DrawerContent className="h-[90vh] flex flex-col">
-              <DrawerHeader className="flex-shrink-0">
-                <DrawerTitle>Add New Book</DrawerTitle>
-                <DrawerDescription>Start your reading journey by adding your first book.</DrawerDescription>
-              </DrawerHeader>
-              <div className="flex-1 overflow-y-auto px-4 pb-8">
-                <AddBookForm onCancel={() => setAddBookDrawerOpen(false)} />
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full sm:max-w-xl p-0">
+              <div className="h-full overflow-hidden">
+                <div className="flex items-center justify-between px-6 h-14 border-b border-gray-100">
+                  <h2 className="text-lg font-semibold">Add New Book</h2>
+                  <SheetClose className="rounded-full p-2 hover:bg-gray-100 transition-colors">
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Close</span>
+                  </SheetClose>
+                </div>
+                <div className="h-[calc(100%-3.5rem)] overflow-y-auto overscroll-contain px-6 pb-8 pt-6">
+                  <AddBookForm onCancel={() => setAddBookSheetOpen(false)} />
+                </div>
               </div>
-            </DrawerContent>
-          </Drawer>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </div>
@@ -67,18 +72,19 @@ export function BooksList() {
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2" role="list" aria-label="Books list">
-      {books.map((book) => (
-        <div key={book.id} className="relative group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200" role="listitem">
-          <BookCard
-            book={book}
-            onStatusChange={handleStatusChange}
-            onDelete={(id) => setBookToDelete(id)}
-            progressDisplay="compact"
-            className="group-hover:border-blue-200 transition-colors duration-200"
-          />
-        </div>
-      ))}
+    <div className="w-full" role="list" aria-label="Books list">
+      <div className={`grid gap-4 ${books.length === 1 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'} w-full`}>
+        {books.map((book) => (
+          <div key={book.id} className="w-full" role="listitem">
+            <BookCard
+              book={book}
+              onStatusChange={handleStatusChange}
+              onDelete={(id) => setBookToDelete(id)}
+              className="border-transparent hover:border-blue-200 transition-colors duration-200"
+            />
+          </div>
+        ))}
+      </div>
 
       <DeleteBookDialog
         isOpen={!!bookToDelete}

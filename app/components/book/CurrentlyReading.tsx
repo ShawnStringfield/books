@@ -6,7 +6,7 @@ import type { BookStore } from '@/app/stores/useBookStore';
 import BookCard from './BookCard';
 import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
 import { useState } from 'react';
-import { AddBookDrawer } from '../drawers/AddBookDrawer';
+import { AddBookSheet } from '../sheets/AddBookSheet';
 
 interface CurrentlyReadingProps {
   books: Book[];
@@ -30,15 +30,9 @@ const CurrentlyReading = ({ books, className }: CurrentlyReadingProps) => {
     <div className={className}>
       {books.length > 0 ? (
         <>
-          <div className={`grid gap-4 ${books.length === 1 ? 'md:grid-cols-1 max-w-lg' : 'md:grid-cols-2'} mx-auto`}>
+          <div className={`grid gap-4 ${books.length === 1 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'} w-full`}>
             {books.map((book) => (
-              <BookCard
-                key={book.id}
-                book={book}
-                onStatusChange={updateBookStatus}
-                onDelete={(id) => setBookToDelete(id)}
-                progressDisplay="compact"
-              />
+              <BookCard key={book.id} book={book} onStatusChange={updateBookStatus} onDelete={(id) => setBookToDelete(id)} />
             ))}
           </div>
 
@@ -57,7 +51,7 @@ const CurrentlyReading = ({ books, className }: CurrentlyReadingProps) => {
 };
 
 function EmptyReadingState({ hasBooks, className }: { hasBooks: boolean; className?: string }) {
-  const { isAddBookDrawerOpen, setAddBookDrawerOpen } = useBookStore();
+  const { isAddBookSheetOpen, setAddBookSheetOpen } = useBookStore();
 
   return (
     <div
@@ -82,11 +76,11 @@ function EmptyReadingState({ hasBooks, className }: { hasBooks: boolean; classNa
             <Button asChild variant="outline" className="mt-4">
               <a href="/dashboard/library">Go to Library</a>
             </Button>
-            <AddBookDrawer isOpen={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen} variant="new" />
+            <AddBookSheet isOpen={isAddBookSheetOpen} onOpenChange={setAddBookSheetOpen} variant="new" />
           </div>
         ) : (
           <div className="flex items-center justify-center">
-            <AddBookDrawer isOpen={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen} variant="first" />
+            <AddBookSheet isOpen={isAddBookSheetOpen} onOpenChange={setAddBookSheetOpen} variant="first" />
           </div>
         )}
       </div>

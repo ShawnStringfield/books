@@ -3,7 +3,7 @@ import { Library, PlusCircle } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
 import { AddBookForm } from './AddBookForm';
 import { Book } from '@/app/stores/useBookStore';
-import { useBookStore, selectIsLastBook } from '@/app/stores/useBookStore';
+import { useBookStore } from '@/app/stores/useBookStore';
 import type { BookStore } from '@/app/stores/useBookStore';
 import BookCard from './BookCard';
 import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
@@ -16,12 +16,11 @@ interface CurrentlyReadingProps {
 const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
   const updateBookStatus = useBookStore((state: BookStore) => state.updateBookStatus);
   const deleteBook = useBookStore((state: BookStore) => state.deleteBook);
-  const isLastBook = useBookStore(selectIsLastBook);
   const allBooks = useBookStore((state: BookStore) => state.books);
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
 
   const handleDelete = () => {
-    if (bookToDelete && !isLastBook) {
+    if (bookToDelete) {
       deleteBook(bookToDelete);
       setBookToDelete(null);
     }
@@ -38,7 +37,6 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
                 book={book}
                 onStatusChange={updateBookStatus}
                 onDelete={(id) => setBookToDelete(id)}
-                isLastBook={isLastBook}
                 progressDisplay="compact"
               />
             ))}
@@ -62,7 +60,7 @@ function EmptyReadingState({ hasBooks }: { hasBooks: boolean }) {
   const { isAddBookDrawerOpen, setAddBookDrawerOpen } = useBookStore();
 
   return (
-    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
+    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-8 shadow-sm transition-shadow hover:shadow-md h-[400px] flex flex-col justify-center">
       <div className="text-center space-y-4">
         <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
           <Library className="w-6 h-6 text-blue-600" />
@@ -99,23 +97,25 @@ function EmptyReadingState({ hasBooks }: { hasBooks: boolean }) {
             </Drawer>
           </div>
         ) : (
-          <Drawer open={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen}>
-            <DrawerTrigger asChild>
-              <Button className="mt-4 flex items-center gap-2">
-                <PlusCircle className="w-4 h-4" />
-                Add Your First Book
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent className="h-[90vh] flex flex-col">
-              <DrawerHeader className="flex-shrink-0">
-                <DrawerTitle>Add New Book</DrawerTitle>
-                <DrawerDescription>Start your reading journey by adding your first book to your collection.</DrawerDescription>
-              </DrawerHeader>
-              <div className="flex-1 overflow-y-auto px-4 pb-8">
-                <AddBookForm onCancel={() => setAddBookDrawerOpen(false)} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+          <div className="flex items-center justify-center">
+            <Drawer open={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen}>
+              <DrawerTrigger asChild>
+                <Button className="mt-4 flex items-center gap-2">
+                  <PlusCircle className="w-4 h-4" />
+                  Add Your First Book
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="h-[90vh] flex flex-col">
+                <DrawerHeader className="flex-shrink-0">
+                  <DrawerTitle>Add New Book</DrawerTitle>
+                  <DrawerDescription>Start your reading journey by adding your first book to your collection.</DrawerDescription>
+                </DrawerHeader>
+                <div className="flex-1 overflow-y-auto px-4 pb-8">
+                  <AddBookForm onCancel={() => setAddBookDrawerOpen(false)} />
+                </div>
+              </DrawerContent>
+            </Drawer>
+          </div>
         )}
       </div>
     </div>

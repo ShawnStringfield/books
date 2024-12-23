@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useBookStore, selectIsLastBook } from '@/app/stores/useBookStore';
+import { useBookStore } from '@/app/stores/useBookStore';
 import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
 import BookCard from './BookCard';
 import { ReadingStatusType } from '@/app/stores/types';
@@ -12,34 +12,36 @@ function EmptyLibraryState() {
   const { isAddBookDrawerOpen, setAddBookDrawerOpen } = useBookStore();
 
   return (
-    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
-      <div className="text-center space-y-4">
+    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-8 shadow-sm transition-shadow hover:shadow-md max-w-lg w-full">
+      <div className="text-center space-y-6">
         <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
           <Library className="w-6 h-6 text-blue-600" />
         </div>
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Start Your Reading Journey</h3>
-          <p className="text-sm text-gray-600 max-w-xs mx-auto">
+          <p className="text-sm text-gray-600 max-w-md mx-auto">
             Track your reading progress, collect meaningful highlights, and discover new books to read.
           </p>
         </div>
-        <Drawer open={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen}>
-          <DrawerTrigger asChild>
-            <Button className="mt-4 flex items-center gap-2">
-              <PlusCircle className="w-4 h-4" />
-              Add Your First Book
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="h-[90vh] flex flex-col">
-            <DrawerHeader className="flex-shrink-0">
-              <DrawerTitle>Add New Book</DrawerTitle>
-              <DrawerDescription>Start your reading journey by adding your first book.</DrawerDescription>
-            </DrawerHeader>
-            <div className="flex-1 overflow-y-auto px-4 pb-8">
-              <AddBookForm onCancel={() => setAddBookDrawerOpen(false)} />
-            </div>
-          </DrawerContent>
-        </Drawer>
+        <div className="flex justify-center">
+          <Drawer open={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen}>
+            <DrawerTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <PlusCircle className="w-4 h-4" />
+                Add Your First Book
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="h-[90vh] flex flex-col">
+              <DrawerHeader className="flex-shrink-0">
+                <DrawerTitle>Add New Book</DrawerTitle>
+                <DrawerDescription>Start your reading journey by adding your first book.</DrawerDescription>
+              </DrawerHeader>
+              <div className="flex-1 overflow-y-auto px-4 pb-8">
+                <AddBookForm onCancel={() => setAddBookDrawerOpen(false)} />
+              </div>
+            </DrawerContent>
+          </Drawer>
+        </div>
       </div>
     </div>
   );
@@ -47,7 +49,6 @@ function EmptyLibraryState() {
 
 export function BooksList() {
   const { books, deleteBook, updateBookStatus } = useBookStore();
-  const isLastBook = useBookStore(selectIsLastBook);
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
 
   const handleDelete = () => {
@@ -73,7 +74,6 @@ export function BooksList() {
             book={book}
             onStatusChange={handleStatusChange}
             onDelete={(id) => setBookToDelete(id)}
-            isLastBook={isLastBook}
             progressDisplay="compact"
             className="group-hover:border-blue-200 transition-colors duration-200"
           />

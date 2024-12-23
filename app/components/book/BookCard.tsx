@@ -3,8 +3,8 @@ import { Progress } from '@/app/components/ui/progress';
 import { Book, ReadingStatusType } from '@/app/stores/types';
 import Link from 'next/link';
 import BookDetailsSheet from './BookDetailsSheet';
-import { Trash2, AlertCircle, Highlighter } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { Trash2, Highlighter } from 'lucide-react';
+import { useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { readingStatusOptions } from '@/app/config/readingStatusConfig';
 import { useBookStore, selectEnrichedHighlights } from '@/app/stores/useBookStore';
@@ -16,14 +16,12 @@ interface BookCardProps {
   book: Book;
   onStatusChange: (bookId: string, status: ReadingStatusType) => void;
   onDelete?: (bookId: string) => void;
-  isLastBook?: boolean;
   progressDisplay?: ProgressDisplayVariant;
   className?: string;
 }
 
-const BookCard = ({ book, onStatusChange, onDelete, isLastBook = false, progressDisplay = 'hidden', className = '' }: BookCardProps) => {
+const BookCard = ({ book, onStatusChange, onDelete, progressDisplay = 'hidden', className = '' }: BookCardProps) => {
   const progress = Math.round((book.currentPage / book.totalPages) * 100);
-  const [showWarning, setShowWarning] = useState(false);
 
   const enrichedHighlights = useBookStore(selectEnrichedHighlights);
   const bookHighlights = useMemo(() => {
@@ -43,13 +41,7 @@ const BookCard = ({ book, onStatusChange, onDelete, isLastBook = false, progress
   }, [bookHighlights]);
 
   const handleDelete = () => {
-    if (isLastBook) {
-      setShowWarning(true);
-      // Hide warning after 3 seconds
-      setTimeout(() => setShowWarning(false), 3000);
-    } else {
-      onDelete?.(book.id);
-    }
+    onDelete?.(book.id);
   };
 
   return (
@@ -119,22 +111,14 @@ const BookCard = ({ book, onStatusChange, onDelete, isLastBook = false, progress
               ))}
             </SelectContent>
           </Select>
-          <div className="flex-1">
-            {showWarning && isLastBook && (
-              <div className="flex items-center text-amber-600 text-xs">
-                <AlertCircle size={14} className="mr-1" />
-                Cannot delete the last book
-              </div>
-            )}
-          </div>
+          <div className="flex-1" />
           <div className="rounded-full p-1.5 bg-gray-50 hover:bg-gray-100 transition-colors">
             <BookDetailsSheet book={book} />
           </div>
           <button
             onClick={handleDelete}
-            className="text-red-500 hover:text-red-600 transition-colors rounded-full p-1.5 bg-red-50 hover:bg-red-100 disabled:opacity-50 disabled:hover:bg-red-50 disabled:hover:text-red-500"
+            className="text-red-500 hover:text-red-600 transition-colors rounded-full p-1.5 bg-red-50 hover:bg-red-100"
             aria-label="Delete book"
-            disabled={isLastBook}
           >
             <Trash2 size={16} />
           </button>

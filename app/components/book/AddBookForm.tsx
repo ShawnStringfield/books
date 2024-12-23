@@ -105,8 +105,17 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         genre: (bookData.categories && bookData.categories[0]) || 'Unknown',
       };
 
+      console.log('Adding book with details:', {
+        addAsInProgress,
+        status: newBook.status,
+        ReadingStatus: ReadingStatus,
+        startDate: newBook.startDate,
+        title: newBook.title,
+      });
+
       addBook(newBook);
       onSuccess?.();
+      onCancel();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to add book');
     } finally {
@@ -115,7 +124,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
   };
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-lg border border-gray-200 p-4 space-y-4">
+    <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold">Add New Book</h3>
         <button onClick={onCancel} className="text-gray-500 hover:text-gray-700" aria-label="Close">
@@ -176,6 +185,19 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
 
           {selectedBook.volumeInfo.description && <p className="text-sm text-gray-600 line-clamp-2">{selectedBook.volumeInfo.description}</p>}
 
+          <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+            <input
+              type="checkbox"
+              id="addAsInProgress"
+              checked={addAsInProgress}
+              onChange={(e) => setAddAsInProgress(e.target.checked)}
+              className="h-4 w-4 rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label htmlFor="addAsInProgress" className="text-sm font-medium text-blue-900">
+              Add to &ldquo;Currently Reading&rdquo;
+            </label>
+          </div>
+
           {selectedBook.volumeInfo.categories && (
             <div className="flex gap-1.5 flex-wrap">
               {selectedBook.volumeInfo.categories.map((category) => (
@@ -185,19 +207,6 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
               ))}
             </div>
           )}
-
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="addAsInProgress"
-              checked={addAsInProgress}
-              onChange={(e) => setAddAsInProgress(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <label htmlFor="addAsInProgress" className="text-sm text-gray-600">
-              Add as &ldquo;Currently Reading&rdquo;
-            </label>
-          </div>
 
           <div className="flex justify-end gap-2">
             <Button

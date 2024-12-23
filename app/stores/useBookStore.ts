@@ -102,9 +102,9 @@ export const useBookStore = create<BookStore>()(
       addBook: (book) =>
         set((state) => {
           const isFirstBook = state.books.length === 0;
-          const status = isFirstBook ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED;
-          const startDate = isFirstBook ? getCurrentISODate() : undefined;
-          const currentPage = isFirstBook ? 1 : 0;
+          const status = book.status || (isFirstBook ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED);
+          const startDate = book.startDate || (isFirstBook ? getCurrentISODate() : undefined);
+          const currentPage = book.currentPage ?? (isFirstBook ? 1 : 0);
           const categories = book.categories || [];
 
           return {

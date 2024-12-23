@@ -89,12 +89,12 @@ function EmptyReadingState({ hasBooks }: { hasBooks: boolean }) {
                     Add New Book
                   </Button>
                 </DrawerTrigger>
-                <DrawerContent>
-                  <DrawerHeader>
+                <DrawerContent className="h-[90vh] flex flex-col">
+                  <DrawerHeader className="flex-shrink-0">
                     <DrawerTitle>Add New Book</DrawerTitle>
                     <DrawerDescription>Add another book to your collection.</DrawerDescription>
                   </DrawerHeader>
-                  <div className="p-4">
+                  <div className="flex-1 overflow-y-auto px-4 pb-8">
                     <AddBookForm onCancel={() => setAddBookDrawerOpen(false)} />
                   </div>
                 </DrawerContent>
@@ -108,12 +108,12 @@ function EmptyReadingState({ hasBooks }: { hasBooks: boolean }) {
                   Add Your First Book
                 </Button>
               </DrawerTrigger>
-              <DrawerContent>
-                <DrawerHeader>
+              <DrawerContent className="h-[90vh] flex flex-col">
+                <DrawerHeader className="flex-shrink-0">
                   <DrawerTitle>Add New Book</DrawerTitle>
                   <DrawerDescription>Start your reading journey by adding your first book to your collection.</DrawerDescription>
                 </DrawerHeader>
-                <div className="p-4">
+                <div className="flex-1 overflow-y-auto px-4 pb-8">
                   <AddBookForm onCancel={() => setAddBookDrawerOpen(false)} />
                 </div>
               </DrawerContent>

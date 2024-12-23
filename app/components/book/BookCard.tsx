@@ -76,10 +76,19 @@ const BookCard = ({ book, onStatusChange, onDelete, isLastBook = false, progress
           </div>
         </div>
 
-        {latestHighlight && (
-          <div className="mt-3 mb-2">
-            <p className="text-xs text-gray-500 line-clamp-3">{latestHighlight.text}</p>
+        {highlightsCount === 0 ? (
+          <div className="flex-1 flex items-center">
+            <div className="flex items-center gap-2">
+              <Highlighter size={16} className="text-gray-400" />
+              <p className="text-xs text-gray-500">Start capturing your favorite moments. </p>
+            </div>
           </div>
+        ) : (
+          latestHighlight && (
+            <div className="mt-3 mb-2">
+              <p className="text-xs text-gray-500 line-clamp-3">{latestHighlight.text}</p>
+            </div>
+          )
         )}
 
         {progressDisplay === 'detailed' && (

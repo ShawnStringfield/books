@@ -31,10 +31,10 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
     <div className="space-y-4 my-16">
       {books.length > 0 ? (
         <>
-          <h2 className="text-lg font-semibold flex items-center gap-2">
+          {/* <h2 className="text-lg font-semibold flex items-center gap-2">
             <BookOpen className="w-5 h-5" />
             Currently Reading
-          </h2>
+          </h2> */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {books.map((book) => (
               <BookCard

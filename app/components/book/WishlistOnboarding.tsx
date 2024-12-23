@@ -12,7 +12,7 @@ const WishlistOnboarding = () => {
   };
 
   return (
-    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
+    <div className="my-4 group rounded-lg border border-mono-subtle/40 bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
       {wishlist.length > 0 ? (
         <div className="space-y-3">
           {wishlist.slice(0, 3).map((book) => (
@@ -39,7 +39,7 @@ const WishlistOnboarding = () => {
 
 function EmptyWishlistState({ onAddToWishlist }: { onAddToWishlist: () => void }) {
   return (
-    <div className="text-center space-y-4">
+    <div className="my-4 text-center space-y-4">
       <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
         <Search className="w-6 h-6 text-gray-600" />
       </div>

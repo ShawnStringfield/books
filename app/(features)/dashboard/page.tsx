@@ -3,7 +3,6 @@
 import React from 'react';
 import { useOnboardingCheck } from '@/app/(features)/profile-onboarding/hooks/useOnboardingCheck';
 import CurrentlyReading from '@/app/components/book/CurrentlyReading';
-import WishlistOnboarding from '@/app/components/book/WishlistOnboarding';
 import FavHighlightsOnboarding from '@/app/components/highlights/FavHighlightsOnboarding';
 import RecentHighlights from '@/app/components/highlights/RecentHighlights';
 import { useBookStore, selectBooks, selectHasHydrated, selectHighlights } from '@/app/stores/useBookStore';
@@ -27,15 +26,23 @@ export default function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto p-6">
-        <DashboardStats />
-        <CurrentlyReading books={currentlyReadingBooks} />
-
-        <div className={bothEmpty ? 'grid gap-6 my-16 md:grid-cols-2' : 'space-y-16 my-16'}>
-          <RecentHighlights limit={5} />
-          <FavHighlightsOnboarding />
+        <div className="mb-8">
+          <DashboardStats />
         </div>
-
-        <WishlistOnboarding />
+        <div className="mb-8">
+          <CurrentlyReading books={currentlyReadingBooks} />
+        </div>
+        {bothEmpty ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <RecentHighlights limit={5} />
+            <FavHighlightsOnboarding />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <RecentHighlights limit={5} />
+            <FavHighlightsOnboarding />
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

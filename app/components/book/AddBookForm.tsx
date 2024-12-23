@@ -139,7 +139,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
 
         {searchResults.length > 0 && !selectedBook && (
-          <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200 max-h-[300px] overflow-y-auto">
+          <div className="fixed inset-x-4 mt-2 bg-white rounded-md shadow-lg border border-gray-200 max-h-[40vh] overflow-y-auto overscroll-contain">
             {searchResults.map((book) => (
               <button
                 key={book.id}
@@ -150,9 +150,9 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
                 {book.volumeInfo.imageLinks?.thumbnail && (
                   <Image src={book.volumeInfo.imageLinks.thumbnail} alt="" width={40} height={56} className="object-cover" />
                 )}
-                <div>
-                  <p className="font-medium">{book.volumeInfo.title}</p>
-                  <p className="text-sm text-gray-600">{book.volumeInfo.authors?.[0]}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium truncate">{book.volumeInfo.title}</p>
+                  <p className="text-sm text-gray-600 truncate">{book.volumeInfo.authors?.[0]}</p>
                 </div>
               </button>
             ))}
@@ -160,7 +160,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         )}
 
         {isSearching && (
-          <div className="absolute z-10 w-full mt-1 p-4 bg-white rounded-md shadow-lg border border-gray-200 text-center text-sm">Searching...</div>
+          <div className="fixed inset-x-4 mt-2 p-4 bg-white rounded-md shadow-lg border border-gray-200 text-center text-sm">Searching...</div>
         )}
       </div>
 

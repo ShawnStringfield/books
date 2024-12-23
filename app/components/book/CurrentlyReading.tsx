@@ -1,19 +1,19 @@
 import { Button } from '@/app/components/ui/button';
-import { Library, PlusCircle } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from '@/app/components/ui/drawer';
-import { AddBookForm } from './AddBookForm';
+import { Library } from 'lucide-react';
 import { Book } from '@/app/stores/useBookStore';
 import { useBookStore } from '@/app/stores/useBookStore';
 import type { BookStore } from '@/app/stores/useBookStore';
 import BookCard from './BookCard';
 import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
 import { useState } from 'react';
+import { AddBookDrawer } from '../drawers/AddBookDrawer';
 
 interface CurrentlyReadingProps {
   books: Book[];
+  className?: string;
 }
 
-const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
+const CurrentlyReading = ({ books, className }: CurrentlyReadingProps) => {
   const updateBookStatus = useBookStore((state: BookStore) => state.updateBookStatus);
   const deleteBook = useBookStore((state: BookStore) => state.deleteBook);
   const allBooks = useBookStore((state: BookStore) => state.books);
@@ -27,10 +27,10 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
   };
 
   return (
-    <div className="space-y-4 my-16">
+    <div className={className}>
       {books.length > 0 ? (
         <>
-          <div className={`grid gap-4 ${books.length > 1 ? 'md:grid-cols-2' : ''}`}>
+          <div className={`grid gap-4 ${books.length === 1 ? 'md:grid-cols-1 max-w-lg' : 'md:grid-cols-2'} mx-auto`}>
             {books.map((book) => (
               <BookCard
                 key={book.id}
@@ -50,17 +50,21 @@ const CurrentlyReading = ({ books }: CurrentlyReadingProps) => {
           />
         </>
       ) : (
-        <EmptyReadingState hasBooks={allBooks.length > 0} />
+        <EmptyReadingState hasBooks={allBooks.length > 0} className={className} />
       )}
     </div>
   );
 };
 
-function EmptyReadingState({ hasBooks }: { hasBooks: boolean }) {
+function EmptyReadingState({ hasBooks, className }: { hasBooks: boolean; className?: string }) {
   const { isAddBookDrawerOpen, setAddBookDrawerOpen } = useBookStore();
 
   return (
-    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-8 shadow-sm transition-shadow hover:shadow-md h-[400px] flex flex-col justify-center">
+    <div
+      className={`group rounded-lg border border-mono-subtle/40 bg-white p-2 shadow-sm transition-shadow hover:shadow-md h-[350px] flex flex-col justify-center ${
+        className || ''
+      }`}
+    >
       <div className="text-center space-y-4">
         <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
           <Library className="w-6 h-6 text-blue-600" />
@@ -78,43 +82,11 @@ function EmptyReadingState({ hasBooks }: { hasBooks: boolean }) {
             <Button asChild variant="outline" className="mt-4">
               <a href="/dashboard/library">Go to Library</a>
             </Button>
-            <Drawer open={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen}>
-              <DrawerTrigger asChild>
-                <Button className="mt-4 flex items-center gap-2">
-                  <PlusCircle className="w-4 h-4" />
-                  Add New Book
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent className="h-[90vh] flex flex-col">
-                <DrawerHeader className="flex-shrink-0">
-                  <DrawerTitle>Add New Book</DrawerTitle>
-                  <DrawerDescription>Add another book to your collection.</DrawerDescription>
-                </DrawerHeader>
-                <div className="flex-1 overflow-y-auto px-4 pb-8">
-                  <AddBookForm onCancel={() => setAddBookDrawerOpen(false)} />
-                </div>
-              </DrawerContent>
-            </Drawer>
+            <AddBookDrawer isOpen={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen} variant="new" />
           </div>
         ) : (
           <div className="flex items-center justify-center">
-            <Drawer open={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen}>
-              <DrawerTrigger asChild>
-                <Button className="mt-4 flex items-center gap-2">
-                  <PlusCircle className="w-4 h-4" />
-                  Add Your First Book
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent className="h-[90vh] flex flex-col">
-                <DrawerHeader className="flex-shrink-0">
-                  <DrawerTitle>Add New Book</DrawerTitle>
-                  <DrawerDescription>Start your reading journey by adding your first book to your collection.</DrawerDescription>
-                </DrawerHeader>
-                <div className="flex-1 overflow-y-auto px-4 pb-8">
-                  <AddBookForm onCancel={() => setAddBookDrawerOpen(false)} />
-                </div>
-              </DrawerContent>
-            </Drawer>
+            <AddBookDrawer isOpen={isAddBookDrawerOpen} onOpenChange={setAddBookDrawerOpen} variant="first" />
           </div>
         )}
       </div>

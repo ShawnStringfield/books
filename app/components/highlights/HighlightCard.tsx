@@ -63,9 +63,9 @@ const HighlightCard = memo(({ highlight, variant = 'default' }: HighlightCardPro
   }, [highlight.text]);
 
   return (
-    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex flex-col h-full space-y-4">
-        <div className="flex items-center gap-2">
+    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex flex-col min-h-[160px]">
+        <div className="flex items-center gap-2 mb-4">
           {variant === 'verbose' && (
             <>
               <Link
@@ -80,11 +80,11 @@ const HighlightCard = memo(({ highlight, variant = 'default' }: HighlightCardPro
           )}
         </div>
         {isEditing ? (
-          <div className="space-y-2">
+          <div className="space-y-3 flex-1">
             <textarea
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent min-h-[100px]"
               rows={3}
               aria-label="Edit highlight text"
             />
@@ -107,9 +107,11 @@ const HighlightCard = memo(({ highlight, variant = 'default' }: HighlightCardPro
             </div>
           </div>
         ) : (
-          <p className="text-sm leading-normal text-mono-emphasis">{highlight.text}</p>
+          <div className="flex-1">
+            <p className="text-sm leading-normal text-mono-emphasis line-clamp-4">{highlight.text}</p>
+          </div>
         )}
-        <div className="flex justify-between items-center text-xs text-mono/75">
+        <div className="flex justify-between items-center text-xs text-mono/75 mt-4">
           <div className="flex items-center gap-2">
             <span className="">
               Page {highlight.page} of {highlight.bookTotalPages}

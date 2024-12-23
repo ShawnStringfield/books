@@ -4,7 +4,7 @@ import { useBookStore, type BookStore } from '@/app/stores/useBookStore';
 import { useEffect, useState } from 'react';
 import HighlightCard from './HighlightCard';
 
-const FavHighlightsOnboarding = () => {
+const FavHighlightsOnboarding = ({ className }: { className?: string }) => {
   const [favoriteHighlights, setFavoriteHighlights] = useState<BookStore['highlights']>([]);
   const [books, setBooks] = useState<BookStore['books']>([]);
 
@@ -26,7 +26,7 @@ const FavHighlightsOnboarding = () => {
   }, []);
 
   return (
-    <div className="my-16">
+    <div className={`${className || ''}`}>
       {favoriteHighlights.length > 0 ? (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -36,21 +36,19 @@ const FavHighlightsOnboarding = () => {
             </h2>
             <span className="text-sm text-gray-500">{favoriteHighlights.length} total</span>
           </div>
-          <div className="grid gap-4">
-            <div className={`grid gap-4 ${favoriteHighlights.length > 1 ? 'md:grid-cols-2' : ''}`}>
-              {favoriteHighlights.slice(0, 3).map((highlight) => {
-                const book = books.find((b) => b.id === highlight.bookId);
-                const enrichedHighlight = {
-                  ...highlight,
-                  bookTitle: book?.title || '',
-                  bookAuthor: book?.author || '',
-                  bookTotalPages: book?.totalPages || 0,
-                  bookCurrentPage: book?.currentPage || 0,
-                  readingProgress: book ? Math.round((book.currentPage / book.totalPages) * 100) : 0,
-                };
-                return <HighlightCard key={highlight.id} highlight={enrichedHighlight} variant="verbose" />;
-              })}
-            </div>
+          <div className="space-y-4">
+            {favoriteHighlights.slice(0, 3).map((highlight) => {
+              const book = books.find((b) => b.id === highlight.bookId);
+              const enrichedHighlight = {
+                ...highlight,
+                bookTitle: book?.title || '',
+                bookAuthor: book?.author || '',
+                bookTotalPages: book?.totalPages || 0,
+                bookCurrentPage: book?.currentPage || 0,
+                readingProgress: book ? Math.round((book.currentPage / book.totalPages) * 100) : 0,
+              };
+              return <HighlightCard key={highlight.id} highlight={enrichedHighlight} variant="verbose" />;
+            })}
             {favoriteHighlights.length > 3 && (
               <Button
                 variant="outline"
@@ -71,7 +69,7 @@ const FavHighlightsOnboarding = () => {
 
 function EmptyFavoritesState() {
   return (
-    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
+    <div className="group rounded-lg border border-mono-subtle/40 bg-white p-2 shadow-sm transition-shadow hover:shadow-md h-[350px] flex flex-col justify-center">
       <div className="text-center space-y-4">
         <div className="bg-red-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
           <Heart className="w-6 h-6 text-red-600" />

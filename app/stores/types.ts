@@ -16,7 +16,7 @@ export const ReadingStatus = {
 
 export type ReadingStatusType = (typeof ReadingStatus)[keyof typeof ReadingStatus];
 
-export interface Book {
+export interface BaseBook {
   id: string;
   title: string;
   subtitle?: string;
@@ -40,14 +40,23 @@ export interface Book {
   fromGoogle?: boolean;
 }
 
-export interface Highlight {
+export interface BaseHighlight {
   id: string;
   bookId: string;
   text: string;
   page: number;
   isFavorite: boolean;
-  createdAt: string;
   modifiedAt?: string;
+}
+
+export interface Book extends BaseBook {
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Highlight extends BaseHighlight {
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface EnrichedHighlight extends Highlight {

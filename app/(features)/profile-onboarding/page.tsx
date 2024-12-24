@@ -1,172 +1,160 @@
 'use client';
 
+import { useEffect } from 'react';
 import { WelcomeStep } from '@profile-onboarding/components/steps/WelcomeStep';
 import { GenresStep } from '@profile-onboarding/components/steps/GenresStep';
 import { GoalsStep } from '@profile-onboarding/components/steps/GoalsStep';
 import { ScheduleStep } from '@profile-onboarding/components/steps/ScheduleStep';
 import { CompleteStep } from '@profile-onboarding/components/steps/CompleteStep';
-import { useOnboardingStore, getOnboardingData } from '@profile-onboarding/hooks/useOnboardingStore';
-import { useOnboardingMutation } from '@profile-onboarding/hooks/useOnboardingMutation';
+import { useOnboardingUI, useOnboardingActions } from '@profile-onboarding/hooks/useOnboardingStore';
+import { useOnboardingData } from '@profile-onboarding/hooks/useOnboardingData';
 import { STEPS } from '@profile-onboarding/constants';
-import { OnboardingState, StepId } from '@profile-onboarding/types/onboarding';
+import { StepId, OnboardingData, ReadingPreference } from '@profile-onboarding/types/onboarding';
 import { useProgressNavigation, StepValidationRules } from '@/app/components/progress/useProgressNavigation';
 import { ProgressWizard } from '@/app/components/progress/ProgressWizard';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
-// Add this interface
-interface GenresStepProps {
-  selectedGenres: string[];
-  onGenreSelect: (genre: string) => void;
+interface OnboardingState {
+  currentStep: StepId;
+  formData: OnboardingData;
 }
 
-interface GoalsStepProps {
-  goals: {
-    monthlyTarget: number;
-    yearlyTarget: number;
-  };
-  onGoalsUpdate: (goals: { monthlyTarget: number; yearlyTarget: number }) => void;
-}
-
-interface ScheduleStepProps {
-  schedule: {
-    preferences: Array<{
-      daysOfWeek: string[];
-      notifications: boolean;
-      timeOfDay: string;
-    }>;
-  };
-  onScheduleUpdate: (schedule: {
-    preferences: Array<{
-      daysOfWeek: string[];
-      notifications: boolean;
-      timeOfDay: string;
-    }>;
-  }) => void;
-}
-
-// Memoize individual step components
-const MemoizedGenresStep = memo(({ selectedGenres, onGenreSelect }: GenresStepProps) => (
-  <GenresStep selectedGenres={selectedGenres} onGenreSelect={onGenreSelect} />
-));
-MemoizedGenresStep.displayName = 'MemoizedGenresStep';
-
-const MemoizedGoalsStep = memo(({ goals, onGoalsUpdate }: GoalsStepProps) => <GoalsStep goals={goals} onGoalsUpdate={onGoalsUpdate} />);
-MemoizedGoalsStep.displayName = 'MemoizedGoalsStep';
-
-const MemoizedScheduleStep = memo(({ schedule, onScheduleUpdate }: ScheduleStepProps) => (
-  <ScheduleStep schedule={schedule} onScheduleUpdate={onScheduleUpdate} />
-));
-MemoizedScheduleStep.displayName = 'MemoizedScheduleStep';
-
-// Define selectors outside component to maintain reference stability
-const selectCurrentStep = (state: OnboardingState) => state.currentStep;
-const selectProgress = (state: OnboardingState) => state.progress;
-const selectSelectedGenres = (state: OnboardingState) => state.selectedGenres;
-const selectBookGoals = (state: OnboardingState) => state.bookGoals;
-const selectReadingSchedule = (state: OnboardingState) => state.readingSchedule;
-const selectCompletedSteps = (state: OnboardingState) => state.completedSteps;
-const selectUpdateGenres = (state: OnboardingState) => state.updateGenres;
-const selectUpdateGoals = (state: OnboardingState) => state.updateGoals;
-const selectUpdateSchedule = (state: OnboardingState) => state.updateSchedule;
-const selectSetCurrentStep = (state: OnboardingState) => state.setCurrentStep;
-const selectUpdateProgress = (state: OnboardingState) => state.updateProgress;
-const selectCompleteOnboarding = (state: OnboardingState) => state.completeOnboarding;
+const DEFAULT_FORM_DATA: OnboardingData = {
+  selectedGenres: [],
+  bookGoals: { monthlyTarget: 2, yearlyTarget: 24 },
+  readingSchedule: { preferences: [] },
+  isOnboardingComplete: false,
+};
 
 const ProfileOnboarding = () => {
-  // Use stable selector references
-  const currentStep = useOnboardingStore(selectCurrentStep);
-  const progress = useOnboardingStore(selectProgress);
-  const selectedGenres = useOnboardingStore(selectSelectedGenres);
-  const bookGoals = useOnboardingStore(selectBookGoals);
-  const readingSchedule = useOnboardingStore(selectReadingSchedule);
-  const completedSteps = useOnboardingStore(selectCompletedSteps);
-  const updateGenres = useOnboardingStore(selectUpdateGenres);
-  const updateGoals = useOnboardingStore(selectUpdateGoals);
-  const updateSchedule = useOnboardingStore(selectUpdateSchedule);
-  const setCurrentStep = useOnboardingStore(selectSetCurrentStep);
-  const updateProgress = useOnboardingStore(selectUpdateProgress);
-  const completeOnboarding = useOnboardingStore(selectCompleteOnboarding);
+  // UI State from store
+  const { currentStep, progress, completedSteps } = useOnboardingUI();
+  const { handleStepChange } = useOnboardingActions();
 
-  const saveOnboarding = useOnboardingMutation();
+  // Local form state
+  const [formData, setFormData] = useState<OnboardingData>(DEFAULT_FORM_DATA);
 
-  // Add validation rules
-  const validationRules: StepValidationRules<StepId, ReturnType<typeof useOnboardingStore.getState>> = {
-    genres: (state) => state.selectedGenres.length > 0,
-    goals: (state) => state.bookGoals.monthlyTarget > 0,
-    schedule: (state) =>
-      state.readingSchedule.preferences.length > 0 && state.readingSchedule.preferences.every((pref) => pref.daysOfWeek.length > 0),
-  };
+  // Server mutation
+  const { saveData, isSaving, existingData, isLoadingData } = useOnboardingData();
 
-  // Use the navigation hook
-  const { handleStepChange, handleNextStep, handlePreviousStep, isFirstStep, isLastStep } = useProgressNavigation({
-    steps: STEPS,
-    validationRules,
-    onStepChange: (step) => {
-      setCurrentStep(step);
-      updateProgress(step);
-    },
-    getCurrentState: useOnboardingStore.getState,
-  });
+  // Load existing data if available
+  useEffect(() => {
+    if (existingData) {
+      setFormData(existingData);
+    }
+  }, [existingData]);
 
-  // Memoize handlers
-  const handleGenreSelect = useCallback(
-    (genre: string) => {
-      const newGenres = selectedGenres.includes(genre) ? selectedGenres.filter((g) => g !== genre) : [...selectedGenres, genre];
-      updateGenres(newGenres);
-    },
-    [selectedGenres, updateGenres]
+  // Validation rules
+  const validationRules = useMemo<StepValidationRules<StepId, OnboardingState>>(
+    () => ({
+      genres: (state) => state.formData.selectedGenres.length > 0,
+      goals: (state) => state.formData.bookGoals.monthlyTarget > 0,
+      schedule: (state) =>
+        state.formData.readingSchedule.preferences.length > 0 &&
+        state.formData.readingSchedule.preferences.every((pref: ReadingPreference) => pref.daysOfWeek.length > 0),
+    }),
+    []
   );
 
+  // Get current state for validation
+  const getCurrentState = useCallback(
+    () => ({
+      currentStep,
+      formData,
+    }),
+    [currentStep, formData]
+  );
+
+  // Navigation handlers
+  const handleProgressStepChange = useCallback(
+    (step: StepId) => {
+      if (step !== currentStep) {
+        handleStepChange(step);
+      }
+    },
+    [currentStep, handleStepChange]
+  );
+
+  const { handleNextStep, handlePreviousStep, isFirstStep, isLastStep } = useProgressNavigation({
+    steps: STEPS,
+    validationRules,
+    onStepChange: handleProgressStepChange,
+    getCurrentState,
+  });
+
+  // Form update handlers
+  const handleGenreSelect = useCallback((genre: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectedGenres: prev.selectedGenres.includes(genre) ? prev.selectedGenres.filter((g) => g !== genre) : [...prev.selectedGenres, genre],
+    }));
+  }, []);
+
+  const handleGoalsUpdate = useCallback((goals: OnboardingData['bookGoals']) => {
+    setFormData((prev) => ({ ...prev, bookGoals: goals }));
+  }, []);
+
+  const handleScheduleUpdate = useCallback((schedule: OnboardingData['readingSchedule']) => {
+    setFormData((prev) => ({ ...prev, readingSchedule: schedule }));
+  }, []);
+
   const handleComplete = useCallback(async () => {
-    const hasNotificationPreferences = readingSchedule.preferences.some((pref) => pref.notifications);
+    const hasNotificationPreferences = formData.readingSchedule.preferences.some((pref: ReadingPreference) => pref.notifications);
 
     if (hasNotificationPreferences) {
       try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-          localStorage.setItem('readingSchedule', JSON.stringify(readingSchedule));
-        }
+        await Notification.requestPermission();
       } catch (error) {
-        console.error('Notification permission error:', error);
+        console.error('Error requesting notification permission:', error);
       }
     }
 
-    completeOnboarding();
-    const onboardingData = getOnboardingData(useOnboardingStore.getState());
-    console.log('Submitting onboarding data:', onboardingData);
-    saveOnboarding.mutate(onboardingData);
-  }, [readingSchedule, completeOnboarding, saveOnboarding]);
+    saveData({ ...formData, isOnboardingComplete: true });
+  }, [formData, saveData]);
 
+  // Step Components
   const STEP_COMPONENTS = useMemo(
     () => ({
       welcome: () => <WelcomeStep />,
-      genres: () => <MemoizedGenresStep selectedGenres={selectedGenres} onGenreSelect={handleGenreSelect} />,
-      goals: () => <MemoizedGoalsStep goals={bookGoals} onGoalsUpdate={updateGoals} />,
-      schedule: () => <MemoizedScheduleStep schedule={readingSchedule} onScheduleUpdate={updateSchedule} />,
+      genres: () => <GenresStep selectedGenres={formData.selectedGenres} onGenreSelect={handleGenreSelect} />,
+      goals: () => <GoalsStep goals={formData.bookGoals} onGoalsUpdate={handleGoalsUpdate} />,
+      schedule: () => <ScheduleStep schedule={formData.readingSchedule} onScheduleUpdate={handleScheduleUpdate} />,
       complete: () => <CompleteStep onDashboardClick={handleComplete} />,
     }),
-    [selectedGenres, handleGenreSelect, bookGoals, updateGoals, readingSchedule, updateSchedule, handleComplete]
+    [
+      formData.selectedGenres,
+      formData.bookGoals,
+      formData.readingSchedule,
+      handleGenreSelect,
+      handleGoalsUpdate,
+      handleScheduleUpdate,
+      handleComplete,
+    ]
   );
 
-  // Memoize step content rendering
-  const stepContent = useMemo(() => {
-    const StepComponent = STEP_COMPONENTS[currentStep as keyof typeof STEP_COMPONENTS];
-    return StepComponent ? <StepComponent /> : null;
-  }, [currentStep, STEP_COMPONENTS]);
+  if (isLoadingData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <ProgressWizard
       progress={progress}
-      steps={STEPS as StepId[]}
+      steps={STEPS}
       currentStep={currentStep}
       completedSteps={completedSteps}
-      onStepChange={handleStepChange}
+      onStepChange={handleProgressStepChange}
       isFirstStep={isFirstStep}
       isLastStep={isLastStep}
       onPreviousStep={handlePreviousStep}
       onNextStep={handleNextStep}
+      isLoading={isSaving}
     >
-      {stepContent}
+      {STEP_COMPONENTS[currentStep as keyof typeof STEP_COMPONENTS]?.()}
     </ProgressWizard>
   );
 };

@@ -5,23 +5,28 @@ import { useOnboardingCheck } from '@/app/(features)/profile-onboarding/hooks/us
 import CurrentlyReading from '@/app/components/book/CurrentlyReading';
 import FavHighlightsOnboarding from '@/app/components/highlights/FavHighlightsOnboarding';
 import RecentHighlights from '@/app/components/highlights/RecentHighlights';
-import { useBookStore, selectBooks, selectHasHydrated, selectHighlights } from '@/app/stores/useBookStore';
 import DashboardLayout from '@/app/components/dashboard/DashboardLayout';
-import { ReadingStatus } from '@/app/stores/types';
 import DashboardStats from '@/app/components/dashboard/stats/DashboardStats';
+import { useBooks } from '@/app/hooks/books/useBooks';
+import { ReadingStatus } from '@/app/stores/types';
+import { Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {
   useOnboardingCheck();
-  const hasHydrated = useBookStore(selectHasHydrated);
-  const books = useBookStore(selectBooks);
-  const highlights = useBookStore(selectHighlights);
+  const { data: books, isLoading } = useBooks();
 
-  const currentlyReadingBooks = books.filter((book) => book.status === ReadingStatus.IN_PROGRESS);
-  const hasRecentHighlights = highlights.length > 0;
-  const hasFavoriteHighlights = highlights.some((h) => h.isFavorite);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  const currentlyReadingBooks = books?.filter((book) => book.status === ReadingStatus.IN_PROGRESS) ?? [];
+  const hasRecentHighlights = false; // TODO: Implement with Firebase
+  const hasFavoriteHighlights = false; // TODO: Implement with Firebase
   const bothEmpty = !hasRecentHighlights && !hasFavoriteHighlights;
-
-  if (!hasHydrated) return null;
 
   return (
     <DashboardLayout>

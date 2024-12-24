@@ -2,6 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { db } from '@/app/lib/firebase/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const PreferenceSchema = z.object({
   daysOfWeek: z.array(z.string()),
@@ -25,11 +28,42 @@ export type OnboardingData = z.infer<typeof OnboardingDataSchema>;
 
 export async function saveOnboardingData(data: OnboardingData) {
   try {
-    const validatedData = OnboardingDataSchema.parse(data);
-    console.log('Saving onboarding data:', validatedData);
+    console.log('Received onboarding data:', data);
+
+    // Ensure isOnboardingComplete is set to true
+    const validatedData = OnboardingDataSchema.parse({
+      ...data,
+      isOnboardingComplete: true,
+    });
+
+    console.log('Validated onboarding data:', validatedData);
+
+    // Get the current user
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      throw new Error('No authenticated user found');
+    }
+
+    // Save to Firestore
+    const userRef = doc(db, 'users', user.uid);
+    await setDoc(
+      userRef,
+      {
+        ...validatedData,
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+
     revalidatePath('/dashboard');
     console.log('Successfully completed onboarding save');
-    return { success: true };
+
+    return {
+      success: true,
+      data: validatedData,
+    };
   } catch (error) {
     console.error('Error in saveOnboardingData:', error);
     return {

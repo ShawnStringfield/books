@@ -1,14 +1,15 @@
-import type { AuthErrorCode, AuthError } from '@/lib/auth/types';
+import { FirebaseError } from 'firebase/app';
+import type { AuthError } from '@/lib/auth/types';
 
-export function isAuthError(error: unknown): error is AuthError {
-  return typeof error === 'object' && error !== null && 'message' in error && typeof (error as AuthError).message === 'string';
+export function isFirebaseError(error: unknown): error is FirebaseError {
+  return error instanceof FirebaseError;
 }
 
 export function normalizeError(error: unknown): AuthError {
-  if (isAuthError(error)) {
+  if (isFirebaseError(error)) {
     return {
       message: error.message,
-      code: error.code as AuthErrorCode,
+      code: error.code,
       cause: error,
     };
   }
@@ -16,35 +17,45 @@ export function normalizeError(error: unknown): AuthError {
   if (typeof error === 'string') {
     return {
       message: error,
-      code: 'Default',
+      code: 'unknown',
       cause: error,
     };
   }
 
   return {
     message: error instanceof Error ? error.message : 'An unexpected error occurred',
-    code: 'Default',
+    code: 'unknown',
     cause: error,
   };
 }
 
 export const getErrorMessage = (error: AuthError): string => {
-  switch (error.code) {
-    case 'Configuration':
-      return 'There was a problem with the authentication configuration.';
-    case 'AccessDenied':
-      return 'Access was denied. You may not have permission to sign in.';
-    case 'Verification':
-      return 'The verification code was invalid or has expired.';
-    case 'OAuthSignin':
-      return 'There was a problem signing in with Google.';
-    case 'OAuthCallback':
-      return 'There was a problem processing the sign in.';
-    case 'OAuthAccountNotLinked':
-      return 'This account is already linked to another sign in method.';
-    case 'SessionRequired':
-      return 'Please sign in to access this page.';
-    default:
-      return error.message || 'An unexpected error occurred.';
+  if (isFirebaseError(error.cause)) {
+    switch (error.code) {
+      case 'auth/invalid-email':
+        return 'The email address is invalid.';
+      case 'auth/user-disabled':
+        return 'This account has been disabled.';
+      case 'auth/user-not-found':
+        return 'No account found with this email.';
+      case 'auth/wrong-password':
+        return 'Incorrect password.';
+      case 'auth/email-already-in-use':
+        return 'This email is already registered.';
+      case 'auth/weak-password':
+        return 'The password is too weak.';
+      case 'auth/popup-closed-by-user':
+        return 'The sign in popup was closed before completing.';
+      case 'auth/cancelled-popup-request':
+        return 'The sign in was cancelled.';
+      case 'auth/operation-not-allowed':
+        return 'This sign in method is not enabled.';
+      case 'auth/network-request-failed':
+        return 'A network error occurred. Please check your connection.';
+      default:
+        return error.message || 'An unexpected error occurred.';
+    }
   }
+
+  return error.message || 'An unexpected error occurred.';
 };

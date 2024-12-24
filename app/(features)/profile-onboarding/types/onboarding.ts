@@ -1,4 +1,5 @@
 import { STEPS } from '@profile-onboarding/constants';
+
 export type StepId = (typeof STEPS)[number];
 
 export interface ReadingPreference {
@@ -16,27 +17,30 @@ export interface ReadingSchedule {
   preferences: ReadingPreference[];
 }
 
+export interface OnboardingData {
+  selectedGenres: string[];
+  bookGoals: BookGoals;
+  readingSchedule: ReadingSchedule;
+  isOnboardingComplete: boolean;
+}
+
 // Base state interface without methods
 export interface OnboardingStateData {
   currentStep: StepId;
   progress: number;
-  selectedGenres: string[];
-  bookGoals: BookGoals;
-  readingSchedule: ReadingSchedule;
   completedSteps: StepId[];
-  isOnboardingComplete: boolean;
   isLoading: boolean;
   error: Error | null;
 }
 
 // Actions interface
 export interface OnboardingActions {
-  updateGenres: (genres: string[]) => void;
-  updateGoals: (goals: BookGoals) => void;
-  updateSchedule: (schedule: ReadingSchedule) => void;
   setCurrentStep: (step: StepId) => void;
   updateProgress: (step: StepId) => void;
-  completeOnboarding: () => void;
+  markStepCompleted: (step: StepId) => void;
+  setLoading: (isLoading: boolean) => void;
+  setError: (error: Error | null) => void;
+  resetState: () => void;
 }
 
 // Combined interface for the store

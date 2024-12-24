@@ -1,24 +1,25 @@
-import { StepId } from '@/app/(features)/profile-onboarding/types/onboarding';
+import { ReactNode } from 'react';
+import { Button } from '@/app/components/ui/button';
 import { ProgressBar } from './ProgressBar';
 import { ProgressSteps } from './ProgressSteps';
-import { Card, CardContent } from '../ui/card';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Loader2 } from 'lucide-react';
 
-interface ProgressWizardProps {
+export interface ProgressWizardProps {
+  children: ReactNode;
   progress: number;
   steps: string[];
-  currentStep: StepId;
-  completedSteps: StepId[];
-  onStepChange: (step: StepId) => void;
+  currentStep: string;
+  completedSteps: string[];
+  onStepChange: (targetStep: string) => void;
   isFirstStep: boolean;
   isLastStep: boolean;
   onPreviousStep: () => void;
   onNextStep: () => void;
-  children: React.ReactNode;
+  isLoading?: boolean;
 }
 
-export const ProgressWizard = ({
+export function ProgressWizard({
+  children,
   progress,
   steps,
   currentStep,
@@ -28,34 +29,28 @@ export const ProgressWizard = ({
   isLastStep,
   onPreviousStep,
   onNextStep,
-  children,
-}: ProgressWizardProps) => {
+  isLoading = false,
+}: ProgressWizardProps) {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="mb-8 space-y-2" data-testid="progress-wizard">
-          <ProgressBar value={progress} showKnob={true} />
-          <ProgressSteps steps={steps.map((step) => step)} currentStep={currentStep} completedSteps={completedSteps} onStepClick={onStepChange} />
-        </div>
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-1 container max-w-4xl mx-auto py-8">
+        <div className="space-y-8">
+          <ProgressBar value={progress} showKnob />
 
-        <Card className="border-none shadow-lg">
-          <CardContent className="p-8">
-            {children}
-            <div className="flex justify-between pt-6">
-              <Button variant="ghost" onClick={onPreviousStep} disabled={isFirstStep} className="flex items-center">
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-              {!isLastStep && (
-                <Button onClick={onNextStep} className="flex items-center">
-                  Next
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+          <ProgressSteps steps={steps} currentStep={currentStep} completedSteps={completedSteps} onStepClick={onStepChange} />
+
+          <div className="bg-card rounded-lg shadow-sm p-6">{children}</div>
+
+          <div className="flex justify-between pt-4">
+            <Button onClick={onPreviousStep} disabled={isFirstStep || isLoading} variant="outline">
+              Previous
+            </Button>
+            <Button onClick={onNextStep} disabled={isLoading} className="min-w-[100px]">
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isLastStep ? 'Complete' : 'Next'}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
+}

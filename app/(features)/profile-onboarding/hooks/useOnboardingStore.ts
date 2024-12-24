@@ -1,156 +1,111 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { STEPS } from '@profile-onboarding/constants';
-import type { BookGoals, OnboardingStateData, ReadingSchedule, StepId } from '@profile-onboarding/types/onboarding';
+import type { StepId } from '@profile-onboarding/types/onboarding';
 
-// Store interface extends the state and adds methods
-interface OnboardingStore extends OnboardingStateData {
-  setCurrentStep: (step: StepId) => void;
-  updateProgress: (step: StepId) => void;
-  updateGenres: (genres: string[]) => void;
-  updateGoals: (goals: BookGoals) => void;
-  updateSchedule: (schedule: ReadingSchedule) => void;
-  completeOnboarding: () => void;
-  resetOnboarding: () => void;
+interface OnboardingUIState {
+  currentStep: StepId;
+  progress: number;
+  completedSteps: StepId[];
+  isLoading: boolean;
+  error: Error | null;
 }
 
-const INITIAL_STATE: OnboardingStateData = {
+interface OnboardingStore extends OnboardingUIState {
+  setCurrentStep: (step: StepId) => void;
+  updateProgress: (step: StepId) => void;
+  markStepCompleted: (step: StepId) => void;
+  setLoading: (isLoading: boolean) => void;
+  setError: (error: Error | null) => void;
+  resetState: () => void;
+  handleStepChange: (step: StepId) => void;
+}
+
+const INITIAL_STATE: OnboardingUIState = {
   currentStep: STEPS[0],
   progress: 0,
-  selectedGenres: [],
-  bookGoals: {
-    monthlyTarget: 2,
-    yearlyTarget: 24,
-  },
-  readingSchedule: {
-    preferences: [],
-  },
   completedSteps: [STEPS[0]],
-  isOnboardingComplete: false,
   isLoading: false,
   error: null,
 };
 
-// Add storage key constant
-const STORAGE_KEY = 'user-onboarding-state';
+export const useOnboardingStore = create<OnboardingStore>((set) => ({
+  ...INITIAL_STATE,
 
-// Modify store creation to use persist middleware
-export const useOnboardingStore = create<OnboardingStore>()(
-  persist(
-    (set) => ({
-      ...INITIAL_STATE,
+  setCurrentStep: (step: StepId) => {
+    set({ currentStep: step });
+  },
 
-      setCurrentStep: (step: StepId) => {
-        set({ currentStep: step });
-      },
+  updateProgress: (step: StepId) => {
+    const currentIndex = STEPS.indexOf(step);
+    const progress = (currentIndex / (STEPS.length - 1)) * 100;
+    set({ progress });
+  },
 
-      updateProgress: (step: StepId) => {
-        const currentIndex = STEPS.indexOf(step);
-        const progress = (currentIndex / (STEPS.length - 1)) * 100;
-        set({ progress });
-      },
+  markStepCompleted: (step: StepId) => {
+    set((state) => ({
+      completedSteps: state.completedSteps.includes(step) ? state.completedSteps : [...state.completedSteps, step],
+    }));
+  },
 
-      updateGenres: (genres: string[]) => {
-        set((state: OnboardingStateData) => ({
-          ...state,
-          selectedGenres: genres,
-          completedSteps: updateCompletedSteps(state, 'genres'),
-        }));
-      },
+  handleStepChange: (step: StepId) => {
+    set((state) => {
+      const currentIndex = STEPS.indexOf(step);
+      const progress = (currentIndex / (STEPS.length - 1)) * 100;
+      const completedSteps = state.completedSteps.includes(step) ? state.completedSteps : [...state.completedSteps, step];
 
-      updateGoals: (goals: BookGoals) => {
-        set((state: OnboardingStateData) => ({
-          ...state,
-          bookGoals: goals,
-          completedSteps: updateCompletedSteps(state, 'goals'),
-        }));
-      },
+      return {
+        currentStep: step,
+        progress,
+        completedSteps,
+      };
+    });
+  },
 
-      updateSchedule: (schedule: ReadingSchedule) => {
-        set((state: OnboardingStateData) => ({
-          ...state,
-          readingSchedule: schedule,
-          completedSteps: updateCompletedSteps(state, 'schedule'),
-        }));
-      },
+  setLoading: (isLoading: boolean) => {
+    set({ isLoading });
+  },
 
-      completeOnboarding: () => {
-        set((state: OnboardingStateData) => ({
-          ...state,
-          isOnboardingComplete: true,
-          completedSteps: [...state.completedSteps, 'complete'],
-        }));
-      },
+  setError: (error: Error | null) => {
+    set({ error });
+  },
 
-      resetOnboarding: () => set(INITIAL_STATE),
-    }),
-    {
-      name: STORAGE_KEY, // storage key
-      partialize: (state) => ({
-        // Only store essential data, excluding temporary UI state
-        selectedGenres: state.selectedGenres,
-        bookGoals: state.bookGoals,
-        readingSchedule: state.readingSchedule,
-        isOnboardingComplete: state.isOnboardingComplete,
-        completedSteps: state.completedSteps,
-      }),
-    }
-  )
-);
+  resetState: () => {
+    set(INITIAL_STATE);
+  },
+}));
 
-// Helper function to update completed steps
-function updateCompletedSteps(state: OnboardingStateData, currentStep: StepId): StepId[] {
-  if (state.completedSteps.includes(currentStep)) {
-    return state.completedSteps;
-  }
-  return [...state.completedSteps, currentStep];
-}
-
-// Helper to get onboarding data for API
-export function getOnboardingData(state: OnboardingStateData) {
-  return {
-    selectedGenres: state.selectedGenres,
-    bookGoals: state.bookGoals,
-    readingSchedule: state.readingSchedule,
-    isOnboardingComplete: state.isOnboardingComplete,
-  };
-}
-
-// Add selector hooks for specific state slices
+// Individual selectors for UI state
 export const useOnboardingStep = () => useOnboardingStore((state) => state.currentStep);
 export const useOnboardingProgress = () => useOnboardingStore((state) => state.progress);
-export const useSelectedGenres = () => useOnboardingStore((state) => state.selectedGenres);
-export const useBookGoals = () => useOnboardingStore((state) => state.bookGoals);
-export const useReadingSchedule = () => useOnboardingStore((state) => state.readingSchedule);
-export const useOnboardingStatus = () =>
-  useOnboardingStore((state) => ({
-    isComplete: state.isOnboardingComplete,
-    isLoading: state.isLoading,
-    error: state.error,
-  }));
+export const useCompletedSteps = () => useOnboardingStore((state) => state.completedSteps);
 
-// Add actions selector
-export const useOnboardingActions = () =>
-  useOnboardingStore((state) => ({
-    setCurrentStep: state.setCurrentStep,
-    updateProgress: state.updateProgress,
-    updateGenres: state.updateGenres,
-    updateGoals: state.updateGoals,
-    updateSchedule: state.updateSchedule,
-    completeOnboarding: state.completeOnboarding,
-    resetOnboarding: state.resetOnboarding,
-  }));
+// Combined selector with memoized object
+export const useOnboardingUI = () => {
+  const currentStep = useOnboardingStep();
+  const progress = useOnboardingProgress();
+  const completedSteps = useCompletedSteps();
 
-// Add this selector
-export const useOnboardingCompletedSteps = () => {
-  return useOnboardingStore((state) => state.completedSteps);
+  return { currentStep, progress, completedSteps };
 };
 
-// Add new selector for just the genre update function
-const selectGenreUpdater = (state: OnboardingStore) => ({
-  updateGenres: state.updateGenres,
-  selectedGenres: state.selectedGenres,
-});
+// Individual status selectors
+export const useOnboardingLoading = () => useOnboardingStore((state) => state.isLoading);
+export const useOnboardingError = () => useOnboardingStore((state) => state.error);
 
-// Export a custom hook for genre management
-export const useGenreManager = () => useOnboardingStore(selectGenreUpdater);
+// Combined status selector
+export const useOnboardingStatus = () => {
+  const isLoading = useOnboardingLoading();
+  const error = useOnboardingError();
+  return { isLoading, error };
+};
+
+// Individual action selectors
+export const useStepChangeAction = () => useOnboardingStore((state) => state.handleStepChange);
+export const useResetStateAction = () => useOnboardingStore((state) => state.resetState);
+
+// Combined actions selector
+export const useOnboardingActions = () => {
+  const handleStepChange = useStepChangeAction();
+  const resetState = useResetStateAction();
+  return { handleStepChange, resetState };
+};

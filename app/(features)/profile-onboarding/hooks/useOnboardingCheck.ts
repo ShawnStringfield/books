@@ -1,33 +1,42 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-interface OnboardingState {
-  isComplete: boolean;
-  steps?: string[];
-  lastCompletedStep?: string;
-  // Add other relevant fields
-}
+import { auth, db } from '@/app/lib/firebase/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export function useOnboardingCheck() {
   const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const onboardingState = (() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
-        const stored = localStorage.getItem('user-onboarding-state');
-        return stored ? (JSON.parse(stored) as OnboardingState) : null;
-      } catch (error) {
-        console.error('Error parsing onboarding state:', error);
-        return null;
-      }
-    })();
+        if (!user) {
+          console.log('No authenticated user, redirecting to login');
+          router.push('/login');
+          return;
+        }
 
-    if (!onboardingState) {
-      router.push('/profile-onboarding');
-    }
+        // Check user's onboarding status in Firestore
+        const userRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (!userDoc.exists() || !userDoc.data()?.isOnboardingComplete) {
+          console.log('Onboarding not complete, redirecting to onboarding');
+          router.push('/profile-onboarding');
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+        router.push('/profile-onboarding');
+      } finally {
+        setIsChecking(false);
+      }
+    });
+
+    return () => unsubscribe();
   }, [router]);
 
-  return null; // You could return the onboarding state if needed
+  return isChecking;
 }

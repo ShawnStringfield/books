@@ -37,6 +37,7 @@ export interface Book {
   coverUrl?: string;
   highlights?: Highlight[];
   completedDate?: string;
+  fromGoogle?: boolean;
 }
 
 export interface Highlight {

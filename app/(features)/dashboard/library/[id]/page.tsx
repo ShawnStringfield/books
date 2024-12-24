@@ -228,12 +228,14 @@ function BookDetailsContent() {
                       ) : (
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-gray-600">{book.totalPages || 0} total pages</span>
-                          <button
-                            onClick={() => setManualTotalPages(book.totalPages?.toString() || '')}
-                            className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
-                          >
-                            <Pencil className="h-3 w-3" />
-                          </button>
+                          {!book.fromGoogle && (
+                            <button
+                              onClick={() => setManualTotalPages(book.totalPages?.toString() || '')}
+                              className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </button>
+                          )}
                           {book.totalPages === 0 && (
                             <span className="text-yellow-600 text-sm flex items-center gap-1">
                               <AlertCircle className="h-4 w-4" />

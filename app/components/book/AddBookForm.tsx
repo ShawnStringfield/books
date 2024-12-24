@@ -80,6 +80,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
           selectedBook.volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_13')?.identifier ||
           selectedBook.volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_10')?.identifier ||
           '',
+        fromGoogle: true,
       };
 
       // Check for duplicates

@@ -6,7 +6,7 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '@/app/stores/types';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Plus, Settings2, Pencil, ExternalLink, Info } from 'lucide-react';
+import { Plus, Settings2, Pencil, ExternalLink, Info, AlertCircle } from 'lucide-react';
 import DashboardLayout from '@/app/components/dashboard/DashboardLayout';
 import BookHighlights from '@/app/components/highlights/BookHighlights';
 import ReadingProgressBar from '@/app/components/book/ReadingProgressBar';
@@ -17,6 +17,7 @@ import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
 import { calculatePercentComplete } from '@/app/utils/bookUtils';
 import BookHighlightsDialog from '@/app/components/dialogs/BookHighlightsDialog';
 import { ReadingDates } from '@/app/components/book/book-metadata';
+import { Input } from '@/app/components/ui/input';
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -34,6 +35,7 @@ function BookDetailsContent() {
   const [editedGenre, setEditedGenre] = useState('');
   const [showReadingControls, setShowReadingControls] = useState(false);
   const [showHighlightsDialog, setShowHighlightsDialog] = useState(false);
+  const [manualTotalPages, setManualTotalPages] = useState<string>('');
 
   // Redirect if no id is provided
   useEffect(() => {
@@ -114,6 +116,29 @@ function BookDetailsContent() {
     }
   };
 
+  const handleTotalPagesUpdate = (value: number) => {
+    if (value > 0) {
+      // First update the reading progress to ensure current page is valid
+      const newCurrentPage = Math.min(book.currentPage || 0, value);
+      updateReadingProgress(book.id, newCurrentPage);
+
+      // Create a new book with updated values
+      const updatedBook = {
+        ...book,
+        totalPages: value,
+        currentPage: newCurrentPage,
+      };
+
+      // Update the book in the store
+      useBookStore.setState((state) => ({
+        books: state.books.map((b) => (b.id === book.id ? updatedBook : b)),
+      }));
+
+      setManualTotalPages('');
+      setShowReadingControls(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       {/* Progress Bar - Moved from footer to top */}
@@ -164,58 +189,94 @@ function BookDetailsContent() {
               {/* Reading Progress */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Reading Progress</label>
-                <div className="flex items-center gap-4">
-                  <div className="relative flex items-center">
-                    <button
-                      type="button"
-                      className="h-10 px-2 border border-r-0 rounded-l-lg hover:bg-gray-50"
-                      onClick={() => {
-                        const newPage = Math.max((book.currentPage || 0) - 1, 0);
-                        handleProgressChange([newPage]);
-                      }}
-                    >
-                      <span>-</span>
-                    </button>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={book.currentPage || 0}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
-                        if (value === '') {
-                          handleProgressChange([0]);
-                          return;
-                        }
-                        const pageNum = parseInt(value);
-                        if (!isNaN(pageNum) && pageNum <= book.totalPages) {
-                          handleProgressChange([pageNum]);
-                        }
-                      }}
-                      onFocus={(e) => {
-                        e.target.select();
-                        // Small delay to ensure the selection happens after the focus
-                        setTimeout(() => e.target.select(), 0);
-                      }}
-                      className="w-16 h-10 text-center border-y focus:outline-none focus:ring-0 focus:border-gray-300"
-                      style={{
-                        WebkitAppearance: 'none',
-                        MozAppearance: 'textfield',
-                        fontSize: '16px',
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="h-10 px-2 border border-l-0 rounded-r-lg hover:bg-gray-50"
-                      onClick={() => {
-                        const newPage = Math.min((book.currentPage || 0) + 1, book.totalPages);
-                        handleProgressChange([newPage]);
-                      }}
-                    >
-                      <span>+</span>
-                    </button>
+                {book.totalPages === 0 ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-yellow-600 bg-yellow-50 p-3 rounded-md">
+                      <AlertCircle className="h-4 w-4" />
+                      <p className="text-sm">Please set the total number of pages to track your reading progress</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="1"
+                        placeholder="Enter total pages"
+                        className="w-32 h-8"
+                        value={manualTotalPages}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setManualTotalPages(value);
+                        }}
+                        onBlur={(e) => {
+                          const value = parseInt(e.target.value);
+                          if (!isNaN(value) && value > 0) {
+                            handleTotalPagesUpdate(value);
+                          }
+                        }}
+                        aria-label="Total pages"
+                      />
+                      <span className="text-sm text-gray-500">pages</span>
+                    </div>
                   </div>
-                  <span className="text-sm text-gray-500">of {book.totalPages} pages</span>
-                </div>
+                ) : (
+                  <div className="flex items-center gap-4">
+                    <div className="relative flex items-center">
+                      <button
+                        type="button"
+                        className="h-10 px-2 border border-r-0 rounded-l-lg hover:bg-gray-50"
+                        onClick={() => {
+                          const newPage = Math.max((book.currentPage || 0) - 1, 0);
+                          handleProgressChange([newPage]);
+                        }}
+                      >
+                        <span>-</span>
+                      </button>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={book.currentPage || 0}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, '');
+                          if (value === '') {
+                            handleProgressChange([0]);
+                            return;
+                          }
+                          const pageNum = parseInt(value, 10);
+                          if (!isNaN(pageNum)) {
+                            handleProgressChange([pageNum]);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const value = parseInt(e.target.value, 10);
+                          if (!isNaN(value)) {
+                            const clampedValue = Math.min(Math.max(0, value), book.totalPages);
+                            handleProgressChange([clampedValue]);
+                          }
+                        }}
+                        onFocus={(e) => {
+                          e.target.select();
+                          setTimeout(() => e.target.select(), 0);
+                        }}
+                        className="w-16 h-10 text-center border-y focus:outline-none focus:ring-0 focus:border-gray-300"
+                        style={{
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'textfield',
+                          fontSize: '16px',
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="h-10 px-2 border border-l-0 rounded-r-lg hover:bg-gray-50"
+                        onClick={() => {
+                          const newPage = Math.min((book.currentPage || 0) + 1, book.totalPages);
+                          handleProgressChange([newPage]);
+                        }}
+                      >
+                        <span>+</span>
+                      </button>
+                    </div>
+                    <span className="text-sm text-gray-500">of {book.totalPages} pages</span>
+                  </div>
+                )}
               </div>
 
               {/* Delete Book */}

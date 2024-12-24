@@ -2,7 +2,7 @@ import React from 'react';
 import { MonthlyStats } from '@/app/(features)/dashboard/components/stats/MonthlyStats';
 import { YearlyStats } from '@/app/(features)/dashboard/components/stats/YearlyStats';
 import { useBookStore, selectBooks, selectIsLoading, selectError, selectHasHydrated } from '@/app/stores/useBookStore';
-import { useBookGoals } from '@/app/(features)/profile-onboarding/hooks/useOnboardingStore';
+import { useBookGoals } from '@/app/(features)/profile-onboarding/hooks/useBookGoals';
 import { calculateReadingStats } from '@/app/utils/bookUtils';
 import { Skeleton } from '@/app/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/app/components/ui/alert';

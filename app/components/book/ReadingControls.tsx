@@ -1,4 +1,4 @@
-import { Settings2, Trash2 } from 'lucide-react';
+import { Settings2, Trash2, Pencil, AlertCircle, X } from 'lucide-react';
 import { ReadingStatus } from '@/app/stores/types';
 import StatusButtons from './StatusButtons';
 import BookProgressSlider from './BookProgressSlider';
@@ -7,6 +7,7 @@ import { Button } from '@/app/components/ui/button';
 import { useState } from 'react';
 import WarningAlert from '@/app/components/ui/warning-alert';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useBookStore } from '@/app/stores/useBookStore';
 
 interface ReadingControlsProps {
   bookId: string;
@@ -22,6 +23,8 @@ interface ReadingControlsProps {
   onDelete: () => void;
   onCancel?: () => void;
   isLastBook?: boolean;
+  manualTotalPages?: string;
+  onManualTotalPagesChange?: (value: string) => void;
 }
 
 const ReadingControls = ({
@@ -38,9 +41,13 @@ const ReadingControls = ({
   onDelete,
   onCancel,
   isLastBook,
+  manualTotalPages = '',
+  onManualTotalPagesChange,
 }: ReadingControlsProps) => {
   const [showWarning, setShowWarning] = useState(false);
   const [showDeleteWarning, setShowDeleteWarning] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const updateTotalPages = useBookStore((state) => state.updateTotalPages);
 
   const handleStatusChange = (bookId: string, newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => {
     if (newStatus === ReadingStatus.NOT_STARTED && currentPage > 0) {
@@ -48,6 +55,24 @@ const ReadingControls = ({
     } else {
       onStatusChange(bookId, newStatus);
     }
+  };
+
+  const handleTotalPagesUpdate = (value: number) => {
+    if (!isNaN(value) && value > 0) {
+      updateTotalPages(bookId, value);
+      onManualTotalPagesChange?.('');
+      setIsEditing(false);
+    }
+  };
+
+  const startEditing = () => {
+    setIsEditing(true);
+    onManualTotalPagesChange?.(totalPages?.toString() || '');
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    onManualTotalPagesChange?.('');
   };
 
   const warningActions = [
@@ -117,6 +142,75 @@ const ReadingControls = ({
         </AnimatePresence>
       </div>
 
+      {/* Total Pages Section */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Total Pages</label>
+        <div className="flex items-center gap-2">
+          {isEditing ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                inputMode="numeric"
+                className="w-16 h-8 text-center border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                value={manualTotalPages}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const value = e.target.value;
+                  if (value === '' || /^\d*$/.test(value)) {
+                    onManualTotalPagesChange?.(value);
+                  }
+                }}
+                onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+                  const value = parseInt(e.target.value, 10);
+                  if (!isNaN(value) && value > 0) {
+                    handleTotalPagesUpdate(value);
+                  }
+                }}
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === 'Enter') {
+                    const value = parseInt(e.currentTarget.value, 10);
+                    if (!isNaN(value) && value > 0) {
+                      handleTotalPagesUpdate(value);
+                    }
+                    e.currentTarget.blur();
+                  } else if (e.key === 'Escape') {
+                    cancelEditing();
+                    e.currentTarget.blur();
+                  }
+                }}
+                autoFocus
+              />
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">total pages</span>
+                <button
+                  onClick={cancelEditing}
+                  className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+                  title="Cancel editing"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">{totalPages || 0} total pages</span>
+              <button
+                onClick={startEditing}
+                className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+                title="Edit total pages"
+              >
+                <Pencil className="h-3 w-3" />
+              </button>
+              {totalPages === 0 && (
+                <span className="text-yellow-600 text-sm flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  Set page count to track progress
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Reading Progress Section */}
       <BookProgressSlider
         currentPage={currentPage}
@@ -133,9 +227,11 @@ const ReadingControls = ({
         <>
           <div className="space-y-3">
             <div className="flex items-center justify-end gap-2">
-              <Button variant="secondary" size="sm" className="text-xs py-1 px-2" onClick={onCancel}>
-                Close
-              </Button>
+              {onCancel && (
+                <Button variant="secondary" size="sm" className="text-xs py-1 px-2" onClick={onCancel}>
+                  Close
+                </Button>
+              )}
               <Button
                 variant="destructive"
                 size="sm"

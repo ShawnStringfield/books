@@ -78,6 +78,7 @@ interface BookActions {
   updateBookStatus: (bookId: string, status: ReadingStatusType) => void;
   updateBookDescription: (bookId: string, description: string) => void;
   updateBookGenre: (bookId: string, genre: string) => void;
+  updateTotalPages: (bookId: string, totalPages: number) => void;
   deleteBook: (bookId: string) => void;
   deleteHighlight: (highlightId: string) => void;
   filterHighlights: (filters: HighlightFilters) => Highlight[];
@@ -118,6 +119,7 @@ export const useBookStore = create<BookStore>()(
                 startDate,
                 categories,
                 genre: categories[0] || 'Unknown',
+                fromGoogle: book.fromGoogle ?? false,
               },
             ],
             error: null,
@@ -248,6 +250,29 @@ export const useBookStore = create<BookStore>()(
               : b
           ),
         })),
+
+      updateTotalPages: (bookId, totalPages) =>
+        set((state) => {
+          const book = state.books.find((b) => b.id === bookId);
+          if (!book) return state;
+
+          // Ensure current page doesn't exceed new total pages
+          const newCurrentPage = Math.min(book.currentPage || 0, totalPages);
+
+          return {
+            books: state.books.map((b) =>
+              b.id === bookId
+                ? {
+                    ...b,
+                    totalPages,
+                    currentPage: newCurrentPage,
+                    // If this was a Google book, mark it as manually edited
+                    fromGoogle: false,
+                  }
+                : b
+            ),
+          };
+        }),
 
       deleteBook: (bookId) => {
         set((state) => ({

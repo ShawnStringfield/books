@@ -22,6 +22,7 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
   const [showHighlights, setShowHighlights] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showReadingControls, setShowReadingControls] = useState(false);
+  const [manualTotalPages, setManualTotalPages] = useState('');
   const { updateBookStatus, updateReadingProgress, deleteBook } = useBookStore();
   const isLastBook = useBookStore(selectIsLastBook);
 
@@ -35,6 +36,29 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
   const handleProgressChange = (value: number[]) => {
     const newPage = value[0];
     updateReadingProgress(book.id, newPage);
+  };
+
+  const handleTotalPagesUpdate = (value: number) => {
+    if (value > 0) {
+      // First update the reading progress to ensure current page is valid
+      const newCurrentPage = Math.min(book.currentPage || 0, value);
+      updateReadingProgress(book.id, newCurrentPage);
+
+      // Create a new book with updated values
+      const updatedBook = {
+        ...book,
+        totalPages: value,
+        currentPage: newCurrentPage,
+      };
+
+      // Update the book in the store
+      useBookStore.setState((state) => ({
+        books: state.books.map((b) => (b.id === book.id ? updatedBook : b)),
+      }));
+
+      setManualTotalPages('');
+      setShowReadingControls(false);
+    }
   };
 
   const description = book.subtitle || `Details for ${book.title}`;
@@ -152,6 +176,10 @@ const BookDetailsSheet = ({ book }: BookDetailsSheetProps) => {
                     onDelete={handleDelete}
                     onCancel={() => setShowReadingControls(false)}
                     isLastBook={isLastBook}
+                    manualTotalPages={manualTotalPages}
+                    onManualTotalPagesChange={setManualTotalPages}
+                    onTotalPagesUpdate={handleTotalPagesUpdate}
+                    fromGoogle={book.fromGoogle}
                   />
                 )}
               </div>

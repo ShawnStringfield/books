@@ -41,7 +41,7 @@ export interface BaseBook {
 }
 
 export interface BaseHighlight {
-  id: string;
+  id?: string;
   bookId: string;
   text: string;
   page: number;
@@ -55,6 +55,8 @@ export interface Book extends BaseBook {
 }
 
 export interface Highlight extends BaseHighlight {
+  id: string;
+  userId: string;
   createdAt: string;
   updatedAt: string;
 }

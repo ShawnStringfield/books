@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import * as highlightService from '@/app/lib/firebase/services/highlights';
-import type { Highlight } from '@/app/stores/types';
+import type { Highlight, BaseHighlight } from '@/app/stores/types';
 
 // Query keys as constants
 const HIGHLIGHTS_KEY = 'highlights';
@@ -11,21 +11,69 @@ const FAVORITES_KEY = 'favorites';
 export function useHighlights() {
   const { user } = useAuth();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: [HIGHLIGHTS_KEY],
-    queryFn: () => highlightService.getHighlights(user!.uid),
+    queryFn: async () => {
+      console.log('Fetching all highlights for user:', user?.uid);
+      try {
+        const highlights = await highlightService.getHighlights(user!.uid);
+        console.log('Successfully fetched highlights:', highlights);
+        return highlights;
+      } catch (error) {
+        console.error('Error fetching highlights:', error);
+        throw error;
+      }
+    },
     enabled: !!user,
   });
+
+  console.log('useHighlights query state:', {
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    data: query.data,
+  });
+
+  return query;
 }
 
 export function useHighlightsByBook(bookId: string) {
   const { user } = useAuth();
 
-  return useQuery({
+  console.log('useHighlightsByBook called with:', {
+    bookId,
+    isAuthenticated: !!user,
+    userId: user?.uid,
+  });
+
+  const query = useQuery({
     queryKey: [HIGHLIGHTS_KEY, BOOK_KEY, bookId],
-    queryFn: () => highlightService.getHighlightsByBook(user!.uid, bookId),
+    queryFn: async () => {
+      console.log('Fetching highlights for book:', {
+        bookId,
+        userId: user!.uid,
+      });
+
+      try {
+        const highlights = await highlightService.getHighlightsByBook(user!.uid, bookId);
+        console.log('Fetched highlights:', highlights);
+        return highlights;
+      } catch (error) {
+        console.error('Error fetching highlights:', error);
+        throw error;
+      }
+    },
     enabled: !!user && !!bookId,
   });
+
+  console.log('useHighlightsByBook query state:', {
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    data: query.data,
+  });
+
+  return query;
 }
 
 export function useFavoriteHighlights() {
@@ -43,10 +91,25 @@ export function useAddHighlight() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: (highlight: Omit<Highlight, 'id'>) => highlightService.addHighlight(user!.uid, highlight),
-    onSuccess: (_, { bookId }) => {
+    mutationFn: async (highlight: BaseHighlight) => {
+      console.log('Adding new highlight:', highlight);
+      if (!user) throw new Error('User must be authenticated to add highlights');
+      try {
+        const result = await highlightService.addHighlight(user.uid, highlight);
+        console.log('Successfully added highlight:', result);
+        return result;
+      } catch (error) {
+        console.error('Error adding highlight:', error);
+        throw error;
+      }
+    },
+    onSuccess: (_, variables) => {
+      console.log('Invalidating queries after successful highlight addition');
       queryClient.invalidateQueries({ queryKey: [HIGHLIGHTS_KEY] });
-      queryClient.invalidateQueries({ queryKey: [HIGHLIGHTS_KEY, BOOK_KEY, bookId] });
+      queryClient.invalidateQueries({ queryKey: [HIGHLIGHTS_KEY, BOOK_KEY, variables.bookId] });
+    },
+    onError: (error) => {
+      console.error('Mutation error in useAddHighlight:', error);
     },
   });
 }
@@ -55,7 +118,7 @@ export function useUpdateHighlight() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ highlightId, updates }: { highlightId: string; updates: Partial<Highlight> }) =>
+    mutationFn: ({ highlightId, updates }: { highlightId: string; updates: Partial<BaseHighlight> }) =>
       highlightService.updateHighlight(highlightId, updates),
     onSuccess: (_, { updates }) => {
       queryClient.invalidateQueries({ queryKey: [HIGHLIGHTS_KEY] });

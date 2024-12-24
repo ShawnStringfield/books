@@ -1,12 +1,12 @@
 import { Button } from '@/app/components/ui/button';
 import { Library } from 'lucide-react';
-import { Book } from '@/app/stores/useBookStore';
+import { Book } from '@/app/stores/types';
 import { useBookStore } from '@/app/stores/useBookStore';
-import type { BookStore } from '@/app/stores/useBookStore';
 import BookCard from './BookCard';
 import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
 import { useState } from 'react';
 import { AddBookSheet } from '../sheets/AddBookSheet';
+import { useDeleteBook, useUpdateReadingStatus } from '@/app/hooks/books/useBooks';
 
 interface CurrentlyReadingProps {
   books: Book[];
@@ -14,16 +14,19 @@ interface CurrentlyReadingProps {
 }
 
 const CurrentlyReading = ({ books, className }: CurrentlyReadingProps) => {
-  const updateBookStatus = useBookStore((state: BookStore) => state.updateBookStatus);
-  const deleteBook = useBookStore((state: BookStore) => state.deleteBook);
-  const allBooks = useBookStore((state: BookStore) => state.books);
+  const deleteBookMutation = useDeleteBook();
+  const updateStatusMutation = useUpdateReadingStatus();
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
 
   const handleDelete = () => {
     if (bookToDelete) {
-      deleteBook(bookToDelete);
+      deleteBookMutation.mutate(bookToDelete);
       setBookToDelete(null);
     }
+  };
+
+  const handleStatusChange = (bookId: string, status: Book['status']) => {
+    updateStatusMutation.mutate({ bookId, status });
   };
 
   return (
@@ -32,7 +35,7 @@ const CurrentlyReading = ({ books, className }: CurrentlyReadingProps) => {
         <>
           <div className={`grid gap-4 ${books.length === 1 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'} w-full`}>
             {books.map((book) => (
-              <BookCard key={book.id} book={book} onStatusChange={updateBookStatus} onDelete={(id) => setBookToDelete(id)} />
+              <BookCard key={book.id} book={book} onStatusChange={handleStatusChange} onDelete={(id) => setBookToDelete(id)} />
             ))}
           </div>
 
@@ -44,7 +47,7 @@ const CurrentlyReading = ({ books, className }: CurrentlyReadingProps) => {
           />
         </>
       ) : (
-        <EmptyReadingState hasBooks={allBooks.length > 0} className={className} />
+        <EmptyReadingState hasBooks={books.length > 0} className={className} />
       )}
     </div>
   );

@@ -1,7 +1,6 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useBookStore, selectHasHydrated, selectIsLastBook } from '@/app/stores/useBookStore';
 import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '@/app/stores/types';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
@@ -17,18 +16,20 @@ import Toolbar, { ToolbarAction } from '@/app/components/dashboard/Toolbar';
 import { calculatePercentComplete } from '@/app/utils/bookUtils';
 import { ReadingDates } from '@/app/components/book/book-metadata';
 import ReadingControls from '@/app/components/book/ReadingControls';
+import { useBook, useBooks, useDeleteBook, useUpdateReadingStatus, useUpdateReadingProgress, useUpdateBook } from '@/app/hooks/books/useBooks';
 
 function BookDetailsContent() {
   const router = useRouter();
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
-  const { books: rawBooks = [], updateBookStatus, updateReadingProgress, updateBookDescription, updateBookGenre, deleteBook } = useBookStore();
-  const isLoading = useBookStore((state) => state.isLoading);
-  const hasHydrated = useBookStore(selectHasHydrated);
-  const books = rawBooks.map((b) => ({ ...b, status: b.status as (typeof ReadingStatus)[keyof typeof ReadingStatus] }));
+  const { data: books = [], isLoading: isBooksLoading } = useBooks();
+  const { data: book, isLoading: isBookLoading } = useBook(id);
+  const deleteBookMutation = useDeleteBook();
+  const updateStatusMutation = useUpdateReadingStatus();
+  const updateProgressMutation = useUpdateReadingProgress();
+  const updateBookMutation = useUpdateBook();
   const { changeBookStatus, isChangingStatus } = useBookStatus(books);
-  const book = books.find((b) => b.id === id);
-  const isLastBook = useBookStore(selectIsLastBook);
+  const isLastBook = books.length === 1;
   const { showEditControls, toggleEditControls } = useEditMode();
   const [editedDescription, setEditedDescription] = useState('');
   const [editedGenre, setEditedGenre] = useState('');
@@ -44,8 +45,8 @@ function BookDetailsContent() {
     }
   }, [id, router]);
 
-  // Show loading state if either isLoading is true or books haven't been loaded yet
-  if (!hasHydrated || isLoading || rawBooks.length === 0) {
+  // Show loading state if data is being fetched
+  if (isBooksLoading || isBookLoading) {
     return (
       <DashboardLayout>
         <div className="flex justify-center items-center min-h-[50vh]">
@@ -78,8 +79,11 @@ function BookDetailsContent() {
 
   const confirmDelete = () => {
     if (!isLastBook) {
-      deleteBook(book.id);
-      router.push('/dashboard/library');
+      deleteBookMutation.mutate(book.id, {
+        onSuccess: () => {
+          router.push('/dashboard/library');
+        },
+      });
     }
     setShowDeleteWarning(false);
   };
@@ -112,42 +116,54 @@ function BookDetailsContent() {
     if (isChangingStatus) return;
 
     if (await changeBookStatus(book, newStatus)) {
-      updateBookStatus(bookId, newStatus);
+      updateStatusMutation.mutate({ bookId, status: newStatus });
     }
   };
 
   const handleProgressChange = (value: number[]) => {
     const newPage = value[0];
-    updateReadingProgress(book.id, newPage);
+    updateProgressMutation.mutate({ bookId: book.id, currentPage: newPage });
   };
 
   const handleSaveChanges = () => {
+    const updates: Partial<{
+      description: string;
+      genre: string;
+    }> = {};
+
     if (editedDescription) {
-      updateBookDescription(book.id, editedDescription);
+      updates.description = editedDescription;
     }
     if (editedGenre) {
-      updateBookGenre(book.id, editedGenre);
+      updates.genre = editedGenre;
     }
-    toggleEditControls(); // Exit edit mode after saving
+
+    if (Object.keys(updates).length > 0) {
+      updateBookMutation.mutate({
+        bookId: book.id,
+        updates,
+      });
+    }
+
+    setEditedDescription('');
+    setEditedGenre('');
+    toggleEditControls();
   };
 
   const handleTotalPagesUpdate = (value: number) => {
     if (value > 0) {
       // First update the reading progress to ensure current page is valid
       const newCurrentPage = Math.min(book.currentPage || 0, value);
-      updateReadingProgress(book.id, newCurrentPage);
-
-      // Create a new book with updated values
-      const updatedBook = {
-        ...book,
-        totalPages: value,
+      updateProgressMutation.mutate({
+        bookId: book.id,
         currentPage: newCurrentPage,
-      };
+      });
 
-      // Update the book in the store
-      useBookStore.setState((state) => ({
-        books: state.books.map((b) => (b.id === book.id ? updatedBook : b)),
-      }));
+      // Update total pages
+      updateBookMutation.mutate({
+        bookId: book.id,
+        updates: { totalPages: value },
+      });
 
       setManualTotalPages('');
       setShowReadingControls(false);

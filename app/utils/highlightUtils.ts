@@ -1,6 +1,13 @@
 import { Book, Highlight } from '@/app/stores/types';
-import { EnrichedHighlight } from '@/app/stores/useBookStore';
 import { isCurrentMonth, isWithinDateRange } from '@/app/utils/dateUtils';
+
+export interface EnrichedHighlight extends Highlight {
+  bookTitle: string;
+  bookAuthor: string;
+  bookCurrentPage: number;
+  bookTotalPages: number;
+  readingProgress: number;
+}
 
 /**
  * Enriches highlights with book data
@@ -85,6 +92,10 @@ export const getRecentHighlightsData = (
 };
 
 export const getHighlightsByBook = (highlights: EnrichedHighlight[], bookId: string, limit?: number): EnrichedHighlight[] => {
+  if (!Array.isArray(highlights)) {
+    return [];
+  }
+
   const bookHighlights = highlights
     .filter((h) => h.bookId === bookId)
     .sort((a, b) => {

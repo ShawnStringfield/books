@@ -7,10 +7,15 @@ import { GoogleBook, GoogleBooksResponse, ReadingStatus } from '@/app/stores/typ
 import Image from 'next/image';
 import { Input } from '@/app/components/ui/input';
 import { Button } from '@/app/components/ui/button';
-import { useBookStore } from '@/app/stores/useBookStore';
-import { v4 as uuidv4 } from 'uuid';
 import { Separator } from '@/app/components/ui/separator';
 import { AlertCircle } from 'lucide-react';
+import { useAddBook } from '@/app/hooks/books/useBooks';
+
+interface GoogleBooksError {
+  error?: {
+    message: string;
+  };
+}
 
 interface AddBookFormProps {
   onSuccess?: () => void;
@@ -18,203 +23,127 @@ interface AddBookFormProps {
 }
 
 export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<GoogleBook[]>([]);
-  const [selectedBook, setSelectedBook] = useState<GoogleBook | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
+  const [query, setQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const debouncedSearch = useDebounce(searchQuery, 500);
-  const [addAsInProgress, setAddAsInProgress] = useState(false);
-  const [manualPageCount, setManualPageCount] = useState<number | undefined>(undefined);
+  const [books, setBooks] = useState<GoogleBook[]>([]);
+  const [selectedBook, setSelectedBook] = useState<GoogleBook | null>(null);
+  const [addAsInProgress, setAddAsInProgress] = useState(true);
+  const debouncedQuery = useDebounce(query, 500);
+  const addBookMutation = useAddBook();
 
-  const { addBook, setLoading, isLoading, books } = useBookStore();
-
-  // Search functionality
   useEffect(() => {
     const searchBooks = async () => {
-      if (!debouncedSearch) {
-        setSearchResults([]);
+      if (!debouncedQuery.trim()) {
+        setBooks([]);
         return;
       }
 
+      setIsLoading(true);
+      setError(null);
+
       try {
-        setIsSearching(true);
-        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(debouncedSearch)}&maxResults=5`);
-        const data: GoogleBooksResponse = await response.json();
-        setSearchResults(data.items || []);
-      } catch (error) {
-        console.error('Failed to search books:', error);
+        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(debouncedQuery)}`);
+        const data: GoogleBooksResponse & GoogleBooksError = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error?.message || 'Failed to search books');
+        }
+
+        setBooks(data.items || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to search books');
+        setBooks([]);
       } finally {
-        setIsSearching(false);
+        setIsLoading(false);
       }
     };
 
     searchBooks();
-  }, [debouncedSearch]);
-
-  const handleBookSelect = (book: GoogleBook) => {
-    setSelectedBook(book);
-    setSearchQuery('');
-    setSearchResults([]);
-  };
+  }, [debouncedQuery]);
 
   const handleAddBook = async () => {
     if (!selectedBook) return;
 
+    const volumeInfo = selectedBook.volumeInfo;
+    const now = new Date().toISOString();
+    const book = {
+      title: volumeInfo.title,
+      subtitle: volumeInfo.subtitle,
+      author: volumeInfo.authors?.[0] || 'Unknown Author',
+      totalPages: volumeInfo.pageCount || 0,
+      currentPage: addAsInProgress ? 1 : 0,
+      status: addAsInProgress ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED,
+      categories: volumeInfo.categories || [],
+      previewLink: volumeInfo.previewLink,
+      infoLink: volumeInfo.infoLink,
+      description: volumeInfo.description || '',
+      genre: volumeInfo.categories?.[0] || 'Unknown',
+      isbn: volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_13')?.identifier,
+      publisher: volumeInfo.publisher || 'Unknown Publisher',
+      coverUrl: volumeInfo.imageLinks?.thumbnail || volumeInfo.imageLinks?.smallThumbnail,
+      fromGoogle: true,
+      createdAt: now,
+      updatedAt: now,
+    };
+
     try {
-      setLoading(true);
-      setError(null);
-
-      const bookData = {
-        title: selectedBook.volumeInfo.title,
-        subtitle: selectedBook.volumeInfo.subtitle || '',
-        author: selectedBook.volumeInfo.authors?.[0] || 'Unknown Author',
-        totalPages: selectedBook.volumeInfo.pageCount || manualPageCount || 0,
-        coverUrl: selectedBook.volumeInfo.imageLinks?.thumbnail || '',
-        description: selectedBook.volumeInfo.description || '',
-        publisher: selectedBook.volumeInfo.publisher || '',
-        previewLink: selectedBook.volumeInfo.previewLink || '',
-        infoLink: selectedBook.volumeInfo.infoLink || '',
-        categories: selectedBook.volumeInfo.categories || [],
-        isbn:
-          selectedBook.volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_13')?.identifier ||
-          selectedBook.volumeInfo.industryIdentifiers?.find((id) => id.type === 'ISBN_10')?.identifier ||
-          '',
-        fromGoogle: true,
-      };
-
-      // Check for duplicates
-      const isDuplicate = books.some((book) => {
-        if (bookData.isbn && book.isbn) {
-          return bookData.isbn === book.isbn;
-        }
-        return book.title.toLowerCase() === bookData.title.toLowerCase() && book.author?.toLowerCase() === bookData.author.toLowerCase();
-      });
-
-      if (isDuplicate) {
-        setError('This book already exists in your collection');
-        return;
-      }
-
-      const newBook = {
-        id: uuidv4(),
-        ...bookData,
-        createdAt: new Date().toISOString(),
-        completedDate: undefined,
-        currentPage: 0,
-        status: addAsInProgress ? ReadingStatus.IN_PROGRESS : ReadingStatus.NOT_STARTED,
-        startDate: addAsInProgress ? new Date().toISOString() : undefined,
-        highlights: [],
-        genre: (bookData.categories && bookData.categories[0]) || 'Unknown',
-      };
-
-      console.log('Adding book with details:', {
-        addAsInProgress,
-        status: newBook.status,
-        ReadingStatus: ReadingStatus,
-        startDate: newBook.startDate,
-        title: newBook.title,
-      });
-
-      addBook(newBook);
+      await addBookMutation.mutateAsync(book);
       onSuccess?.();
       onCancel();
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to add book');
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add book');
     }
   };
 
   return (
-    <div className="w-full space-y-4">
-      <div className="flex items-center h-8">
-        <h3 className="font-semibold">Add New Book</h3>
-      </div>
-
+    <div className="space-y-4">
       <div className="relative">
-        <Input placeholder="Search for a book..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pr-10" autoFocus />
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-
-        {searchResults.length > 0 && !selectedBook && (
-          <div className="absolute left-0 right-0 mt-2 bg-white rounded-md shadow-lg border border-gray-200 max-h-[40vh] overflow-y-auto overscroll-contain z-[100]">
-            {searchResults.map((book) => (
-              <button
-                key={book.id}
-                type="button"
-                onClick={() => handleBookSelect(book)}
-                className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-3"
-              >
-                {book.volumeInfo.imageLinks?.thumbnail && (
-                  <Image src={book.volumeInfo.imageLinks.thumbnail} alt="" width={40} height={56} className="object-cover" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium truncate">{book.volumeInfo.title}</p>
-                  <p className="text-sm text-gray-600 truncate">{book.volumeInfo.authors?.[0]}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {isSearching && (
-          <div className="absolute left-0 right-0 mt-2 p-4 bg-white rounded-md shadow-lg border border-gray-200 text-center text-sm z-[100]">
-            Searching...
-          </div>
-        )}
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-4 w-4 text-gray-400" />
+        </div>
+        <Input
+          type="text"
+          placeholder="Search by title, author, or ISBN..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="pl-10"
+        />
       </div>
 
-      {error && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">{error}</div>}
+      {error && (
+        <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-lg">
+          <AlertCircle className="h-4 w-4" />
+          <p className="text-sm">{error}</p>
+        </div>
+      )}
 
-      {selectedBook && (
+      {isLoading ? (
+        <div className="text-center py-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      ) : selectedBook ? (
         <div className="space-y-4">
           <div className="flex gap-4">
-            {selectedBook.volumeInfo.imageLinks?.thumbnail && (
-              <Image src={selectedBook.volumeInfo.imageLinks.thumbnail} alt="" width={80} height={120} className="object-cover rounded-md" />
-            )}
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-base truncate">{selectedBook.volumeInfo.title}</h3>
-              {selectedBook.volumeInfo.subtitle && <p className="text-gray-600 text-sm truncate">{selectedBook.volumeInfo.subtitle}</p>}
-              <p className="text-gray-600 text-sm">By {selectedBook.volumeInfo.authors?.[0] || 'Unknown Author'}</p>
-              <div className="mt-1 text-sm text-gray-500">
-                {selectedBook.volumeInfo.pageCount ? (
-                  <p>{selectedBook.volumeInfo.pageCount} pages</p>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4 text-yellow-500" />
-                      <p className="text-yellow-600">Page count not available</p>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="number"
-                          min="1"
-                          placeholder="Enter total pages"
-                          className="w-32 h-8"
-                          value={manualPageCount || ''}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value);
-                            if (!isNaN(value) && value > 0) {
-                              setManualPageCount(value);
-                            } else {
-                              setManualPageCount(undefined);
-                            }
-                          }}
-                          aria-label="Manual page count"
-                        />
-                        <span className="text-sm text-gray-500">pages</span>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs text-gray-500 hover:text-gray-700"
-                        onClick={() => setManualPageCount(0)}
-                      >
-                        Set page count later
-                      </Button>
-                    </div>
+            <div className="flex-shrink-0">
+              {selectedBook.volumeInfo.imageLinks?.thumbnail && (
+                <Image
+                  src={selectedBook.volumeInfo.imageLinks.thumbnail}
+                  alt={selectedBook.volumeInfo.title}
+                  width={80}
+                  height={120}
+                  className="rounded shadow-sm"
+                />
+              )}
+            </div>
+            <div className="flex-grow">
+              <h3 className="font-semibold">{selectedBook.volumeInfo.title}</h3>
+              {selectedBook.volumeInfo.subtitle && <p className="text-sm text-gray-600">{selectedBook.volumeInfo.subtitle}</p>}
+              <div className="mt-2 space-y-1 text-sm text-gray-600">
+                <p>{selectedBook.volumeInfo.authors?.join(', ')}</p>
+                {selectedBook.volumeInfo.pageCount && (
+                  <div className="flex items-center gap-2">
+                    <span>{selectedBook.volumeInfo.pageCount} pages</span>
                   </div>
                 )}
                 <p className="truncate">{selectedBook.volumeInfo.publisher}</p>
@@ -249,24 +178,44 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
             </div>
           )}
 
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSelectedBook(null);
-                setSearchQuery('');
-                setAddAsInProgress(false);
-              }}
-              disabled={isLoading}
-            >
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={() => setSelectedBook(null)}>
               Back to Search
             </Button>
-            <Button type="button" size="sm" onClick={handleAddBook} disabled={isLoading}>
-              {isLoading ? 'Adding...' : 'Add to Library'}
+            <Button onClick={handleAddBook} disabled={addBookMutation.isPending}>
+              {addBookMutation.isPending ? 'Adding...' : 'Add Book'}
             </Button>
           </div>
+        </div>
+      ) : (
+        <div className="divide-y">
+          {books.map((book) => (
+            <button
+              key={book.id}
+              onClick={() => setSelectedBook(book)}
+              className="w-full text-left py-4 hover:bg-gray-50 transition-colors first:pt-2 last:pb-2"
+            >
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  {book.volumeInfo.imageLinks?.thumbnail && (
+                    <Image
+                      src={book.volumeInfo.imageLinks.thumbnail}
+                      alt={book.volumeInfo.title}
+                      width={50}
+                      height={75}
+                      className="rounded shadow-sm"
+                    />
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-medium">{book.volumeInfo.title}</h3>
+                  {book.volumeInfo.subtitle && <p className="text-sm text-gray-600">{book.volumeInfo.subtitle}</p>}
+                  <p className="text-sm text-gray-600">{book.volumeInfo.authors?.join(', ')}</p>
+                  {book.volumeInfo.pageCount && <p className="text-sm text-gray-600">{book.volumeInfo.pageCount} pages</p>}
+                </div>
+              </div>
+            </button>
+          ))}
         </div>
       )}
     </div>

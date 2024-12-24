@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import * as bookService from '@/app/lib/firebase/services/books';
-import type { Book } from '@/app/stores/types';
+import type { Book, BaseBook } from '@/app/stores/types';
 
-// Query keys as constants
+// Collection and query keys as constants
 const BOOKS_KEY = 'books';
 
 export function useBooks() {
@@ -11,15 +11,29 @@ export function useBooks() {
 
   return useQuery({
     queryKey: [BOOKS_KEY],
-    queryFn: () => bookService.getBooks(user!.uid),
-    enabled: !!user,
+    queryFn: async () => {
+      if (!user?.uid) {
+        throw new Error('Authentication required to access books');
+      }
+      // Temporarily disable sorting until index is built
+      return bookService.getBooks(user.uid);
+    },
+    enabled: !!user?.uid,
   });
 }
 
 export function useBook(bookId: string) {
+  const { user } = useAuth();
+
   return useQuery({
     queryKey: [BOOKS_KEY, bookId],
-    queryFn: () => bookService.getBook(bookId),
+    queryFn: async () => {
+      if (!user?.uid) {
+        throw new Error('Authentication required to access book');
+      }
+      return bookService.getBook(bookId);
+    },
+    enabled: !!user?.uid,
   });
 }
 
@@ -28,7 +42,12 @@ export function useAddBook() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: (book: Omit<Book, 'id'>) => bookService.addBook(user!.uid, book),
+    mutationFn: async (book: BaseBook) => {
+      if (!user?.uid) {
+        throw new Error('Authentication required to add book');
+      }
+      return bookService.addBook(user.uid, book);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [BOOKS_KEY] });
     },
@@ -37,9 +56,15 @@ export function useAddBook() {
 
 export function useUpdateBook() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
-    mutationFn: ({ bookId, updates }: { bookId: string; updates: Partial<Book> }) => bookService.updateBook(bookId, updates),
+    mutationFn: async ({ bookId, updates }: { bookId: string; updates: Partial<Book> }) => {
+      if (!user?.uid) {
+        throw new Error('Authentication required to update book');
+      }
+      return bookService.updateBook(bookId, updates);
+    },
     onSuccess: (_, { bookId }) => {
       queryClient.invalidateQueries({ queryKey: [BOOKS_KEY] });
       queryClient.invalidateQueries({ queryKey: [BOOKS_KEY, bookId] });
@@ -49,9 +74,15 @@ export function useUpdateBook() {
 
 export function useDeleteBook() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
-    mutationFn: bookService.deleteBook,
+    mutationFn: async (bookId: string) => {
+      if (!user?.uid) {
+        throw new Error('Authentication required to delete book');
+      }
+      return bookService.deleteBook(bookId);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [BOOKS_KEY] });
     },
@@ -60,9 +91,15 @@ export function useDeleteBook() {
 
 export function useUpdateReadingStatus() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
-    mutationFn: ({ bookId, status }: { bookId: string; status: Book['status'] }) => bookService.updateReadingStatus(bookId, status),
+    mutationFn: async ({ bookId, status }: { bookId: string; status: Book['status'] }) => {
+      if (!user?.uid) {
+        throw new Error('Authentication required to update reading status');
+      }
+      return bookService.updateReadingStatus(bookId, status);
+    },
     onSuccess: (_, { bookId }) => {
       queryClient.invalidateQueries({ queryKey: [BOOKS_KEY] });
       queryClient.invalidateQueries({ queryKey: [BOOKS_KEY, bookId] });
@@ -72,9 +109,15 @@ export function useUpdateReadingStatus() {
 
 export function useUpdateReadingProgress() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
-    mutationFn: ({ bookId, currentPage }: { bookId: string; currentPage: number }) => bookService.updateReadingProgress(bookId, currentPage),
+    mutationFn: async ({ bookId, currentPage }: { bookId: string; currentPage: number }) => {
+      if (!user?.uid) {
+        throw new Error('Authentication required to update reading progress');
+      }
+      return bookService.updateReadingProgress(bookId, currentPage);
+    },
     onSuccess: (_, { bookId }) => {
       queryClient.invalidateQueries({ queryKey: [BOOKS_KEY] });
       queryClient.invalidateQueries({ queryKey: [BOOKS_KEY, bookId] });

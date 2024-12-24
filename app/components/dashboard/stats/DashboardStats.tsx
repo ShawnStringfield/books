@@ -38,7 +38,7 @@ export const DashboardStats = () => {
   const { booksCompletedThisMonth, booksCompletedThisYear } = calculateReadingStats(books);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-8">
+    <div className="grid grid-cols-2 gap-8 mb-8">
       <MonthlyStats booksThisMonth={booksCompletedThisMonth} monthlyGoal={bookGoals.monthlyTarget} />
       <YearlyStats booksThisYear={booksCompletedThisYear} yearlyGoal={bookGoals.yearlyTarget} />
     </div>

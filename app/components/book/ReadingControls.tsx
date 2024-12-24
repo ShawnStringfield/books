@@ -1,6 +1,6 @@
-import { Settings2, Trash2, Pencil, AlertCircle, X } from 'lucide-react';
+import { Settings2, Pencil, AlertCircle, X } from 'lucide-react';
 import { ReadingStatus } from '@/app/stores/types';
-import StatusButtons from './StatusButtons';
+import ReadingStatusSelect from './ReadingStatusSelect';
 import BookProgressSlider from './BookProgressSlider';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/button';
@@ -20,11 +20,13 @@ interface ReadingControlsProps {
   className?: string;
   onStatusChange: (bookId: string, status: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => void;
   onProgressChange: (value: number[]) => void;
-  onDelete: () => void;
   onCancel?: () => void;
-  isLastBook?: boolean;
   manualTotalPages?: string;
   onManualTotalPagesChange?: (value: string) => void;
+  onTotalPagesUpdate?: (value: number) => void;
+  onDelete?: () => void;
+  isLastBook?: boolean;
+  fromGoogle?: boolean;
 }
 
 const ReadingControls = ({
@@ -38,16 +40,17 @@ const ReadingControls = ({
   className,
   onStatusChange,
   onProgressChange,
-  onDelete,
   onCancel,
-  isLastBook,
   manualTotalPages = '',
   onManualTotalPagesChange,
+  onTotalPagesUpdate,
+  fromGoogle = false,
 }: ReadingControlsProps) => {
   const [showWarning, setShowWarning] = useState(false);
-  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const updateTotalPages = useBookStore((state) => state.updateTotalPages);
+
+  const canEditPages = !fromGoogle || totalPages === 0;
 
   const handleStatusChange = (bookId: string, newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => {
     if (newStatus === ReadingStatus.NOT_STARTED && currentPage > 0) {
@@ -61,6 +64,7 @@ const ReadingControls = ({
     if (!isNaN(value) && value > 0) {
       updateTotalPages(bookId, value);
       onManualTotalPagesChange?.('');
+      onTotalPagesUpdate?.(value);
       setIsEditing(false);
     }
   };
@@ -93,11 +97,6 @@ const ReadingControls = ({
     },
   ];
 
-  const handleDeleteClick = () => {
-    if (isLastBook) return;
-    setShowDeleteWarning(true);
-  };
-
   if (variant === 'icon') {
     return (
       <div className={cn('flex items-center gap-2', className)}>
@@ -116,42 +115,15 @@ const ReadingControls = ({
 
   return (
     <div className={cn('space-y-6', className)} id={`reading-controls-${uniqueId}`}>
-      {/* Reading Status Section */}
-      <div className="space-y-3">
-        <StatusButtons bookId={bookId} currentStatus={status} onStatusChange={handleStatusChange} size={size} align="left" className="my-4" />
-
-        <AnimatePresence mode="sync">
-          {showWarning && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{
-                duration: 0.2,
-                ease: [0.4, 0, 0.2, 1],
-              }}
-              className="overflow-hidden"
-            >
-              <WarningAlert
-                message="Changing to &ldquo;Not Started&rdquo; will reset your reading progress to 0 pages."
-                variant="warning"
-                actions={warningActions}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
       {/* Total Pages Section */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Total Pages</label>
-        <div className="flex items-center gap-2">
-          {isEditing ? (
-            <div className="flex items-center gap-2">
+        <div className="inline-flex items-center gap-1">
+          {isEditing && canEditPages ? (
+            <div className="inline-flex items-center gap-1">
               <input
                 type="text"
                 inputMode="numeric"
-                className="w-16 h-8 text-center border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-16 h-6 text-base text-center border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 value={manualTotalPages}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const value = e.target.value;
@@ -179,36 +151,34 @@ const ReadingControls = ({
                 }}
                 autoFocus
               />
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">total pages</span>
-                <button
-                  onClick={cancelEditing}
-                  className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
-                  title="Cancel editing"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
+              <button
+                onClick={cancelEditing}
+                className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+                title="Cancel editing"
+              >
+                <X className="h-3 w-3" />
+              </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">{totalPages || 0} total pages</span>
-              <button
-                onClick={startEditing}
-                className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
-                title="Edit total pages"
-              >
-                <Pencil className="h-3 w-3" />
-              </button>
-              {totalPages === 0 && (
-                <span className="text-yellow-600 text-sm flex items-center gap-1">
-                  <AlertCircle className="h-4 w-4" />
-                  Set page count to track progress
-                </span>
-              )}
-            </div>
+            <span className="text-sm text-gray-600">{totalPages || 0}</span>
+          )}
+          <label className="text-sm font-medium">Total Pages</label>
+          {canEditPages && !isEditing && (
+            <button
+              onClick={startEditing}
+              className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+              title="Edit total pages"
+            >
+              <Pencil className="h-3 w-3" />
+            </button>
           )}
         </div>
+        {totalPages === 0 && (
+          <span className="text-yellow-600 text-sm flex items-center gap-1 mt-2">
+            <AlertCircle className="h-4 w-4" />
+            Set page count to track progress
+          </span>
+        )}
       </div>
 
       {/* Reading Progress Section */}
@@ -222,51 +192,40 @@ const ReadingControls = ({
         className="py-4"
       />
 
-      {/* Action Buttons */}
-      {onDelete !== undefined && (
-        <>
-          <div className="space-y-3">
-            <div className="flex items-center justify-end gap-2">
-              {onCancel && (
-                <Button variant="secondary" size="sm" className="text-xs py-1 px-2" onClick={onCancel}>
-                  Close
-                </Button>
-              )}
-              <Button
-                variant="destructive"
-                size="sm"
-                className="text-xs py-1 px-2 text-white hover:text-red-600 disabled:opacity-50 disabled:hover:text-gray-500"
-                onClick={handleDeleteClick}
-                disabled={isLastBook}
-                title={isLastBook ? 'Cannot delete the last book' : undefined}
+      {/* Bottom Section with Status and Actions */}
+      <div className="flex items-center justify-between">
+        {/* Reading Status Section */}
+        <div>
+          <ReadingStatusSelect status={status} onStatusChange={(newStatus) => handleStatusChange(bookId, newStatus)} size={size} />
+          <AnimatePresence mode="sync">
+            {showWarning && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{
+                  duration: 0.2,
+                  ease: [0.4, 0, 0.2, 1],
+                }}
+                className="overflow-hidden mt-2"
               >
-                <Trash2 className="h-3.5 w-3.5" /> Delete Book
-              </Button>
-            </div>
-
-            {showDeleteWarning && (
-              <WarningAlert
-                message="Are you sure you want to delete this book? This action cannot be undone."
-                variant="danger"
-                actions={[
-                  {
-                    label: 'Cancel',
-                    onClick: () => setShowDeleteWarning(false),
-                  },
-                  {
-                    label: 'Delete',
-                    onClick: () => {
-                      setShowDeleteWarning(false);
-                      onDelete();
-                    },
-                    variant: 'destructive',
-                  },
-                ]}
-              />
+                <WarningAlert
+                  message="Changing to &ldquo;Not Started&rdquo; will reset your reading progress to 0 pages."
+                  variant="warning"
+                  actions={warningActions}
+                />
+              </motion.div>
             )}
-          </div>
-        </>
-      )}
+          </AnimatePresence>
+        </div>
+
+        {/* Action Buttons */}
+        {onCancel && (
+          <Button variant="secondary" size="sm" className="text-xs py-1 px-2" onClick={onCancel}>
+            Close
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

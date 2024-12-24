@@ -33,7 +33,7 @@ const Toolbar = ({ actions, className = '' }: ToolbarProps) => {
             onClick={action.onClick}
             disabled={action.disabled}
           >
-            <Icon className="h-5 w-5 text-brand-textweak" />
+            <Icon className={`h-5 w-5 ${action.variant === 'destructive' ? 'text-destructive' : 'text-brand-textweak'}`} />
             <span className="sr-only">{action.label}</span>
           </Button>
         );

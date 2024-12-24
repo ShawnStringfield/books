@@ -6,7 +6,7 @@ import { Button } from '@/app/components/ui/button';
 import { ReadingStatus } from '@/app/stores/types';
 import { useBookStatus } from '@/app/hooks/useBookStatus';
 import { useState, useEffect } from 'react';
-import { Plus, Settings2, Pencil, ExternalLink, Info, AlertCircle } from 'lucide-react';
+import { Plus, Settings2, Pencil, ExternalLink, Info, AlertCircle, Trash2 } from 'lucide-react';
 import DashboardLayout from '@/app/components/dashboard/DashboardLayout';
 import BookHighlights from '@/app/components/highlights/BookHighlights';
 import ReadingProgressBar from '@/app/components/book/ReadingProgressBar';
@@ -35,6 +35,7 @@ function BookDetailsContent() {
   const [showReadingControls, setShowReadingControls] = useState(false);
   const [showHighlightForm, setShowHighlightForm] = useState(false);
   const [manualTotalPages, setManualTotalPages] = useState<string>('');
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
   // Redirect if no id is provided
   useEffect(() => {
@@ -67,6 +68,22 @@ function BookDetailsContent() {
     );
   }
 
+  const handleDelete = () => {
+    if (!isLastBook) {
+      setShowDeleteWarning(true);
+    } else {
+      setShowDeleteWarning(true); // Show warning with different message for last book
+    }
+  };
+
+  const confirmDelete = () => {
+    if (!isLastBook) {
+      deleteBook(book.id);
+      router.push('/dashboard/library');
+    }
+    setShowDeleteWarning(false);
+  };
+
   const toolbarActions: ToolbarAction[] = [
     {
       icon: Settings2,
@@ -82,6 +99,12 @@ function BookDetailsContent() {
       icon: Pencil,
       label: 'Toggle edit mode',
       onClick: toggleEditControls,
+    },
+    {
+      icon: Trash2,
+      label: 'Delete book',
+      onClick: handleDelete,
+      variant: 'destructive',
     },
   ];
 
@@ -106,13 +129,6 @@ function BookDetailsContent() {
       updateBookGenre(book.id, editedGenre);
     }
     toggleEditControls(); // Exit edit mode after saving
-  };
-
-  const handleDelete = () => {
-    if (!isLastBook) {
-      deleteBook(book.id);
-      router.push('/dashboard/library');
-    }
   };
 
   const handleTotalPagesUpdate = (value: number) => {
@@ -153,6 +169,37 @@ function BookDetailsContent() {
         {/* Mobile Controls */}
         <Toolbar actions={toolbarActions} className="flex items-center gap-3 mb-4" />
 
+        {/* Delete Warning */}
+        {showDeleteWarning && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+              </div>
+              <div className="ml-3 flex-1">
+                <h3 className="text-sm font-medium text-red-800">{isLastBook ? 'Cannot delete the last book' : 'Delete this book?'}</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>
+                    {isLastBook
+                      ? 'You must keep at least one book in your library.'
+                      : 'This action cannot be undone. Are you sure you want to delete this book?'}
+                  </p>
+                </div>
+                <div className="mt-4 flex gap-2">
+                  {!isLastBook && (
+                    <Button onClick={confirmDelete} variant="destructive" size="sm" className="bg-red-600 hover:bg-red-700">
+                      Yes, delete book
+                    </Button>
+                  )}
+                  <Button onClick={() => setShowDeleteWarning(false)} variant="outline" size="sm">
+                    {isLastBook ? 'Okay' : 'Cancel'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Add Highlight Form */}
         {showHighlightForm && (
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
@@ -165,9 +212,6 @@ function BookDetailsContent() {
           <div className="bg-gray-50 rounded-lg p-6 space-y-6 border">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Reading Controls</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowReadingControls(false)}>
-                Close
-              </Button>
             </div>
 
             <ReadingControls
@@ -263,7 +307,6 @@ function BookDetailsContent() {
 
         {/* Book Highlights Section */}
         <div className="space-y-4 py-8">
-          <h2 className="text-lg font-semibold leading-tight">Book Highlights</h2>
           <BookHighlights
             bookId={book.id}
             currentPage={book.currentPage || 0}

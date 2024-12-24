@@ -47,7 +47,7 @@ export const StatCard = ({ icon, title, value, current, goal, period }: StatCard
             transition={{ duration: 0.3, delay: 0.8 }}
           >
             <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 1 }}>
-              {progress.toFixed(0)}% complete
+              {progress.toFixed(0)}%
               {progress >= 100 && (
                 <motion.span
                   className="ml-2 text-green-500"

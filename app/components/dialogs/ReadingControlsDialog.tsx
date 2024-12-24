@@ -12,12 +12,9 @@ interface ReadingControlsDialogProps {
   status: (typeof ReadingStatus)[keyof typeof ReadingStatus];
   onStatusChange: (bookId: string, newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => Promise<void>;
   onProgressChange: (value: number[]) => void;
-  onDelete: () => void;
-  isLastBook: boolean;
   manualTotalPages?: string;
   onManualTotalPagesChange?: (value: string) => void;
   onTotalPagesUpdate?: (value: number) => void;
-  fromGoogle?: boolean;
 }
 
 export default function ReadingControlsDialog({
@@ -29,12 +26,9 @@ export default function ReadingControlsDialog({
   status,
   onStatusChange,
   onProgressChange,
-  onDelete,
-  isLastBook,
   manualTotalPages,
   onManualTotalPagesChange,
   onTotalPagesUpdate,
-  fromGoogle,
 }: ReadingControlsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -55,13 +49,10 @@ export default function ReadingControlsDialog({
           variant="mobile"
           onStatusChange={onStatusChange}
           onProgressChange={onProgressChange}
-          onDelete={onDelete}
           onCancel={() => onOpenChange(false)}
-          isLastBook={isLastBook}
           manualTotalPages={manualTotalPages}
           onManualTotalPagesChange={onManualTotalPagesChange}
           onTotalPagesUpdate={onTotalPagesUpdate}
-          fromGoogle={fromGoogle}
         />
       </DialogContent>
     </Dialog>

@@ -20,7 +20,14 @@ export function useBooks() {
     const unsubscribe = bookService.subscribeToBooks(
       user.uid,
       (books) => {
-        queryClient.setQueryData([BOOKS_KEY], books);
+        // Get the current cached data
+        const currentData = queryClient.getQueryData<Book[]>([BOOKS_KEY]);
+
+        // Only update if we have new data and it's not empty
+        // This prevents clearing the cache during transitions
+        if (books?.length || !currentData?.length) {
+          queryClient.setQueryData([BOOKS_KEY], books);
+        }
       },
       (error) => {
         console.error("Books subscription error:", error);
@@ -36,14 +43,20 @@ export function useBooks() {
       if (!user?.uid) {
         throw new Error("Authentication required to fetch books");
       }
-      return bookService.getBooks(user.uid);
+      const books = await bookService.getBooks(user.uid);
+      // Only return new data if it's not empty and we don't have cached data
+      const cachedData = queryClient.getQueryData<Book[]>([BOOKS_KEY]);
+      if (books?.length || !cachedData?.length) {
+        return books;
+      }
+      return cachedData;
     },
     gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
     refetchOnWindowFocus: false,
-    refetchOnReconnect: true, // Refetch when coming back online
+    refetchOnReconnect: true,
     retry: 1,
-    networkMode: "offlineFirst", // Use cached data first, then update from network
+    networkMode: "offlineFirst",
   });
 }
 

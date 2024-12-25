@@ -5,6 +5,7 @@ import {
   CACHE_SIZE_UNLIMITED,
   persistentLocalCache,
   persistentMultipleTabManager,
+  type Firestore,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
@@ -21,7 +22,7 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Initialize Firestore with settings
-let db;
+let db: Firestore;
 if (!getApps().length) {
   db = initializeFirestore(app, {
     localCache: persistentLocalCache({

@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
-import { ReadingStatus } from "@/app/stores/types";
+import { ReadingStatus, type Book } from "@/app/stores/types";
 import { useBookStatus } from "@/app/hooks/useBookStatus";
 import { useState, useEffect } from "react";
 import {
@@ -33,6 +33,11 @@ import {
   useUpdateBook,
 } from "@/app/hooks/books/useBooks";
 
+// Type guard to ensure book has required properties
+function assertValidBook(book: Book): asserts book is Book & { id: string } {
+  if (!book.id) throw new Error("Book ID is required");
+}
+
 function BookDetailsContent() {
   const router = useRouter();
   const params = useParams();
@@ -48,7 +53,15 @@ function BookDetailsContent() {
   const updateStatusMutation = useUpdateReadingStatus();
   const updateProgressMutation = useUpdateReadingProgress();
   const updateBookMutation = useUpdateBook();
-  const { changeBookStatus, isChangingStatus } = useBookStatus(books);
+  const { changeBookStatus, isChangingStatus } = useBookStatus(
+    books.map((b) => ({
+      id: b.id!,
+      title: b.title,
+      status: b.status,
+      currentPage: b.currentPage || 0,
+      totalPages: b.totalPages || 0,
+    }))
+  );
   const isLastBook = books.length === 1;
   const { showEditControls, toggleEditControls } = useEditMode();
   const [editedDescription, setEditedDescription] = useState("");
@@ -76,7 +89,7 @@ function BookDetailsContent() {
     );
   }
 
-  if (!book) {
+  if (!book || !book.id) {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
@@ -102,7 +115,7 @@ function BookDetailsContent() {
 
   const confirmDelete = () => {
     if (!isLastBook) {
-      deleteBookMutation.mutate(book.id, {
+      deleteBookMutation.mutate(book.id!, {
         onSuccess: () => {
           router.push("/dashboard/library");
         },
@@ -139,15 +152,24 @@ function BookDetailsContent() {
     bookId: string,
     newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]
   ) => {
-    if (isChangingStatus) return;
+    if (isChangingStatus || !book.id) return;
 
-    if (await changeBookStatus(book, newStatus)) {
+    const bookForStatus = {
+      id: book.id,
+      title: book.title,
+      status: book.status,
+      currentPage: book.currentPage || 0,
+      totalPages: book.totalPages || 0,
+    };
+
+    if (await changeBookStatus(bookForStatus, newStatus)) {
       updateStatusMutation.mutate({ bookId, status: newStatus });
     }
   };
 
   const handleProgressChange = (value: number[]) => {
     const newPage = value[0];
+    assertValidBook(book);
     // Update server state only
     updateProgressMutation.mutate({ bookId: book.id, currentPage: newPage });
   };
@@ -166,6 +188,7 @@ function BookDetailsContent() {
     }
 
     if (Object.keys(updates).length > 0) {
+      assertValidBook(book);
       updateBookMutation.mutate({
         bookId: book.id,
         updates,
@@ -179,6 +202,7 @@ function BookDetailsContent() {
 
   const handleTotalPagesUpdate = (value: number) => {
     if (value > 0) {
+      assertValidBook(book);
       // First update the reading progress to ensure current page is valid
       const newCurrentPage = Math.min(book.currentPage || 0, value);
       updateProgressMutation.mutate({

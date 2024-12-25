@@ -1,11 +1,14 @@
-import { renderHook, act } from '@testing-library/react';
-import { useBookStore } from './useBookStore';
-import { ReadingStatus, EnrichedHighlight } from '@/app/stores/types';
-import { getRecentHighlightsData, sortHighlights } from '@/app/utils/highlightUtils';
+import { renderHook, act } from "@testing-library/react";
+import { useBookStore } from "./useBookStore";
+import { ReadingStatus, EnrichedHighlight } from "@/app/stores/types";
+import {
+  getRecentHighlightsData,
+  sortHighlights,
+} from "@/app/utils/highlightUtils";
 
-describe('useBookStore', () => {
-  describe('basic store operations', () => {
-    it('should initialize with default values', () => {
+describe("useBookStore", () => {
+  describe("basic store operations", () => {
+    it("should initialize with default values", () => {
       const { result } = renderHook(() => useBookStore());
       expect(result.current.currentBook).toBeNull();
       expect(result.current.currentStatus).toBe(ReadingStatus.NOT_STARTED);
@@ -13,13 +16,13 @@ describe('useBookStore', () => {
       expect(result.current.hasHydrated).toBe(false);
     });
 
-    it('should set current book', () => {
+    it("should set current book", () => {
       const { result } = renderHook(() => useBookStore());
       act(() => {
         result.current.setCurrentBook({
-          id: '1',
-          title: 'Test Book',
-          author: 'Test Author',
+          id: "1",
+          title: "Test Book",
+          author: "Test Author",
           totalPages: 100,
           currentPage: 0,
           status: ReadingStatus.NOT_STARTED,
@@ -29,10 +32,10 @@ describe('useBookStore', () => {
         });
       });
       expect(result.current.currentBook).toBeDefined();
-      expect(result.current.currentBook?.title).toBe('Test Book');
+      expect(result.current.currentBook?.title).toBe("Test Book");
     });
 
-    it('should set current status', () => {
+    it("should set current status", () => {
       const { result } = renderHook(() => useBookStore());
       act(() => {
         result.current.setCurrentStatus(ReadingStatus.IN_PROGRESS);
@@ -40,7 +43,7 @@ describe('useBookStore', () => {
       expect(result.current.currentStatus).toBe(ReadingStatus.IN_PROGRESS);
     });
 
-    it('should toggle add book sheet', () => {
+    it("should toggle add book sheet", () => {
       const { result } = renderHook(() => useBookStore());
       act(() => {
         result.current.setAddBookSheetOpen(true);
@@ -49,49 +52,59 @@ describe('useBookStore', () => {
     });
   });
 
-  describe('highlight operations', () => {
+  describe("highlight operations", () => {
+    beforeEach(() => {
+      // Set a fixed date for all tests to January 2024
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date("2024-01-15T12:00:00Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     const mockHighlights: EnrichedHighlight[] = [
       {
-        id: '1',
-        userId: 'user1',
-        bookId: 'book1',
-        text: 'First highlight',
+        id: "1",
+        userId: "user1",
+        bookId: "book1",
+        text: "First highlight",
         page: 1,
-        createdAt: '2024-01-15T10:00:00Z',
-        updatedAt: '2024-01-15T10:00:00Z',
+        createdAt: "2024-01-15T10:00:00Z",
+        updatedAt: "2024-01-15T10:00:00Z",
         isFavorite: false,
-        bookTitle: 'Test Book',
-        bookAuthor: 'Test Author',
+        bookTitle: "Test Book",
+        bookAuthor: "Test Author",
         bookCurrentPage: 100,
         bookTotalPages: 200,
         readingProgress: 50,
       },
       {
-        id: '2',
-        userId: 'user1',
-        bookId: 'book1',
-        text: 'Second highlight',
+        id: "2",
+        userId: "user1",
+        bookId: "book1",
+        text: "Second highlight",
         page: 2,
-        createdAt: '2024-01-15T11:00:00Z',
-        updatedAt: '2024-01-15T11:00:00Z',
+        createdAt: "2024-01-15T11:00:00Z",
+        updatedAt: "2024-01-15T11:00:00Z",
         isFavorite: false,
-        bookTitle: 'Test Book',
-        bookAuthor: 'Test Author',
+        bookTitle: "Test Book",
+        bookAuthor: "Test Author",
         bookCurrentPage: 100,
         bookTotalPages: 200,
         readingProgress: 50,
       },
     ];
 
-    it('should get recent highlights with correct limit', () => {
+    it("should get recent highlights with correct limit", () => {
       const recentHighlightsData = getRecentHighlightsData(mockHighlights, 5);
       expect(recentHighlightsData.recentHighlights).toHaveLength(2);
       expect(recentHighlightsData.totalHighlights).toBe(2);
       expect(recentHighlightsData.highlightsThisMonth).toBe(2);
     });
 
-    it('should sort highlights by date', () => {
-      const sortedByDate = sortHighlights(mockHighlights, 'date');
+    it("should sort highlights by date", () => {
+      const sortedByDate = sortHighlights(mockHighlights, "date");
       expect(sortedByDate).toHaveLength(2);
       for (let i = 1; i < sortedByDate.length; i++) {
         const prev = new Date(sortedByDate[i - 1].createdAt).getTime();

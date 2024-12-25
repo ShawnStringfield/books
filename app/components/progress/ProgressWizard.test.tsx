@@ -1,13 +1,12 @@
-import { StepId } from '@/app/(features)/profile-onboarding/types/onboarding';
-import { render, screen } from '@testing-library/react';
-import { ProgressWizard } from './ProgressWizard';
+import { render, screen } from "@testing-library/react";
+import { ProgressWizard } from "./ProgressWizard";
 
-describe('ProgressWizard', () => {
+describe("ProgressWizard", () => {
   const defaultProps = {
     progress: 50,
-    steps: ['Step 1', 'Step 2', 'Step 3'],
-    currentStep: 'step2' as StepId,
-    completedSteps: ['step1'] as StepId[],
+    steps: ["Step 1", "Step 2", "Step 3"],
+    currentStep: "step2",
+    completedSteps: ["step1"],
     onStepChange: jest.fn(),
     isFirstStep: false,
     isLastStep: false,
@@ -16,22 +15,22 @@ describe('ProgressWizard', () => {
     children: <div>Test Content</div>,
   };
 
-  it('renders all components correctly', () => {
+  it("renders all components correctly", () => {
     render(<ProgressWizard {...defaultProps} />);
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
-    expect(screen.getByText('Test Content')).toBeInTheDocument();
-    expect(screen.getByText('Back')).toBeInTheDocument();
-    expect(screen.getByText('Next')).toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    expect(screen.getByText("Test Content")).toBeInTheDocument();
+    expect(screen.getByText("Previous")).toBeInTheDocument();
+    expect(screen.getByText("Next")).toBeInTheDocument();
   });
 
-  it('disables back button on first step', () => {
+  it("disables back button on first step", () => {
     render(<ProgressWizard {...defaultProps} isFirstStep={true} />);
-    expect(screen.getByText('Back')).toBeDisabled();
+    expect(screen.getByText("Previous")).toBeDisabled();
   });
 
-  it('hides next button on last step', () => {
+  it("hides next button on last step", () => {
     render(<ProgressWizard {...defaultProps} isLastStep={true} />);
-    expect(screen.queryByText('Next')).not.toBeInTheDocument();
+    expect(screen.queryByText("Next")).not.toBeInTheDocument();
   });
 });

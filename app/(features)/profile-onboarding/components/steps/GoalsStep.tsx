@@ -1,9 +1,10 @@
 // app/(features)/profile-onboarding/components/steps/GoalsStep.tsx
 
-import { motion } from 'framer-motion';
-import { Button } from '@/app/components/ui/button';
-import { Plus, Minus } from 'lucide-react';
-import { containerVariants, itemVariants } from '../_animations';
+import { motion } from "framer-motion";
+import { Button } from "@/app/components/ui/button";
+import { Plus, Minus } from "lucide-react";
+import { containerVariants, itemVariants } from "../_animations";
+import { STEPS } from "../../constants";
 
 interface BookGoals {
   monthlyTarget: number;
@@ -25,7 +26,11 @@ export const GoalsStep = ({ goals, onGoalsUpdate }: GoalsStepProps) => {
   };
 
   return (
-    <motion.div variants={containerVariants} className="space-y-6">
+    <motion.div
+      variants={containerVariants}
+      className="space-y-6"
+      data-testid={`step-content-${STEPS[2]}`}
+    >
       <motion.h2 variants={itemVariants} className="text-3xl font-bold">
         Set Your Reading Goals
       </motion.h2>
@@ -33,7 +38,10 @@ export const GoalsStep = ({ goals, onGoalsUpdate }: GoalsStepProps) => {
         How many books would you like to read each month?
       </motion.p>
 
-      <motion.div variants={itemVariants} className="flex flex-col items-center space-y-4">
+      <motion.div
+        variants={itemVariants}
+        className="flex flex-col items-center space-y-4"
+      >
         <div className="flex items-center space-x-4">
           <Button
             variant="outline"
@@ -50,12 +58,20 @@ export const GoalsStep = ({ goals, onGoalsUpdate }: GoalsStepProps) => {
             <span className="text-sm text-gray-600">books per month</span>
           </div>
 
-          <Button variant="outline" size="icon" onClick={() => handleGoalChange(1)} aria-label="Increase monthly book target">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleGoalChange(1)}
+            aria-label="Increase monthly book target"
+          >
             <Plus className="w-4 h-4" />
           </Button>
         </div>
 
-        <motion.div variants={itemVariants} className="text-center text-gray-600">
+        <motion.div
+          variants={itemVariants}
+          className="text-center text-gray-600"
+        >
           <p>Your yearly target: {goals.yearlyTarget} books</p>
         </motion.div>
       </motion.div>

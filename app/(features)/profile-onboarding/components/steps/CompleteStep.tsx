@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
-import { Button } from '@/app/components/ui/button';
-import { CheckCircle2 } from 'lucide-react';
-import { containerVariants, itemVariants } from '../_animations';
+import { motion } from "framer-motion";
+import { Button } from "@/app/components/ui/button";
+import { CheckCircle2 } from "lucide-react";
+import { containerVariants, itemVariants } from "../_animations";
 
 interface CompleteStepProps {
   onDashboardClick: () => void;
@@ -13,7 +13,7 @@ export const CompleteStep = ({ onDashboardClick }: CompleteStepProps) => (
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       transition={{
-        type: 'spring',
+        type: "spring",
         stiffness: 200,
         damping: 15,
       }}

@@ -1,5 +1,3 @@
-// app/(features)/profile-onboarding/components/steps/GoalsStep.tsx
-
 import { motion } from "framer-motion";
 import { Button } from "@/app/components/ui/button";
 import { Plus, Minus } from "lucide-react";
@@ -28,13 +26,13 @@ export const GoalsStep = ({ goals, onGoalsUpdate }: GoalsStepProps) => {
   return (
     <motion.div
       variants={containerVariants}
-      className="space-y-6"
+      className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 text-center"
       data-testid={`step-content-${STEPS[2]}`}
     >
       <motion.h2 variants={itemVariants} className="text-3xl font-bold">
         Set Your Reading Goals
       </motion.h2>
-      <motion.p variants={itemVariants} className="text-gray-600">
+      <motion.p variants={itemVariants} className="text-gray-600 max-w-md">
         How many books would you like to read each month?
       </motion.p>
 

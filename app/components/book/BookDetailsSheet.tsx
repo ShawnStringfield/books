@@ -8,7 +8,7 @@ import {
   SheetClose,
   SheetHeader,
 } from "@/app/components/ui/sheet";
-import { Book } from "@/app/stores/types";
+import { Book, ReadingStatusType, ReadingStatus } from "@/app/stores/types";
 import { useId, useState } from "react";
 import ReadingProgressBar from "./ReadingProgressBar";
 import Link from "next/link";
@@ -22,6 +22,8 @@ import {
   useDeleteBook,
   useUpdateReadingProgress,
   useBooks,
+  useUpdateReadingStatus,
+  useUpdateBook,
 } from "@/app/hooks/books/useBooks";
 import {
   useHighlightsByBook,
@@ -30,6 +32,7 @@ import {
   useHighlightActions,
 } from "@/app/hooks/highlights/useHighlights";
 import HighlightCard from "@/app/components/highlights/HighlightCard";
+import { useBookStatus } from "@/app/hooks/useBookStatus";
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -50,6 +53,8 @@ const BookDetailsSheet = ({ book, children }: BookDetailsSheetProps) => {
   const { data: books = [] } = useBooks();
   const deleteBookMutation = useDeleteBook();
   const updateProgressMutation = useUpdateReadingProgress();
+  const updateStatusMutation = useUpdateReadingStatus();
+  const updateBookMutation = useUpdateBook();
   const isLastBook = books.length === 1;
   const { data: highlights = [] } = useHighlightsByBook(book.id || "");
   const updateHighlightMutation = useUpdateHighlight();
@@ -58,6 +63,15 @@ const BookDetailsSheet = ({ book, children }: BookDetailsSheetProps) => {
   );
   const deleteHighlightMutation = useDeleteHighlight();
   const { toggleFavorite } = useHighlightActions();
+  const { changeBookStatus, isChangingStatus } = useBookStatus(
+    books.map((b) => ({
+      id: b.id!,
+      title: b.title,
+      status: b.status,
+      currentPage: b.currentPage || 0,
+      totalPages: b.totalPages || 0,
+    }))
+  );
 
   const handleDelete = () => {
     if (!isLastBook && book.id) {
@@ -66,24 +80,59 @@ const BookDetailsSheet = ({ book, children }: BookDetailsSheetProps) => {
     }
   };
 
-  const handleProgressChange = (value: number[]) => {
+  const handleProgressChange = async (value: number[]) => {
     const newPage = value[0];
     if (book.id) {
-      updateProgressMutation.mutate({ bookId: book.id, currentPage: newPage });
+      try {
+        await updateProgressMutation.mutateAsync({
+          bookId: book.id,
+          currentPage: newPage,
+        });
+
+        // Update status based on progress
+        if (newPage === 0 && book.status !== ReadingStatus.NOT_STARTED) {
+          await handleStatusChange(book.id, ReadingStatus.NOT_STARTED);
+        } else if (
+          newPage === book.totalPages &&
+          book.status !== ReadingStatus.COMPLETED
+        ) {
+          await handleStatusChange(book.id, ReadingStatus.COMPLETED);
+        } else if (
+          newPage > 0 &&
+          newPage < book.totalPages &&
+          book.status === ReadingStatus.NOT_STARTED
+        ) {
+          await handleStatusChange(book.id, ReadingStatus.IN_PROGRESS);
+        }
+      } catch (error) {
+        console.error("Failed to update progress:", error);
+      }
     }
   };
 
-  const handleTotalPagesUpdate = (value: number) => {
+  const handleTotalPagesUpdate = async (value: number) => {
     if (value > 0 && book.id) {
-      // First update the reading progress to ensure current page is valid
-      const newCurrentPage = Math.min(book.currentPage || 0, value);
-      updateProgressMutation.mutate({
-        bookId: book.id,
-        currentPage: newCurrentPage,
-      });
+      try {
+        // Update total pages first
+        await updateBookMutation.mutateAsync({
+          bookId: book.id,
+          updates: { totalPages: value },
+        });
 
-      setManualTotalPages("");
-      setShowReadingControls(false);
+        // Then update the reading progress if needed
+        const newCurrentPage = Math.min(book.currentPage || 0, value);
+        if (newCurrentPage !== book.currentPage) {
+          await updateProgressMutation.mutateAsync({
+            bookId: book.id,
+            currentPage: newCurrentPage,
+          });
+        }
+
+        setManualTotalPages("");
+        setShowReadingControls(false);
+      } catch (error) {
+        console.error("Failed to update book:", error);
+      }
     }
   };
 
@@ -127,6 +176,25 @@ const BookDetailsSheet = ({ book, children }: BookDetailsSheetProps) => {
     if (book.id) {
       deleteHighlightMutation.mutate(highlightId);
       setHighlightToDelete(null);
+    }
+  };
+
+  const handleStatusChange = async (
+    bookId: string,
+    newStatus: ReadingStatusType
+  ) => {
+    if (isChangingStatus || !book.id) return;
+
+    const bookForStatus = {
+      id: book.id,
+      title: book.title,
+      status: book.status,
+      currentPage: book.currentPage || 0,
+      totalPages: book.totalPages || 0,
+    };
+
+    if (await changeBookStatus(bookForStatus, newStatus)) {
+      updateStatusMutation.mutate({ bookId, status: newStatus });
     }
   };
 
@@ -326,7 +394,7 @@ const BookDetailsSheet = ({ book, children }: BookDetailsSheetProps) => {
                 status={book.status}
                 uniqueId={uniqueId}
                 variant="desktop"
-                onStatusChange={() => {}}
+                onStatusChange={handleStatusChange}
                 onProgressChange={handleProgressChange}
                 onCancel={() => setShowReadingControls(false)}
                 manualTotalPages={manualTotalPages}

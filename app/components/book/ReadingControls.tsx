@@ -66,15 +66,27 @@ const ReadingControls = ({
     }
   };
 
-  const handleTotalPagesUpdate = (value: number) => {
+  const handleTotalPagesUpdate = async (value: number) => {
     if (!isNaN(value) && value > 0) {
-      updateBookMutation.mutate({
-        bookId,
-        updates: { totalPages: value },
-      });
-      onManualTotalPagesChange?.("");
-      onTotalPagesUpdate?.(value);
-      setIsEditing(false);
+      try {
+        // Update total pages first
+        await updateBookMutation.mutateAsync({
+          bookId,
+          updates: { totalPages: value },
+        });
+
+        // Then update the reading progress if needed
+        const newCurrentPage = Math.min(currentPage || 0, value);
+        if (newCurrentPage !== currentPage) {
+          onProgressChange([newCurrentPage]);
+        }
+
+        onManualTotalPagesChange?.("");
+        onTotalPagesUpdate?.(value);
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Failed to update book:", error);
+      }
     }
   };
 
@@ -197,7 +209,25 @@ const ReadingControls = ({
       <BookProgressSlider
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={onProgressChange}
+        onPageChange={(value) => {
+          onProgressChange(value);
+          // Update status based on progress
+          const newPage = value[0];
+          if (newPage === 0 && status !== ReadingStatus.NOT_STARTED) {
+            handleStatusChange(bookId, ReadingStatus.NOT_STARTED);
+          } else if (
+            newPage === totalPages &&
+            status !== ReadingStatus.COMPLETED
+          ) {
+            handleStatusChange(bookId, ReadingStatus.COMPLETED);
+          } else if (
+            newPage > 0 &&
+            newPage < totalPages &&
+            status === ReadingStatus.NOT_STARTED
+          ) {
+            handleStatusChange(bookId, ReadingStatus.IN_PROGRESS);
+          }
+        }}
         variant={variant}
         uniqueId={uniqueId}
         showPercentage={true}

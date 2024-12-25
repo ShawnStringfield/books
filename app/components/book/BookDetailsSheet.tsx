@@ -8,7 +8,7 @@ import {
   SheetClose,
   SheetHeader,
 } from "@/app/components/ui/sheet";
-import { Book } from "@/app/stores/types";
+import { Book, ReadingStatusType } from "@/app/stores/types";
 import { useId, useState } from "react";
 import ReadingProgressBar from "./ReadingProgressBar";
 import Link from "next/link";
@@ -142,9 +142,6 @@ const BookDetailsSheet = ({
             toggleHighlightForm,
             setManualTotalPages,
             setShowDeleteWarning,
-            resetControls,
-            isUpdating,
-            error,
           }) => (
             <>
               <div className="flex flex-col h-full">
@@ -317,9 +314,10 @@ const BookDetailsSheet = ({
                       status={book.status}
                       uniqueId={uniqueId}
                       variant="desktop"
-                      onStatusChange={(_: string, status) =>
-                        handleStatusChange(status)
-                      }
+                      onStatusChange={(
+                        bookId: string,
+                        status: ReadingStatusType
+                      ) => handleStatusChange(bookId, status)}
                       onProgressChange={handleProgressChange}
                       onCancel={() => toggleReadingControls()}
                       manualTotalPages={manualTotalPages}

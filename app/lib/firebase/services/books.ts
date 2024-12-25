@@ -90,7 +90,9 @@ export async function updateBook(
   const cleanUpdates = Object.entries(updates).reduce<Partial<BaseBook>>(
     (acc, [key, value]) => {
       if (value !== undefined) {
-        acc[key as keyof BaseBook] = value as BaseBook[keyof BaseBook];
+        (acc as Record<keyof BaseBook, BaseBook[keyof BaseBook]>)[
+          key as keyof BaseBook
+        ] = value;
       }
       return acc;
     },

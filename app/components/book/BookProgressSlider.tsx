@@ -1,15 +1,15 @@
-import { BookOpen } from 'lucide-react';
-import { Slider } from '@/app/components/ui/slider';
-import { usePageProgress } from '@/app/hooks/usePageProgress';
-import { cn } from '@/lib/utils';
-import BookProgressPercentage from './BookProgressPercentage';
+import { BookOpen } from "lucide-react";
+import { Slider } from "@/app/components/ui/slider";
+import { usePageProgress } from "@/app/hooks/usePageProgress";
+import { cn } from "@/lib/utils";
+import BookProgressPercentage from "./BookProgressPercentage";
 
 interface BookProgressSliderProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (value: number[]) => void;
   uniqueId: string;
-  variant?: 'mobile' | 'desktop';
+  variant?: "mobile" | "desktop";
   showSlider?: boolean;
   showPercentage?: boolean;
   className?: string;
@@ -20,7 +20,7 @@ const BookProgressSlider = ({
   totalPages,
   onPageChange,
   uniqueId,
-  variant = 'desktop',
+  variant = "desktop",
   showSlider = true,
   showPercentage = false,
   className,
@@ -28,16 +28,27 @@ const BookProgressSlider = ({
   const sliderId = `${variant}-pages-${uniqueId}`;
   const inputId = `${variant}-input-${uniqueId}`;
 
-  const { inputValue, handleInputChange, handleInputBlur, handleSliderChange, pagesRemaining } = usePageProgress({
+  const {
+    inputValue,
+    handleInputChange,
+    handleInputBlur,
+    handleSliderChange,
+    pagesRemaining,
+  } = usePageProgress({
     initialPage: currentPage,
     totalPages,
-    onPageChange,
+    onPageChange: (value) => {
+      onPageChange(value);
+    },
   });
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn("w-full", className)}>
       <div className="flex items-center justify-between">
-        <label htmlFor={inputId} className="flex items-center gap-2 text-xs font-medium ">
+        <label
+          htmlFor={inputId}
+          className="flex items-center gap-2 text-xs font-medium "
+        >
           <BookOpen className="w-4 h-4 " />
           Current Page:
         </label>
@@ -71,7 +82,12 @@ const BookProgressSlider = ({
           </div>
           <div className="flex justify-between items-center text-xs">
             <span>{pagesRemaining} pages remaining</span>
-            {showPercentage && <BookProgressPercentage currentPage={currentPage} totalPages={totalPages} />}
+            {showPercentage && (
+              <BookProgressPercentage
+                currentPage={currentPage}
+                totalPages={totalPages}
+              />
+            )}
           </div>
         </>
       )}

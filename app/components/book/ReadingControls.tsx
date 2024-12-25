@@ -210,9 +210,10 @@ const ReadingControls = ({
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={(value) => {
-          onProgressChange(value);
-          // Update status based on progress
           const newPage = value[0];
+          onProgressChange(value);
+
+          // Let parent component handle status changes based on progress
           if (newPage === 0 && status !== ReadingStatus.NOT_STARTED) {
             handleStatusChange(bookId, ReadingStatus.NOT_STARTED);
           } else if (
@@ -223,7 +224,8 @@ const ReadingControls = ({
           } else if (
             newPage > 0 &&
             newPage < totalPages &&
-            status === ReadingStatus.NOT_STARTED
+            (status === ReadingStatus.NOT_STARTED ||
+              status === ReadingStatus.COMPLETED)
           ) {
             handleStatusChange(bookId, ReadingStatus.IN_PROGRESS);
           }
@@ -232,6 +234,7 @@ const ReadingControls = ({
         uniqueId={uniqueId}
         showPercentage={true}
         className="py-4"
+        aria-label={`Reading progress: ${currentPage} of ${totalPages} pages`}
       />
 
       {/* Bottom Section with Status and Actions */}
@@ -244,6 +247,7 @@ const ReadingControls = ({
               handleStatusChange(bookId, newStatus)
             }
             size={size}
+            aria-label="Reading status"
           />
           <AnimatePresence mode="sync">
             {showWarning && (

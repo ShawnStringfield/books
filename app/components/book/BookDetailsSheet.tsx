@@ -82,31 +82,36 @@ const BookDetailsSheet = ({ book, children }: BookDetailsSheetProps) => {
 
   const handleProgressChange = async (value: number[]) => {
     const newPage = value[0];
-    if (book.id) {
-      try {
-        await updateProgressMutation.mutateAsync({
-          bookId: book.id,
-          currentPage: newPage,
-        });
+    if (!book.id) return;
 
-        // Update status based on progress
-        if (newPage === 0 && book.status !== ReadingStatus.NOT_STARTED) {
-          await handleStatusChange(book.id, ReadingStatus.NOT_STARTED);
-        } else if (
-          newPage === book.totalPages &&
-          book.status !== ReadingStatus.COMPLETED
-        ) {
-          await handleStatusChange(book.id, ReadingStatus.COMPLETED);
-        } else if (
-          newPage > 0 &&
-          newPage < book.totalPages &&
-          book.status === ReadingStatus.NOT_STARTED
-        ) {
-          await handleStatusChange(book.id, ReadingStatus.IN_PROGRESS);
-        }
-      } catch (error) {
-        console.error("Failed to update progress:", error);
+    try {
+      // Update progress first
+      updateProgressMutation.mutate({
+        bookId: book.id,
+        currentPage: newPage,
+      });
+
+      // Immediately determine and update status based on the new page
+      if (newPage === 0 && book.status !== ReadingStatus.NOT_STARTED) {
+        // If at page 0, mark as not started
+        await handleStatusChange(book.id, ReadingStatus.NOT_STARTED);
+      } else if (
+        newPage === book.totalPages &&
+        book.status !== ReadingStatus.COMPLETED
+      ) {
+        // If at last page, mark as completed
+        await handleStatusChange(book.id, ReadingStatus.COMPLETED);
+      } else if (
+        newPage > 0 &&
+        newPage < book.totalPages &&
+        (book.status === ReadingStatus.NOT_STARTED ||
+          book.status === ReadingStatus.COMPLETED)
+      ) {
+        // If between pages and currently not started or completed, mark as in progress
+        await handleStatusChange(book.id, ReadingStatus.IN_PROGRESS);
       }
+    } catch (error) {
+      console.error("Failed to update progress:", error);
     }
   };
 
@@ -193,8 +198,29 @@ const BookDetailsSheet = ({ book, children }: BookDetailsSheetProps) => {
       totalPages: book.totalPages || 0,
     };
 
-    if (await changeBookStatus(bookForStatus, newStatus)) {
-      updateStatusMutation.mutate({ bookId, status: newStatus });
+    try {
+      if (await changeBookStatus(bookForStatus, newStatus)) {
+        // Update status first
+        updateStatusMutation.mutate({ bookId, status: newStatus });
+
+        // Update progress based on status
+        let newProgress = book.currentPage || 0;
+        if (newStatus === ReadingStatus.NOT_STARTED) {
+          newProgress = 0;
+        } else if (newStatus === ReadingStatus.COMPLETED) {
+          newProgress = book.totalPages || 0;
+        }
+
+        // Only update progress if it changed
+        if (newProgress !== book.currentPage) {
+          updateProgressMutation.mutate({
+            bookId: book.id,
+            currentPage: newProgress,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Failed to update status:", error);
     }
   };
 

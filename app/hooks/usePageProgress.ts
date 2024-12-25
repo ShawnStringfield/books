@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent } from "react";
 
 interface UsePageProgressProps {
   initialPage: number;
@@ -15,7 +15,11 @@ interface UsePageProgressReturn {
   pagesRemaining: number;
 }
 
-export const usePageProgress = ({ initialPage, totalPages, onPageChange }: UsePageProgressProps): UsePageProgressReturn => {
+export const usePageProgress = ({
+  initialPage,
+  totalPages,
+  onPageChange,
+}: UsePageProgressProps): UsePageProgressReturn => {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [inputValue, setInputValue] = useState(initialPage.toString());
 
@@ -24,39 +28,38 @@ export const usePageProgress = ({ initialPage, totalPages, onPageChange }: UsePa
     setInputValue(initialPage.toString());
   }, [initialPage]);
 
+  const updateProgress = (newPage: number) => {
+    if (newPage >= 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      setInputValue(newPage.toString());
+      onPageChange([newPage]);
+    }
+  };
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
 
     const numValue = parseInt(value);
-    if (!isNaN(numValue) && numValue >= 0 && numValue <= totalPages) {
-      setCurrentPage(numValue);
-      onPageChange([numValue]);
+    if (!isNaN(numValue)) {
+      updateProgress(numValue);
     }
   };
 
   const handleInputBlur = () => {
     const numValue = parseInt(inputValue);
     if (isNaN(numValue) || numValue < 0) {
-      setInputValue('0');
-      setCurrentPage(0);
-      onPageChange([0]);
+      updateProgress(0);
     } else if (numValue > totalPages) {
-      setInputValue(totalPages.toString());
-      setCurrentPage(totalPages);
-      onPageChange([totalPages]);
+      updateProgress(totalPages);
     } else {
-      setInputValue(numValue.toString());
-      setCurrentPage(numValue);
-      onPageChange([numValue]);
+      updateProgress(numValue);
     }
   };
 
   const handleSliderChange = (value: number[]) => {
     const newPage = value[0];
-    setCurrentPage(newPage);
-    setInputValue(newPage.toString());
-    onPageChange(value);
+    updateProgress(newPage);
   };
 
   const pagesRemaining = totalPages - currentPage;

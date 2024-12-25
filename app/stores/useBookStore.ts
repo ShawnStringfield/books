@@ -1,13 +1,15 @@
 import { create } from "zustand";
-import type { Book, ReadingStatusType } from "./types";
+import type { Book, ReadingStatusType, Highlight } from "./types";
 
-interface BookUIState {
+export interface BookStore {
   currentBook: Book | null;
   currentStatus: ReadingStatusType;
   isAddBookSheetOpen: boolean;
   hasHydrated: boolean;
   isLoading: boolean;
   error: string | null;
+  highlights: Highlight[];
+  books: Book[];
   setCurrentBook: (book: Book | null) => void;
   setCurrentStatus: (status: ReadingStatusType) => void;
   setAddBookSheetOpen: (isOpen: boolean) => void;
@@ -16,7 +18,7 @@ interface BookUIState {
   setError: (error: string | null) => void;
 }
 
-export const useBookStore = create<BookUIState>((set) => ({
+export const useBookStore = create<BookStore>((set) => ({
   // Initial state
   currentBook: null,
   currentStatus: "not-started",
@@ -24,6 +26,8 @@ export const useBookStore = create<BookUIState>((set) => ({
   hasHydrated: false,
   isLoading: false,
   error: null,
+  highlights: [],
+  books: [],
 
   // Actions
   setCurrentBook: (book) => set({ currentBook: book }),
@@ -35,6 +39,8 @@ export const useBookStore = create<BookUIState>((set) => ({
 }));
 
 // Selectors
-export const selectIsLoading = (state: BookUIState) => state.isLoading;
-export const selectError = (state: BookUIState) => state.error;
-export const selectHasHydrated = (state: BookUIState) => state.hasHydrated;
+export const selectIsLoading = (state: BookStore) => state.isLoading;
+export const selectError = (state: BookStore) => state.error;
+export const selectHasHydrated = (state: BookStore) => state.hasHydrated;
+export const selectFavoriteHighlights = (state: BookStore) =>
+  state.highlights?.filter((h) => h.isFavorite) || [];

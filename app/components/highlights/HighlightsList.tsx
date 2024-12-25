@@ -1,10 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useHighlightsByBook, useToggleFavorite, useDeleteHighlight, useUpdateHighlight } from '@/app/hooks/highlights/useHighlights';
-import HighlightCard from './HighlightCard';
-import { Highlighter } from 'lucide-react';
-import type { Highlight } from '@/app/stores/types';
+import { useState } from "react";
+import {
+  useHighlightsByBook,
+  useDeleteHighlight,
+  useUpdateHighlight,
+  useToggleFavorite,
+} from "@/app/hooks/highlights/useHighlights";
+import HighlightCard from "./HighlightCard";
+import { Highlighter } from "lucide-react";
+import type { Highlight } from "@/app/stores/types";
 
 interface HighlightsListProps {
   bookId: string;
@@ -18,7 +23,9 @@ function EmptyHighlightState() {
         <Highlighter className="w-6 h-6 text-blue-600" />
       </div>
       <h3 className="text-lg font-semibold mb-2">No Highlights Yet</h3>
-      <p className="text-sm text-gray-600">Start capturing your favorite moments from this book.</p>
+      <p className="text-sm text-gray-600">
+        Start capturing your favorite moments from this book.
+      </p>
     </div>
   );
 }
@@ -30,25 +37,33 @@ interface HighlightState {
 }
 
 const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
-  const { data: highlights = [], isLoading } = useHighlightsByBook(bookId, limit);
+  const { data: highlights = [], isLoading } = useHighlightsByBook(
+    bookId,
+    limit
+  );
   const toggleFavorite = useToggleFavorite();
   const deleteHighlight = useDeleteHighlight();
   const updateHighlight = useUpdateHighlight();
 
   // Track state for each highlight by ID
-  const [highlightStates, setHighlightStates] = useState<Record<string, HighlightState>>({});
+  const [highlightStates, setHighlightStates] = useState<
+    Record<string, HighlightState>
+  >({});
 
   const getHighlightState = (highlightId: string): HighlightState => {
     return (
       highlightStates[highlightId] || {
         isEditing: false,
-        editedText: '',
+        editedText: "",
         showDeleteConfirm: false,
       }
     );
   };
 
-  const updateHighlightState = (highlightId: string, updates: Partial<HighlightState>) => {
+  const updateHighlightState = (
+    highlightId: string,
+    updates: Partial<HighlightState>
+  ) => {
     setHighlightStates((prev) => ({
       ...prev,
       [highlightId]: {
@@ -62,6 +77,7 @@ const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
     toggleFavorite.mutate({
       highlightId: highlight.id,
       isFavorite: !highlight.isFavorite,
+      bookId: bookId,
     });
   };
 
@@ -112,7 +128,9 @@ const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
     <div>
       <div className="space-y-4">
         <h2 className="text-lg font-semibold leading-tight text-slate-500">
-          {limit ? `Recent Highlights (${highlights.length})` : `Highlights (${highlights.length})`}
+          {limit
+            ? `Recent Highlights (${highlights.length})`
+            : `Highlights (${highlights.length})`}
         </h2>
         <div className="grid gap-4">
           {highlights.map((highlight) => {
@@ -125,14 +143,22 @@ const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
                 editedText={state.editedText || highlight.text}
                 showDeleteConfirm={state.showDeleteConfirm}
                 isDeleting={deleteHighlight.isPending}
-                isUpdating={updateHighlight.isPending}
+                isUpdating={
+                  updateHighlight.isPending || toggleFavorite.isPending
+                }
                 onToggleFavorite={() => handleToggleFavorite(highlight)}
                 onDelete={() => handleDelete(highlight.id)}
                 onEdit={() => handleEdit(highlight)}
                 onSave={() => handleSave(highlight)}
                 onCancel={() => handleCancel(highlight)}
-                onTextChange={(text) => updateHighlightState(highlight.id, { editedText: text })}
-                onShowDeleteConfirm={(show) => updateHighlightState(highlight.id, { showDeleteConfirm: show })}
+                onTextChange={(text) =>
+                  updateHighlightState(highlight.id, { editedText: text })
+                }
+                onShowDeleteConfirm={(show) =>
+                  updateHighlightState(highlight.id, {
+                    showDeleteConfirm: show,
+                  })
+                }
               />
             );
           })}

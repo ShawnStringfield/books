@@ -1,10 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useHighlights, useToggleFavorite, useDeleteHighlight, useUpdateHighlight } from '@/app/hooks/highlights/useHighlights';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Loader2, Highlighter } from 'lucide-react';
-import HighlightCard from './HighlightCard';
+import React, { useState } from "react";
+import {
+  useHighlights,
+  useToggleFavorite,
+  useDeleteHighlight,
+  useUpdateHighlight,
+} from "@/app/hooks/highlights/useHighlights";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
+import { Loader2, Highlighter } from "lucide-react";
+import HighlightCard from "./HighlightCard";
 
 interface RecentHighlightsProps {
   limit?: number;
@@ -21,19 +31,24 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
   const toggleFavorite = useToggleFavorite();
   const deleteHighlight = useDeleteHighlight();
   const updateHighlight = useUpdateHighlight();
-  const [highlightStates, setHighlightStates] = useState<Record<string, HighlightState>>({});
+  const [highlightStates, setHighlightStates] = useState<
+    Record<string, HighlightState>
+  >({});
 
   const getHighlightState = (highlightId: string): HighlightState => {
     return (
       highlightStates[highlightId] || {
         isEditing: false,
-        editedText: '',
+        editedText: "",
         showDeleteConfirm: false,
       }
     );
   };
 
-  const updateHighlightState = (highlightId: string, updates: Partial<HighlightState>) => {
+  const updateHighlightState = (
+    highlightId: string,
+    updates: Partial<HighlightState>
+  ) => {
     setHighlightStates((prev) => ({
       ...prev,
       [highlightId]: {
@@ -67,7 +82,10 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
           </div>
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">Recent Highlights</h3>
-            <p className="text-sm text-gray-600 max-w-xs mx-auto">No highlights yet. Start reading and highlighting to see them here!</p>
+            <p className="text-sm text-gray-600 max-w-xs mx-auto">
+              No highlights yet. Start reading and highlighting to see them
+              here!
+            </p>
           </div>
         </div>
       </div>
@@ -95,6 +113,7 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
                 toggleFavorite.mutate({
                   highlightId: highlight.id,
                   isFavorite: !highlight.isFavorite,
+                  bookId: highlight.bookId,
                 });
               }}
               onDelete={() => deleteHighlight.mutate(highlight.id)}
@@ -122,8 +141,12 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
                   editedText: highlight.text,
                 });
               }}
-              onTextChange={(text) => updateHighlightState(highlight.id, { editedText: text })}
-              onShowDeleteConfirm={(show) => updateHighlightState(highlight.id, { showDeleteConfirm: show })}
+              onTextChange={(text) =>
+                updateHighlightState(highlight.id, { editedText: text })
+              }
+              onShowDeleteConfirm={(show) =>
+                updateHighlightState(highlight.id, { showDeleteConfirm: show })
+              }
             />
           );
         })}

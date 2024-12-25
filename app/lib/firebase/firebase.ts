@@ -1,6 +1,12 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from "firebase/app";
+import {
+  initializeFirestore,
+  getFirestore,
+  CACHE_SIZE_UNLIMITED,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,9 +17,22 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
+// Initialize Firebase (only if not already initialized)
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
+
+// Initialize Firestore with settings
+let db;
+if (!getApps().length) {
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+      cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+    }),
+  });
+} else {
+  db = getFirestore(app);
+}
+
 const auth = getAuth(app);
 
 export { app, db, auth };

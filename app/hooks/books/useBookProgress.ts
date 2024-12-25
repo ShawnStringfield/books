@@ -4,7 +4,7 @@ import {
   type ReadingStatusType,
   ReadingStatus,
 } from "@/app/stores/types";
-import { useUpdateBook } from "./useBooks";
+import { useUpdateBook, useUpdateReadingStatus } from "./useBooks";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface UseBookProgressReturn {
@@ -37,6 +37,7 @@ export function useBookProgress({
 }): UseBookProgressReturn {
   const queryClient = useQueryClient();
   const updateBookMutation = useUpdateBook();
+  const updateReadingStatusMutation = useUpdateReadingStatus();
   const [showReadingControls, setShowReadingControls] = useState(false);
   const [showHighlightForm, setShowHighlightForm] = useState(false);
   const [manualTotalPages, setManualTotalPages] = useState<string>("");
@@ -78,24 +79,55 @@ export function useBookProgress({
         newStatus = ReadingStatus.IN_PROGRESS;
       }
 
-      // Optimistically update the cache
+      // Determine dates based on status change
+      const now = new Date().toISOString();
+      let startDate: string | undefined = undefined;
+      let completedDate: string | undefined = undefined;
+
+      // Get current book data and update cache
       const currentBook = queryClient.getQueryData<Book>(["books", id]);
       if (currentBook) {
+        startDate = currentBook.startDate;
+        completedDate = currentBook.completedDate;
+
+        // Update dates based on status change
+        if (
+          newStatus === ReadingStatus.IN_PROGRESS &&
+          status === ReadingStatus.NOT_STARTED
+        ) {
+          startDate = now;
+        } else if (newStatus === ReadingStatus.NOT_STARTED) {
+          startDate = undefined;
+          completedDate = undefined;
+        } else if (newStatus === ReadingStatus.COMPLETED) {
+          completedDate = now;
+        }
+
+        // Optimistically update the cache
         queryClient.setQueryData(["books", id], {
           ...currentBook,
           currentPage: newPage,
           ...(newStatus && { status: newStatus }),
+          startDate,
+          completedDate,
         });
       }
 
-      // Update progress and status if needed
+      // Update progress
       await updateBookMutation.mutateAsync({
         bookId: id,
         updates: {
           currentPage: newPage,
-          ...(newStatus && { status: newStatus }),
         },
       });
+
+      // If status needs to change, use updateReadingStatus
+      if (newStatus) {
+        await updateReadingStatusMutation.mutateAsync({
+          bookId: id,
+          status: newStatus,
+        });
+      }
 
       // Call the callback functions if provided
       onProgressChange?.(newPage);
@@ -139,24 +171,55 @@ export function useBookProgress({
         newPage = totalPages;
       }
 
-      // Optimistically update the cache
+      // Determine dates based on status change
+      const now = new Date().toISOString();
+      let startDate: string | undefined = undefined;
+      let completedDate: string | undefined = undefined;
+
+      // Get current book data
       const currentBook = queryClient.getQueryData<Book>(["books", id]);
       if (currentBook) {
+        startDate = currentBook.startDate;
+        completedDate = currentBook.completedDate;
+
+        // Update dates based on status change
+        if (
+          newStatus === ReadingStatus.IN_PROGRESS &&
+          status === ReadingStatus.NOT_STARTED
+        ) {
+          startDate = now;
+        } else if (newStatus === ReadingStatus.NOT_STARTED) {
+          startDate = undefined;
+          completedDate = undefined;
+        } else if (newStatus === ReadingStatus.COMPLETED) {
+          completedDate = now;
+        }
+
+        // Optimistically update the cache
         queryClient.setQueryData(["books", id], {
           ...currentBook,
           status: newStatus,
           currentPage: newPage,
+          startDate,
+          completedDate,
         });
       }
 
-      // Update both status and progress
-      await updateBookMutation.mutateAsync({
+      // First update the status using updateReadingStatus
+      await updateReadingStatusMutation.mutateAsync({
         bookId: id,
-        updates: {
-          status: newStatus,
-          currentPage: newPage,
-        },
+        status: newStatus,
       });
+
+      // Then update the page if needed
+      if (newPage !== currentPage) {
+        await updateBookMutation.mutateAsync({
+          bookId: id,
+          updates: {
+            currentPage: newPage,
+          },
+        });
+      }
 
       // Call the callback functions if provided
       onStatusChange?.(newStatus);

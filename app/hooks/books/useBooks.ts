@@ -13,27 +13,42 @@ export function useBooks() {
     queryKey: [BOOKS_KEY],
     queryFn: async () => {
       if (!user?.uid) {
-        throw new Error("Authentication required to access books");
+        throw new Error("Authentication required to fetch books");
       }
-      // Temporarily disable sorting until index is built
       return bookService.getBooks(user.uid);
     },
-    enabled: !!user?.uid,
+    gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true, // Refetch when coming back online
+    retry: 1,
+    networkMode: "offlineFirst", // Use cached data first, then update from network
   });
 }
 
 export function useBook(bookId: string) {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
 
   return useQuery({
     queryKey: [BOOKS_KEY, bookId],
     queryFn: async () => {
       if (!user?.uid) {
-        throw new Error("Authentication required to access book");
+        throw new Error("Authentication required to fetch book");
       }
       return bookService.getBook(bookId);
     },
-    enabled: !!user?.uid,
+    gcTime: 24 * 60 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    retry: 1,
+    networkMode: "offlineFirst",
+    placeholderData: () => {
+      // Try to get book from books list cache first
+      const books = queryClient.getQueryData<Book[]>([BOOKS_KEY]);
+      return books?.find((book) => book.id === bookId);
+    },
   });
 }
 

@@ -11,33 +11,50 @@ import {
   where,
   orderBy,
   serverTimestamp,
-  type Timestamp,
+  Timestamp,
+  FieldValue,
+  deleteField,
+  limit,
 } from "firebase/firestore";
 import type { Book, BaseBook, ReadingStatusType } from "@/app/stores/types";
-import type { FirebaseModel, WithTimestamps } from "../types";
+import type { WithTimestamps } from "../types";
+import { ReadingStatus } from "@/app/stores/types";
 
 const BOOKS_COLLECTION = "books";
 
-type FirestoreBook = FirebaseModel<Book>;
+// Helper function to transform Firestore timestamps
+const transformTimestamps = (data: Record<string, unknown>) => {
+  const transformed = { ...data };
+
+  // Transform standard timestamps
+  ["createdAt", "updatedAt", "startDate", "completedDate"].forEach((field) => {
+    if (transformed[field] instanceof Timestamp) {
+      transformed[field] = (transformed[field] as Timestamp)
+        .toDate()
+        .toISOString();
+    }
+  });
+
+  return transformed;
+};
 
 export async function getBooks(userId: string): Promise<Book[]> {
   const booksRef = collection(db, BOOKS_COLLECTION);
   const q = query(
     booksRef,
     where("userId", "==", userId),
-    orderBy("updatedAt", "desc")
+    orderBy("updatedAt", "desc"),
+    limit(50) // Limit initial load to 50 books
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      ...data,
-      createdAt: (data.createdAt as Timestamp).toDate().toISOString(),
-      updatedAt: (data.updatedAt as Timestamp).toDate().toISOString(),
-    } as Book;
-  });
+  return snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...transformTimestamps(doc.data()),
+      } as Book)
+  );
 }
 
 export async function getBook(bookId: string): Promise<Book> {
@@ -48,19 +65,17 @@ export async function getBook(bookId: string): Promise<Book> {
     throw new Error("Book not found");
   }
 
-  const data = bookDoc.data();
   return {
     id: bookDoc.id,
-    ...data,
-    createdAt: (data.createdAt as Timestamp).toDate().toISOString(),
-    updatedAt: (data.updatedAt as Timestamp).toDate().toISOString(),
+    ...transformTimestamps(bookDoc.data()),
   } as Book;
 }
 
 export async function addBook(userId: string, book: BaseBook): Promise<Book> {
   const booksRef = collection(db, BOOKS_COLLECTION);
   const timestamp = serverTimestamp();
-  const newBook: FirestoreBook = {
+
+  const newBook = {
     ...book,
     userId,
     createdAt: timestamp,
@@ -136,10 +151,40 @@ export async function updateReadingStatus(
 ): Promise<void> {
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
   const timestamp = serverTimestamp();
-  const updateData = {
+
+  // Get current book status
+  const bookSnap = await getDoc(bookRef);
+  const bookData = bookSnap.data();
+  const currentStatus = bookData?.status;
+
+  const updateData: {
+    status: ReadingStatusType;
+    updatedAt: FieldValue;
+    startDate?: FieldValue;
+    completedDate?: FieldValue;
+  } = {
     status,
     updatedAt: timestamp,
   };
+
+  // Only set startDate when transitioning from NOT_STARTED to IN_PROGRESS
+  if (
+    currentStatus === ReadingStatus.NOT_STARTED &&
+    status === ReadingStatus.IN_PROGRESS
+  ) {
+    updateData.startDate = timestamp;
+  } else if (status === ReadingStatus.NOT_STARTED) {
+    // Remove startDate when moving back to NOT_STARTED
+    updateData.startDate = deleteField();
+  }
+
+  // Set completedDate when marking as completed
+  if (status === ReadingStatus.COMPLETED) {
+    updateData.completedDate = timestamp;
+  } else if (currentStatus === ReadingStatus.COMPLETED) {
+    // Remove completedDate when moving from completed to another status
+    updateData.completedDate = deleteField();
+  }
 
   await updateDoc(bookRef, updateData);
 }

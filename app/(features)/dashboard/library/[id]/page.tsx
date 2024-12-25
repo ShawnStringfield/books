@@ -10,7 +10,6 @@ import {
   useDeleteBook,
   useUpdateBook,
 } from "@/app/hooks/books/useBooks";
-import { DeleteBookDialog } from "@/app/components/dialogs/DeleteBookDialog";
 import { ErrorBoundary } from "@/app/components/ErrorBoundary";
 import { BookMetadata } from "@/app/components/book/details/BookMetadata";
 import { BookDescription } from "@/app/components/book/details/BookDescription";
@@ -24,6 +23,8 @@ import { HighlightsSection } from "@/app/components/book/details/HighlightsSecti
 import DashboardLayout from "@/app/components/dashboard/DashboardLayout";
 import { calculatePercentComplete } from "@/app/utils/bookUtils";
 import ReadingProgressBar from "@/app/components/book/ReadingProgressBar";
+import WarningAlert from "@/app/components/ui/warning-alert";
+import BookToolbar from "@/app/components/book/BookToolbar";
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -164,6 +165,19 @@ function BookDetailsContent() {
     toggleEditControls();
   };
 
+  const deleteBookActions = [
+    {
+      label: "Cancel",
+      onClick: () => setShowDeleteWarning(false),
+      variant: "ghost" as const,
+    },
+    {
+      label: "Delete",
+      onClick: handleDelete,
+      variant: "destructive" as const,
+    },
+  ];
+
   return (
     <DashboardLayout>
       <ReadingProgressBar
@@ -173,41 +187,17 @@ function BookDetailsContent() {
         variant="bleed"
         className="relative -mt-[1px] bg-white overflow-visible"
       />
-      <div className="p-6 pb-12 max-w-4xl mx-auto space-y-8">
-        <BookHeader
-          book={validatedBook}
-          showEditControls={showEditControls}
-          showReadingControls={showReadingControls}
-          showHighlightForm={showHighlightForm}
+      <div className="p-6 pb-12 max-w-4xl mx-auto space-y-6">
+        <BookToolbar
           onReadingControlsClick={toggleReadingControls}
           onHighlightClick={toggleHighlightForm}
           onEditClick={toggleEditControls}
           onDeleteClick={() => setShowDeleteWarning(true)}
-          onCancelEdit={toggleEditControls}
-          onSaveChanges={handleSaveChanges}
+          showReadingControls={showReadingControls}
+          showHighlights={showHighlightForm}
+          className="flex items-center gap-3 mt-2"
+          variant="page"
         />
-
-        <DeleteBookDialog
-          isOpen={showDeleteWarning}
-          onClose={() => setShowDeleteWarning(false)}
-          onConfirm={handleDelete}
-          bookTitle={validatedBook.title}
-        />
-
-        <BookMetadata
-          book={validatedBook}
-          showEditControls={showEditControls}
-          onGenreChange={setEditedGenre}
-        />
-
-        {showHighlightForm && (
-          <HighlightsSection
-            book={validatedBook}
-            showForm={true}
-            onClose={toggleHighlightForm}
-          />
-        )}
-
         {showReadingControls && (
           <ReadingControlsSection
             book={validatedBook}
@@ -222,6 +212,33 @@ function BookDetailsContent() {
             error={error}
           />
         )}
+        {showHighlightForm && (
+          <HighlightsSection
+            book={validatedBook}
+            showForm={true}
+            onClose={toggleHighlightForm}
+          />
+        )}
+        {showDeleteWarning && (
+          <WarningAlert
+            message={`Are you sure you want to delete "${validatedBook.title}"? This action cannot be undone.`}
+            actions={deleteBookActions}
+            variant="danger"
+          />
+        )}
+
+        <BookHeader
+          book={validatedBook}
+          showEditControls={showEditControls}
+          onCancelEdit={toggleEditControls}
+          onSaveChanges={handleSaveChanges}
+        />
+
+        <BookMetadata
+          book={validatedBook}
+          showEditControls={showEditControls}
+          onGenreChange={setEditedGenre}
+        />
 
         <BookDescription
           book={validatedBook}

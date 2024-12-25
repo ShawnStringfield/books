@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import { type Book } from "@/app/stores/types";
 import { useState, useEffect } from "react";
-import { AlertCircle, ExternalLink, Info } from "lucide-react";
+import { ExternalLink, Info } from "lucide-react";
 import DashboardLayout from "@/app/components/dashboard/DashboardLayout";
 import BookHighlights from "@/app/components/highlights/BookHighlights";
 import ReadingProgressBar from "@/app/components/book/ReadingProgressBar";
@@ -22,6 +22,7 @@ import {
 } from "@/app/hooks/books/useBooks";
 import BookToolbar from "@/app/components/book/BookToolbar";
 import BookProgressManager from "@/app/components/book/BookProgressManager";
+import { DeleteBookDialog } from "@/app/components/dialogs/DeleteBookDialog";
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -40,6 +41,7 @@ function BookDetailsContent() {
   const { showEditControls, toggleEditControls } = useEditMode();
   const [editedDescription, setEditedDescription] = useState("");
   const [editedGenre, setEditedGenre] = useState("");
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
   // Redirect if no id is provided
   useEffect(() => {
@@ -123,11 +125,9 @@ function BookDetailsContent() {
           showReadingControls,
           showHighlightForm,
           manualTotalPages,
-          showDeleteWarning,
           toggleReadingControls,
           toggleHighlightForm,
           setManualTotalPages,
-          setShowDeleteWarning,
         }) => (
           <>
             <ReadingProgressBar
@@ -153,51 +153,12 @@ function BookDetailsContent() {
                 variant="page"
               />
 
-              {showDeleteWarning && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      <AlertCircle
-                        className="h-5 w-5 text-red-400"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div className="ml-3 flex-1">
-                      <h3 className="text-sm font-medium text-red-800">
-                        {isLastBook
-                          ? "Cannot delete the last book"
-                          : "Delete this book?"}
-                      </h3>
-                      <div className="mt-2 text-sm text-red-700">
-                        <p>
-                          {isLastBook
-                            ? "You must keep at least one book in your library."
-                            : "This action cannot be undone. Are you sure you want to delete this book?"}
-                        </p>
-                      </div>
-                      <div className="mt-4 flex gap-2">
-                        {!isLastBook && (
-                          <Button
-                            onClick={handleDelete}
-                            variant="destructive"
-                            size="sm"
-                            className="bg-red-600 hover:bg-red-700"
-                          >
-                            Yes, delete book
-                          </Button>
-                        )}
-                        <Button
-                          onClick={() => setShowDeleteWarning(false)}
-                          variant="outline"
-                          size="sm"
-                        >
-                          {isLastBook ? "Okay" : "Cancel"}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <DeleteBookDialog
+                isOpen={showDeleteWarning}
+                onClose={() => setShowDeleteWarning(false)}
+                onConfirm={handleDelete}
+                bookTitle={validatedBook.title}
+              />
 
               {showHighlightForm && (
                 <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
@@ -235,38 +196,44 @@ function BookDetailsContent() {
                 </div>
               )}
 
-              <div className="flex flex-col gap-2">
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col gap-2">
-                    <h1 className="text-3xl font-bold leading-0">
-                      {validatedBook.title}
-                    </h1>
-                    <h2 className="text-mono text-lg font-semibold leading-tight">
-                      {validatedBook.subtitle}
-                    </h2>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {showEditControls ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={toggleEditControls}
-                          className="text-xs py-1 px-2"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={handleSaveChanges}
-                          className="text-xs py-1 px-2 bg-brand"
-                        >
-                          Save Changes
-                        </Button>
-                      </>
-                    ) : null}
-                  </div>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <h1 className="text-3xl font-bold leading-0">
+                    {validatedBook.title}
+                  </h1>
+                  <h2 className="text-mono text-lg font-semibold leading-tight">
+                    {validatedBook.subtitle}
+                  </h2>
                 </div>
+                <BookToolbar
+                  onReadingControlsClick={toggleReadingControls}
+                  onHighlightClick={toggleHighlightForm}
+                  onEditClick={toggleEditControls}
+                  onDeleteClick={() => setShowDeleteWarning(true)}
+                  showReadingControls={showReadingControls}
+                  showHighlights={showHighlightForm}
+                  className="flex items-center gap-3"
+                  variant="page"
+                />
+                {showEditControls && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={toggleEditControls}
+                      className="text-xs py-1 px-2"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleSaveChanges}
+                      className="text-xs py-1 px-2 bg-brand"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                )}
                 <div className="mt-2">
                   <div className="my-4">
                     <p className="text-sm text-mono">

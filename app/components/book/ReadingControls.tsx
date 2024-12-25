@@ -30,6 +30,7 @@ interface ReadingControlsProps {
   onDelete?: () => void;
   isLastBook?: boolean;
   fromGoogle?: boolean;
+  shouldWarnOnReset?: boolean;
 }
 
 const ReadingControls = ({
@@ -48,6 +49,7 @@ const ReadingControls = ({
   onManualTotalPagesChange,
   onTotalPagesUpdate,
   fromGoogle = false,
+  shouldWarnOnReset = true,
 }: ReadingControlsProps) => {
   const [showWarning, setShowWarning] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -59,7 +61,11 @@ const ReadingControls = ({
     bookId: string,
     newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]
   ) => {
-    if (newStatus === ReadingStatus.NOT_STARTED && currentPage > 0) {
+    if (
+      shouldWarnOnReset &&
+      newStatus === ReadingStatus.NOT_STARTED &&
+      currentPage > 0
+    ) {
       setShowWarning(true);
     } else {
       onStatusChange(bookId, newStatus);

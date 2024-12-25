@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Book, ReadingStatusType, Highlight } from "./types";
+import type { Book, ReadingStatusType } from "./types";
 
 export interface BookStore {
   currentBook: Book | null;
@@ -8,8 +8,6 @@ export interface BookStore {
   hasHydrated: boolean;
   isLoading: boolean;
   error: string | null;
-  highlights: Highlight[];
-  books: Book[];
   setCurrentBook: (book: Book | null) => void;
   setCurrentStatus: (status: ReadingStatusType) => void;
   setAddBookSheetOpen: (isOpen: boolean) => void;
@@ -26,8 +24,6 @@ export const useBookStore = create<BookStore>((set) => ({
   hasHydrated: false,
   isLoading: false,
   error: null,
-  highlights: [],
-  books: [],
 
   // Actions
   setCurrentBook: (book) => set({ currentBook: book }),
@@ -42,5 +38,3 @@ export const useBookStore = create<BookStore>((set) => ({
 export const selectIsLoading = (state: BookStore) => state.isLoading;
 export const selectError = (state: BookStore) => state.error;
 export const selectHasHydrated = (state: BookStore) => state.hasHydrated;
-export const selectFavoriteHighlights = (state: BookStore) =>
-  state.highlights?.filter((h) => h.isFavorite) || [];

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import { useSelectedGenres } from "../../profile-onboarding/hooks/useOnboardingStore";
 import Image from "next/image";
 
@@ -92,7 +91,7 @@ const GoogleBooks = () => {
       <h1 className="text-3xl font-bold mb-6">Your Recommended Books</h1>
       {selectedGenres.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
-          {selectedGenres.map((genre, index) => (
+          {selectedGenres.map((genre: string, index: number) => (
             <span
               key={index}
               className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"

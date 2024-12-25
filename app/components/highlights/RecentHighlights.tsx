@@ -7,12 +7,6 @@ import {
   useDeleteHighlight,
   useUpdateHighlight,
 } from "@/app/hooks/highlights/useHighlights";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/app/components/ui/card";
 import { Loader2, Highlighter } from "lucide-react";
 import HighlightCard from "./HighlightCard";
 import { useBooks } from "@/app/hooks/books/useBooks";

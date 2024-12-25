@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import * as highlightService from "@/app/lib/firebase/services/highlights";
-import type { BaseHighlight } from "@/app/stores/types";
+import type { BaseHighlight, Highlight } from "@/app/stores/types";
 import { useEffect, useState } from "react";
 
 // Query keys as constants
@@ -11,7 +11,7 @@ const FAVORITES_KEY = "favorites";
 
 export function useHighlights() {
   const { user } = useAuth();
-  const [data, setData] = useState<BaseHighlight[]>([]);
+  const [data, setData] = useState<Highlight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -43,7 +43,7 @@ export function useHighlights() {
 
 export function useHighlightsByBook(bookId: string, limit?: number) {
   const { user } = useAuth();
-  const [data, setData] = useState<BaseHighlight[]>([]);
+  const [data, setData] = useState<Highlight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -77,7 +77,7 @@ export function useHighlightsByBook(bookId: string, limit?: number) {
 
 export function useFavoriteHighlights() {
   const { user } = useAuth();
-  const [data, setData] = useState<BaseHighlight[]>([]);
+  const [data, setData] = useState<Highlight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -222,27 +222,24 @@ export function useToggleFavorite() {
 
       // Snapshot the previous values
       const previousHighlights =
-        queryClient.getQueryData<BaseHighlight[]>([HIGHLIGHTS_KEY]) || [];
+        queryClient.getQueryData<Highlight[]>([HIGHLIGHTS_KEY]) || [];
       const previousFavorites =
-        queryClient.getQueryData<BaseHighlight[]>([
+        queryClient.getQueryData<Highlight[]>([
           HIGHLIGHTS_KEY,
           FAVORITES_KEY,
         ]) || [];
 
       // Optimistically update highlights cache
-      queryClient.setQueryData<BaseHighlight[]>(
-        [HIGHLIGHTS_KEY],
-        (old = []) => {
-          return old.map((highlight) =>
-            highlight.id === highlightId
-              ? { ...highlight, isFavorite }
-              : highlight
-          );
-        }
-      );
+      queryClient.setQueryData<Highlight[]>([HIGHLIGHTS_KEY], (old = []) => {
+        return old.map((highlight) =>
+          highlight.id === highlightId
+            ? { ...highlight, isFavorite }
+            : highlight
+        );
+      });
 
       // Optimistically update favorites cache
-      queryClient.setQueryData<BaseHighlight[]>(
+      queryClient.setQueryData<Highlight[]>(
         [HIGHLIGHTS_KEY, FAVORITES_KEY],
         (old = []) => {
           if (isFavorite) {

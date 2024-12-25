@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { STEPS } from '@profile-onboarding/constants';
-import type { StepId } from '@profile-onboarding/types/onboarding';
+import { create } from "zustand";
+import { STEPS } from "@profile-onboarding/constants";
+import type { StepId } from "@profile-onboarding/types/onboarding";
 
 interface OnboardingUIState {
   currentStep: StepId;
@@ -8,6 +8,7 @@ interface OnboardingUIState {
   completedSteps: StepId[];
   isLoading: boolean;
   error: Error | null;
+  selectedGenres: string[];
 }
 
 interface OnboardingStore extends OnboardingUIState {
@@ -18,6 +19,7 @@ interface OnboardingStore extends OnboardingUIState {
   setError: (error: Error | null) => void;
   resetState: () => void;
   handleStepChange: (step: StepId) => void;
+  setSelectedGenres: (genres: string[]) => void;
 }
 
 const INITIAL_STATE: OnboardingUIState = {
@@ -26,6 +28,7 @@ const INITIAL_STATE: OnboardingUIState = {
   completedSteps: [STEPS[0]],
   isLoading: false,
   error: null,
+  selectedGenres: [],
 };
 
 export const useOnboardingStore = create<OnboardingStore>((set) => ({
@@ -43,7 +46,9 @@ export const useOnboardingStore = create<OnboardingStore>((set) => ({
 
   markStepCompleted: (step: StepId) => {
     set((state) => ({
-      completedSteps: state.completedSteps.includes(step) ? state.completedSteps : [...state.completedSteps, step],
+      completedSteps: state.completedSteps.includes(step)
+        ? state.completedSteps
+        : [...state.completedSteps, step],
     }));
   },
 
@@ -51,7 +56,9 @@ export const useOnboardingStore = create<OnboardingStore>((set) => ({
     set((state) => {
       const currentIndex = STEPS.indexOf(step);
       const progress = (currentIndex / (STEPS.length - 1)) * 100;
-      const completedSteps = state.completedSteps.includes(step) ? state.completedSteps : [...state.completedSteps, step];
+      const completedSteps = state.completedSteps.includes(step)
+        ? state.completedSteps
+        : [...state.completedSteps, step];
 
       return {
         currentStep: step,
@@ -72,12 +79,21 @@ export const useOnboardingStore = create<OnboardingStore>((set) => ({
   resetState: () => {
     set(INITIAL_STATE);
   },
+
+  setSelectedGenres: (genres: string[]) => {
+    set({ selectedGenres: genres });
+  },
 }));
 
 // Individual selectors for UI state
-export const useOnboardingStep = () => useOnboardingStore((state) => state.currentStep);
-export const useOnboardingProgress = () => useOnboardingStore((state) => state.progress);
-export const useCompletedSteps = () => useOnboardingStore((state) => state.completedSteps);
+export const useOnboardingStep = () =>
+  useOnboardingStore((state) => state.currentStep);
+export const useOnboardingProgress = () =>
+  useOnboardingStore((state) => state.progress);
+export const useCompletedSteps = () =>
+  useOnboardingStore((state) => state.completedSteps);
+export const useSelectedGenres = () =>
+  useOnboardingStore((state) => state.selectedGenres);
 
 // Combined selector with memoized object
 export const useOnboardingUI = () => {
@@ -89,8 +105,10 @@ export const useOnboardingUI = () => {
 };
 
 // Individual status selectors
-export const useOnboardingLoading = () => useOnboardingStore((state) => state.isLoading);
-export const useOnboardingError = () => useOnboardingStore((state) => state.error);
+export const useOnboardingLoading = () =>
+  useOnboardingStore((state) => state.isLoading);
+export const useOnboardingError = () =>
+  useOnboardingStore((state) => state.error);
 
 // Combined status selector
 export const useOnboardingStatus = () => {
@@ -100,8 +118,10 @@ export const useOnboardingStatus = () => {
 };
 
 // Individual action selectors
-export const useStepChangeAction = () => useOnboardingStore((state) => state.handleStepChange);
-export const useResetStateAction = () => useOnboardingStore((state) => state.resetState);
+export const useStepChangeAction = () =>
+  useOnboardingStore((state) => state.handleStepChange);
+export const useResetStateAction = () =>
+  useOnboardingStore((state) => state.resetState);
 
 // Combined actions selector
 export const useOnboardingActions = () => {

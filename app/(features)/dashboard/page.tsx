@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useOnboardingCheck } from '@/app/(features)/profile-onboarding/hooks/useOnboardingCheck';
-import CurrentlyReading from '@/app/components/book/CurrentlyReading';
-import FavHighlightsOnboarding from '@/app/components/highlights/FavHighlightsOnboarding';
-import RecentHighlights from '@/app/components/highlights/RecentHighlights';
-import DashboardLayout from '@/app/components/dashboard/DashboardLayout';
-import DashboardStats from '@/app/components/dashboard/stats/DashboardStats';
-import { useBooks } from '@/app/hooks/books/useBooks';
-import { ReadingStatus } from '@/app/stores/types';
-import { Loader2 } from 'lucide-react';
+import React from "react";
+import { useOnboardingCheck } from "@/app/(features)/profile-onboarding/hooks/useOnboardingCheck";
+import CurrentlyReading from "@/app/components/book/CurrentlyReading";
+import FavHighlightsOnboarding from "@/app/components/highlights/FavHighlightsOnboarding";
+import RecentHighlights from "@/app/components/highlights/RecentHighlights";
+import DashboardLayout from "@/app/components/dashboard/DashboardLayout";
+import DashboardStats from "@/app/components/dashboard/stats/DashboardStats";
+import { useBooks } from "@/app/hooks/books/useBooks";
+import { ReadingStatus } from "@/app/stores/types";
+import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   useOnboardingCheck();
@@ -23,7 +23,8 @@ export default function DashboardPage() {
     );
   }
 
-  const currentlyReadingBooks = books?.filter((book) => book.status === ReadingStatus.IN_PROGRESS) ?? [];
+  const currentlyReadingBooks =
+    books?.filter((book) => book.status === ReadingStatus.IN_PROGRESS) ?? [];
   const hasRecentHighlights = false; // TODO: Implement with Firebase
   const hasFavoriteHighlights = false; // TODO: Implement with Firebase
   const bothEmpty = !hasRecentHighlights && !hasFavoriteHighlights;
@@ -37,17 +38,10 @@ export default function DashboardPage() {
         <div className="mb-8">
           <CurrentlyReading books={currentlyReadingBooks} />
         </div>
-        {bothEmpty ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <RecentHighlights limit={5} />
-            <FavHighlightsOnboarding />
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <RecentHighlights limit={5} />
-            <FavHighlightsOnboarding />
-          </div>
-        )}
+        <div className="space-y-6">
+          <RecentHighlights limit={5} />
+          <FavHighlightsOnboarding />
+        </div>
       </div>
     </DashboardLayout>
   );

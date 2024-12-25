@@ -60,14 +60,9 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Highlights</CardTitle>
-        </CardHeader>
-        <CardContent className="flex justify-center py-8">
-          <Loader2 className="w-6 h-6 animate-spin" />
-        </CardContent>
-      </Card>
+      <div className="flex justify-center py-8">
+        <Loader2 className="w-6 h-6 animate-spin" />
+      </div>
     );
   }
 
@@ -93,11 +88,11 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Highlights</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold">Recent Highlights</h2>
+      </div>
+      <div className="space-y-4">
         {recentHighlights.map((highlight) => {
           const state = getHighlightState(highlight.id);
           return (
@@ -150,7 +145,7 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
             />
           );
         })}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

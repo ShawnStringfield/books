@@ -30,6 +30,7 @@ interface ReadingControlsProps {
   onTotalPagesUpdate?: (value: number) => void;
   fromGoogle?: boolean;
   shouldWarnOnReset?: boolean;
+  isLastBook?: boolean;
 }
 
 // Subcomponents
@@ -113,6 +114,7 @@ const ReadingControls = ({
   onTotalPagesUpdate,
   fromGoogle = false,
   shouldWarnOnReset = true,
+  isLastBook = false,
 }: ReadingControlsProps) => {
   const [showWarning, setShowWarning] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -123,7 +125,8 @@ const ReadingControls = ({
       if (
         shouldWarnOnReset &&
         newStatus === ReadingStatus.NOT_STARTED &&
-        currentPage > 0
+        currentPage > 0 &&
+        !isLastBook
       ) {
         setShowWarning(true);
       } else {
@@ -134,7 +137,7 @@ const ReadingControls = ({
         }
       }
     },
-    [bookId, currentPage, onStatusChange, shouldWarnOnReset]
+    [bookId, currentPage, onStatusChange, shouldWarnOnReset, isLastBook]
   );
 
   const handleProgressChange = useCallback(

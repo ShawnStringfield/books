@@ -3,12 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { type Book } from "@/app/stores/types";
 import { useState, useEffect } from "react";
-import DashboardLayout from "@/app/components/dashboard/DashboardLayout";
-import BookHighlights from "@/app/components/highlights/BookHighlights";
-import ReadingProgressBar from "@/app/components/book/ReadingProgressBar";
 import { EditModeProvider, useEditMode } from "@/app/contexts/EditModeContext";
-import { calculatePercentComplete } from "@/app/utils/bookUtils";
-import ReadingControls from "@/app/components/book/ReadingControls";
 import {
   useBook,
   useBooks,
@@ -17,13 +12,16 @@ import {
 } from "@/app/hooks/books/useBooks";
 import { DeleteBookDialog } from "@/app/components/dialogs/DeleteBookDialog";
 import { ErrorBoundary } from "@/app/components/ErrorBoundary";
-import { BookHeader } from "@/app/components/book/details/BookHeader";
 import { BookMetadata } from "@/app/components/book/details/BookMetadata";
 import { BookDescription } from "@/app/components/book/details/BookDescription";
 import { BookProgressSection } from "@/app/components/book/details/BookProgressSection";
 import { BookDetailsSkeleton } from "@/app/components/book/details/BookDetailsSkeleton";
 import { useBookProgress } from "@/app/hooks/books/useBookProgress";
 import { Button } from "@/app/components/ui/button";
+import { BookDetailsLayout } from "@/app/components/book/details/BookDetailsLayout";
+import { BookDetailsHeader } from "@/app/components/book/details/BookDetailsHeader";
+import { ReadingControlsSection } from "@/app/components/book/details/ReadingControlsSection";
+import { HighlightsSection } from "@/app/components/book/details/HighlightsSection";
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -88,15 +86,15 @@ function BookDetailsContent() {
   // Show loading state if data is being fetched
   if (isBooksLoading || isBookLoading) {
     return (
-      <DashboardLayout>
+      <BookDetailsLayout>
         <BookDetailsSkeleton />
-      </DashboardLayout>
+      </BookDetailsLayout>
     );
   }
 
   if (!book || !book.id) {
     return (
-      <DashboardLayout>
+      <BookDetailsLayout>
         <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
           <h1 className="text-2xl font-bold">Book not found</h1>
           <Button
@@ -106,7 +104,7 @@ function BookDetailsContent() {
             Return to Library
           </Button>
         </div>
-      </DashboardLayout>
+      </BookDetailsLayout>
     );
   }
 
@@ -123,6 +121,8 @@ function BookDetailsContent() {
     toggleReadingControls,
     toggleHighlightForm,
     setManualTotalPages,
+    isUpdating,
+    error,
   } = bookProgress;
 
   const handleDelete = () => {
@@ -161,113 +161,70 @@ function BookDetailsContent() {
   };
 
   return (
-    <DashboardLayout>
-      <ReadingProgressBar
-        currentPage={validatedBook.currentPage || 0}
-        totalPages={validatedBook.totalPages || 0}
-        progress={calculatePercentComplete(
-          validatedBook.currentPage,
-          validatedBook.totalPages
-        )}
-        variant="bleed"
-        className="relative -mt-[1px] bg-white overflow-visible"
+    <BookDetailsLayout>
+      <BookDetailsHeader
+        book={validatedBook}
+        showEditControls={showEditControls}
+        showReadingControls={showReadingControls}
+        showHighlightForm={showHighlightForm}
+        onReadingControlsClick={toggleReadingControls}
+        onHighlightClick={toggleHighlightForm}
+        onEditClick={toggleEditControls}
+        onDeleteClick={() => setShowDeleteWarning(true)}
+        onCancelEdit={toggleEditControls}
+        onSaveChanges={handleSaveChanges}
       />
 
-      <div className="p-6 pb-12 max-w-4xl mx-auto space-y-8">
-        <BookHeader
+      <DeleteBookDialog
+        isOpen={showDeleteWarning}
+        onClose={() => setShowDeleteWarning(false)}
+        onConfirm={handleDelete}
+        bookTitle={validatedBook.title}
+      />
+
+      <BookMetadata
+        book={validatedBook}
+        showEditControls={showEditControls}
+        onGenreChange={setEditedGenre}
+      />
+
+      {showHighlightForm && (
+        <HighlightsSection
           book={validatedBook}
-          showEditControls={showEditControls}
-          showReadingControls={showReadingControls}
-          showHighlightForm={showHighlightForm}
-          onReadingControlsClick={toggleReadingControls}
-          onHighlightClick={toggleHighlightForm}
-          onEditClick={toggleEditControls}
-          onDeleteClick={() => setShowDeleteWarning(true)}
-          onCancelEdit={toggleEditControls}
-          onSaveChanges={handleSaveChanges}
+          showForm={true}
+          onClose={toggleHighlightForm}
         />
+      )}
 
-        <DeleteBookDialog
-          isOpen={showDeleteWarning}
-          onClose={() => setShowDeleteWarning(false)}
-          onConfirm={handleDelete}
-          bookTitle={validatedBook.title}
-        />
-
-        <BookMetadata
+      {showReadingControls && (
+        <ReadingControlsSection
           book={validatedBook}
-          showEditControls={showEditControls}
-          onGenreChange={setEditedGenre}
+          isLastBook={isLastBook}
+          manualTotalPages={manualTotalPages}
+          onStatusChange={handleStatusChange}
+          onProgressChange={handleProgressChange}
+          onCancel={toggleReadingControls}
+          onManualTotalPagesChange={setManualTotalPages}
+          onTotalPagesUpdate={handleTotalPagesUpdate}
+          isUpdating={isUpdating}
+          error={error}
         />
+      )}
 
-        {showHighlightForm && (
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-            <BookHighlights
-              bookId={validatedBook.id}
-              currentPage={validatedBook.currentPage || 0}
-              showForm={true}
-              onClose={() => toggleHighlightForm()}
-            />
-          </div>
-        )}
+      <BookDescription
+        book={validatedBook}
+        showEditControls={showEditControls}
+        onDescriptionChange={setEditedDescription}
+      />
 
-        {showReadingControls && (
-          <div className="bg-gray-50 rounded-lg p-6 space-y-6 border">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Reading Controls</h2>
-              {bookProgress.isUpdating && (
-                <div className="text-sm text-gray-500">Saving changes...</div>
-              )}
-              {bookProgress.error && (
-                <div className="text-sm text-red-500">
-                  Failed to save changes. Please try again.
-                </div>
-              )}
-            </div>
+      <HighlightsSection
+        book={validatedBook}
+        showForm={false}
+        onClose={toggleHighlightForm}
+      />
 
-            <ReadingControls
-              bookId={validatedBook.id}
-              currentPage={validatedBook.currentPage || 0}
-              totalPages={validatedBook.totalPages || 0}
-              status={validatedBook.status}
-              uniqueId={id}
-              variant="mobile"
-              onStatusChange={(
-                bookId: string,
-                status: "not-started" | "in-progress" | "completed"
-              ) => handleStatusChange(status)}
-              onProgressChange={(value: number[]) =>
-                handleProgressChange(value[0])
-              }
-              onCancel={() => toggleReadingControls()}
-              isLastBook={isLastBook}
-              manualTotalPages={manualTotalPages}
-              onManualTotalPagesChange={setManualTotalPages}
-              onTotalPagesUpdate={handleTotalPagesUpdate}
-              fromGoogle={validatedBook.fromGoogle || false}
-            />
-          </div>
-        )}
-
-        <BookDescription
-          book={validatedBook}
-          showEditControls={showEditControls}
-          onDescriptionChange={setEditedDescription}
-        />
-
-        <div className="space-y-4 py-8">
-          <BookHighlights
-            bookId={validatedBook.id}
-            currentPage={validatedBook.currentPage || 0}
-            showForm={false}
-            onClose={() => toggleHighlightForm()}
-            className="space-y-4"
-          />
-        </div>
-
-        <BookProgressSection book={validatedBook} />
-      </div>
-    </DashboardLayout>
+      <BookProgressSection book={validatedBook} />
+    </BookDetailsLayout>
   );
 }
 

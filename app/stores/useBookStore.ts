@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import type { Book, ReadingStatusType } from './types';
+import { create } from "zustand";
+import type { Book, ReadingStatusType } from "./types";
 
 interface BookUIState {
   currentBook: Book | null;
@@ -19,7 +19,7 @@ interface BookUIState {
 export const useBookStore = create<BookUIState>((set) => ({
   // Initial state
   currentBook: null,
-  currentStatus: 'not-started',
+  currentStatus: "not-started",
   isAddBookSheetOpen: false,
   hasHydrated: false,
   isLoading: false,

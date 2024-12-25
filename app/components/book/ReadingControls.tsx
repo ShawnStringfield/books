@@ -1,13 +1,13 @@
-import { Settings2, Pencil, AlertCircle, X } from 'lucide-react';
-import { ReadingStatus } from '@/app/stores/types';
-import ReadingStatusSelect from './ReadingStatusSelect';
-import BookProgressSlider from './BookProgressSlider';
-import { cn } from '@/lib/utils';
-import { Button } from '@/app/components/ui/button';
-import { useState } from 'react';
-import WarningAlert from '@/app/components/ui/warning-alert';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useBookStore } from '@/app/stores/useBookStore';
+import { Settings2, Pencil, AlertCircle, X } from "lucide-react";
+import { ReadingStatus } from "@/app/stores/types";
+import ReadingStatusSelect from "./ReadingStatusSelect";
+import BookProgressSlider from "./BookProgressSlider";
+import { cn } from "@/lib/utils";
+import { Button } from "@/app/components/ui/button";
+import { useState } from "react";
+import WarningAlert from "@/app/components/ui/warning-alert";
+import { motion, AnimatePresence } from "framer-motion";
+import { useUpdateBook } from "@/app/hooks/books/useBooks";
 
 interface ReadingControlsProps {
   bookId: string;
@@ -15,10 +15,13 @@ interface ReadingControlsProps {
   totalPages: number;
   status: (typeof ReadingStatus)[keyof typeof ReadingStatus];
   uniqueId: string;
-  variant: 'mobile' | 'desktop' | 'icon';
-  size?: 'default' | 'sm';
+  variant: "mobile" | "desktop" | "icon";
+  size?: "default" | "sm";
   className?: string;
-  onStatusChange: (bookId: string, status: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => void;
+  onStatusChange: (
+    bookId: string,
+    status: (typeof ReadingStatus)[keyof typeof ReadingStatus]
+  ) => void;
   onProgressChange: (value: number[]) => void;
   onCancel?: () => void;
   manualTotalPages?: string;
@@ -36,23 +39,26 @@ const ReadingControls = ({
   status,
   uniqueId,
   variant,
-  size = 'default',
+  size = "default",
   className,
   onStatusChange,
   onProgressChange,
   onCancel,
-  manualTotalPages = '',
+  manualTotalPages = "",
   onManualTotalPagesChange,
   onTotalPagesUpdate,
   fromGoogle = false,
 }: ReadingControlsProps) => {
   const [showWarning, setShowWarning] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const updateTotalPages = useBookStore((state) => state.updateTotalPages);
+  const updateBookMutation = useUpdateBook();
 
   const canEditPages = !fromGoogle || totalPages === 0;
 
-  const handleStatusChange = (bookId: string, newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => {
+  const handleStatusChange = (
+    bookId: string,
+    newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]
+  ) => {
     if (newStatus === ReadingStatus.NOT_STARTED && currentPage > 0) {
       setShowWarning(true);
     } else {
@@ -62,8 +68,11 @@ const ReadingControls = ({
 
   const handleTotalPagesUpdate = (value: number) => {
     if (!isNaN(value) && value > 0) {
-      updateTotalPages(bookId, value);
-      onManualTotalPagesChange?.('');
+      updateBookMutation.mutate({
+        bookId,
+        updates: { totalPages: value },
+      });
+      onManualTotalPagesChange?.("");
       onTotalPagesUpdate?.(value);
       setIsEditing(false);
     }
@@ -71,39 +80,39 @@ const ReadingControls = ({
 
   const startEditing = () => {
     setIsEditing(true);
-    onManualTotalPagesChange?.(totalPages?.toString() || '');
+    onManualTotalPagesChange?.(totalPages?.toString() || "");
   };
 
   const cancelEditing = () => {
     setIsEditing(false);
-    onManualTotalPagesChange?.('');
+    onManualTotalPagesChange?.("");
   };
 
   const warningActions = [
     {
-      label: 'Cancel',
+      label: "Cancel",
       onClick: () => setShowWarning(false),
-      variant: 'ghost' as const,
-      className: 'text-amber-500',
+      variant: "ghost" as const,
+      className: "text-amber-500",
     },
     {
-      label: 'Confirm',
+      label: "Confirm",
       onClick: () => {
         setShowWarning(false);
         onStatusChange(bookId, ReadingStatus.NOT_STARTED);
       },
-      variant: 'ghost' as const,
-      className: 'text-amber-800',
+      variant: "ghost" as const,
+      className: "text-amber-800",
     },
   ];
 
-  if (variant === 'icon') {
+  if (variant === "icon") {
     return (
-      <div className={cn('flex items-center gap-2', className)}>
+      <div className={cn("flex items-center gap-2", className)}>
         <Button
           variant="ghost"
           size="icon"
-          className={cn('h-10 w-10 rounded-full hover:bg-brand-muted')}
+          className={cn("h-10 w-10 rounded-full hover:bg-brand-muted")}
           aria-expanded="true"
           aria-controls={`reading-controls-${uniqueId}`}
         >
@@ -114,7 +123,10 @@ const ReadingControls = ({
   }
 
   return (
-    <div className={cn('space-y-6', className)} id={`reading-controls-${uniqueId}`}>
+    <div
+      className={cn("space-y-6", className)}
+      id={`reading-controls-${uniqueId}`}
+    >
       {/* Total Pages Section */}
       <div className="space-y-2">
         <div className="inline-flex items-center gap-1">
@@ -127,7 +139,7 @@ const ReadingControls = ({
                 value={manualTotalPages}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const value = e.target.value;
-                  if (value === '' || /^\d*$/.test(value)) {
+                  if (value === "" || /^\d*$/.test(value)) {
                     onManualTotalPagesChange?.(value);
                   }
                 }}
@@ -138,13 +150,13 @@ const ReadingControls = ({
                   }
                 }}
                 onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     const value = parseInt(e.currentTarget.value, 10);
                     if (!isNaN(value) && value > 0) {
                       handleTotalPagesUpdate(value);
                     }
                     e.currentTarget.blur();
-                  } else if (e.key === 'Escape') {
+                  } else if (e.key === "Escape") {
                     cancelEditing();
                     e.currentTarget.blur();
                   }
@@ -196,12 +208,18 @@ const ReadingControls = ({
       <div className="flex items-center justify-between">
         {/* Reading Status Section */}
         <div>
-          <ReadingStatusSelect status={status} onStatusChange={(newStatus) => handleStatusChange(bookId, newStatus)} size={size} />
+          <ReadingStatusSelect
+            status={status}
+            onStatusChange={(newStatus) =>
+              handleStatusChange(bookId, newStatus)
+            }
+            size={size}
+          />
           <AnimatePresence mode="sync">
             {showWarning && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
+                animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{
                   duration: 0.2,
@@ -221,7 +239,12 @@ const ReadingControls = ({
 
         {/* Action Buttons */}
         {onCancel && (
-          <Button variant="secondary" size="sm" className="text-xs py-1 px-2" onClick={onCancel}>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="text-xs py-1 px-2"
+            onClick={onCancel}
+          >
             Close
           </Button>
         )}

@@ -1,17 +1,47 @@
 'use client';
 
-import React from 'react';
-import { useHighlights } from '@/app/hooks/highlights/useHighlights';
+import React, { useState } from 'react';
+import { useHighlights, useToggleFavorite, useDeleteHighlight, useUpdateHighlight } from '@/app/hooks/highlights/useHighlights';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Loader2, Highlighter } from 'lucide-react';
-import { HighlightCard } from './HighlightCard';
+import HighlightCard from './HighlightCard';
 
 interface RecentHighlightsProps {
   limit?: number;
 }
 
+interface HighlightState {
+  isEditing: boolean;
+  editedText: string;
+  showDeleteConfirm: boolean;
+}
+
 export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
   const { data: highlights, isLoading } = useHighlights();
+  const toggleFavorite = useToggleFavorite();
+  const deleteHighlight = useDeleteHighlight();
+  const updateHighlight = useUpdateHighlight();
+  const [highlightStates, setHighlightStates] = useState<Record<string, HighlightState>>({});
+
+  const getHighlightState = (highlightId: string): HighlightState => {
+    return (
+      highlightStates[highlightId] || {
+        isEditing: false,
+        editedText: '',
+        showDeleteConfirm: false,
+      }
+    );
+  };
+
+  const updateHighlightState = (highlightId: string, updates: Partial<HighlightState>) => {
+    setHighlightStates((prev) => ({
+      ...prev,
+      [highlightId]: {
+        ...getHighlightState(highlightId),
+        ...updates,
+      },
+    }));
+  };
 
   if (isLoading) {
     return (
@@ -50,9 +80,53 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
         <CardTitle>Recent Highlights</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {recentHighlights.map((highlight) => (
-          <HighlightCard key={highlight.id} highlight={highlight} />
-        ))}
+        {recentHighlights.map((highlight) => {
+          const state = getHighlightState(highlight.id);
+          return (
+            <HighlightCard
+              key={highlight.id}
+              highlight={highlight}
+              isEditing={state.isEditing}
+              editedText={state.editedText || highlight.text}
+              showDeleteConfirm={state.showDeleteConfirm}
+              isDeleting={deleteHighlight.isPending}
+              isUpdating={updateHighlight.isPending}
+              onToggleFavorite={() => {
+                toggleFavorite.mutate({
+                  highlightId: highlight.id,
+                  isFavorite: !highlight.isFavorite,
+                });
+              }}
+              onDelete={() => deleteHighlight.mutate(highlight.id)}
+              onEdit={() => {
+                updateHighlightState(highlight.id, {
+                  isEditing: true,
+                  editedText: highlight.text,
+                });
+              }}
+              onSave={() => {
+                const state = getHighlightState(highlight.id);
+                if (state.editedText.trim() !== highlight.text) {
+                  updateHighlight.mutate({
+                    highlightId: highlight.id,
+                    updates: { text: state.editedText.trim() },
+                  });
+                }
+                updateHighlightState(highlight.id, {
+                  isEditing: false,
+                });
+              }}
+              onCancel={() => {
+                updateHighlightState(highlight.id, {
+                  isEditing: false,
+                  editedText: highlight.text,
+                });
+              }}
+              onTextChange={(text) => updateHighlightState(highlight.id, { editedText: text })}
+              onShowDeleteConfirm={(show) => updateHighlightState(highlight.id, { showDeleteConfirm: show })}
+            />
+          );
+        })}
       </CardContent>
     </Card>
   );

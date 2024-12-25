@@ -1,5 +1,18 @@
 import { db } from '../firebase';
-import { collection, doc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, type Timestamp } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  serverTimestamp,
+  type Timestamp,
+  limit as limitQuery,
+} from 'firebase/firestore';
 import type { Highlight, BaseHighlight } from '@/app/stores/types';
 import type { FirebaseModel, WithTimestamps } from '../types';
 
@@ -23,11 +36,15 @@ export async function getHighlights(userId: string): Promise<Highlight[]> {
   });
 }
 
-export async function getHighlightsByBook(userId: string, bookId: string): Promise<Highlight[]> {
-  console.log('getHighlightsByBook called with:', { userId, bookId });
+export async function getHighlightsByBook(userId: string, bookId: string, limit?: number): Promise<Highlight[]> {
+  console.log('getHighlightsByBook called with:', { userId, bookId, limit });
 
   const highlightsRef = collection(db, HIGHLIGHTS_COLLECTION);
-  const q = query(highlightsRef, where('userId', '==', userId), where('bookId', '==', bookId), orderBy('createdAt', 'desc'));
+  let q = query(highlightsRef, where('userId', '==', userId), where('bookId', '==', bookId), orderBy('createdAt', 'desc'));
+
+  if (limit) {
+    q = query(q, limitQuery(limit));
+  }
 
   console.log('Executing Firestore query:', {
     collection: HIGHLIGHTS_COLLECTION,
@@ -36,6 +53,7 @@ export async function getHighlightsByBook(userId: string, bookId: string): Promi
       { field: 'bookId', operator: '==', value: bookId },
     ],
     orderBy: { field: 'createdAt', direction: 'desc' },
+    limit,
   });
 
   try {

@@ -4,8 +4,7 @@ import Link from 'next/link';
 import BookDetailsSheet from './BookDetailsSheet';
 import { Trash2, Highlighter } from 'lucide-react';
 import { useMemo } from 'react';
-import { useBookStore, selectEnrichedHighlights } from '@/app/stores/useBookStore';
-import { getHighlightsByBook } from '@/app/utils/highlightUtils';
+import { useHighlightsByBook } from '@/app/hooks/highlights/useHighlights';
 import ReadingStatusSelect from './ReadingStatusSelect';
 
 interface BookCardProps {
@@ -16,22 +15,19 @@ interface BookCardProps {
 }
 
 const BookCard = ({ book, onStatusChange, onDelete, className = '' }: BookCardProps) => {
-  const enrichedHighlights = useBookStore(selectEnrichedHighlights);
-  const bookHighlights = useMemo(() => {
-    const highlights = getHighlightsByBook(enrichedHighlights, book.id);
-    return highlights.sort((a, b) => {
+  const { data: highlights = [] } = useHighlightsByBook(book.id);
+  const { highlightsCount, latestHighlight } = useMemo(() => {
+    const sortedHighlights = highlights.sort((a, b) => {
       const dateA = new Date(a.modifiedAt || a.createdAt).getTime();
       const dateB = new Date(b.modifiedAt || b.createdAt).getTime();
       return dateB - dateA;
     });
-  }, [enrichedHighlights, book.id]);
 
-  const { highlightsCount, latestHighlight } = useMemo(() => {
     return {
-      highlightsCount: bookHighlights.length,
-      latestHighlight: bookHighlights[0],
+      highlightsCount: highlights.length,
+      latestHighlight: sortedHighlights[0],
     };
-  }, [bookHighlights]);
+  }, [highlights]);
 
   const handleDelete = () => {
     onDelete?.(book.id);

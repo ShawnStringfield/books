@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import * as highlightService from '@/app/lib/firebase/services/highlights';
-import type { Highlight, BaseHighlight } from '@/app/stores/types';
+import type { BaseHighlight } from '@/app/stores/types';
 
 // Query keys as constants
 const HIGHLIGHTS_KEY = 'highlights';
@@ -37,25 +37,27 @@ export function useHighlights() {
   return query;
 }
 
-export function useHighlightsByBook(bookId: string) {
+export function useHighlightsByBook(bookId: string, limit?: number) {
   const { user } = useAuth();
 
   console.log('useHighlightsByBook called with:', {
     bookId,
     isAuthenticated: !!user,
     userId: user?.uid,
+    limit,
   });
 
   const query = useQuery({
-    queryKey: [HIGHLIGHTS_KEY, BOOK_KEY, bookId],
+    queryKey: [HIGHLIGHTS_KEY, BOOK_KEY, bookId, limit],
     queryFn: async () => {
       console.log('Fetching highlights for book:', {
         bookId,
         userId: user!.uid,
+        limit,
       });
 
       try {
-        const highlights = await highlightService.getHighlightsByBook(user!.uid, bookId);
+        const highlights = await highlightService.getHighlightsByBook(user!.uid, bookId, limit);
         console.log('Fetched highlights:', highlights);
         return highlights;
       } catch (error) {

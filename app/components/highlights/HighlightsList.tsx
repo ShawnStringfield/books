@@ -1,7 +1,10 @@
-import { useHighlightsByBook } from '@/app/hooks/highlights/useHighlights';
-import { useMemo } from 'react';
+'use client';
+
+import { useState } from 'react';
+import { useHighlightsByBook, useToggleFavorite, useDeleteHighlight, useUpdateHighlight } from '@/app/hooks/highlights/useHighlights';
 import HighlightCard from './HighlightCard';
 import { Highlighter } from 'lucide-react';
+import type { Highlight } from '@/app/stores/types';
 
 interface HighlightsListProps {
   bookId: string;
@@ -20,15 +23,78 @@ function EmptyHighlightState() {
   );
 }
 
-const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
-  const { data: highlights = [], isLoading } = useHighlightsByBook(bookId);
+interface HighlightState {
+  isEditing: boolean;
+  editedText: string;
+  showDeleteConfirm: boolean;
+}
 
-  const sortedHighlights = useMemo(() => {
-    if (limit) {
-      return highlights.slice(0, limit);
+const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
+  const { data: highlights = [], isLoading } = useHighlightsByBook(bookId, limit);
+  const toggleFavorite = useToggleFavorite();
+  const deleteHighlight = useDeleteHighlight();
+  const updateHighlight = useUpdateHighlight();
+
+  // Track state for each highlight by ID
+  const [highlightStates, setHighlightStates] = useState<Record<string, HighlightState>>({});
+
+  const getHighlightState = (highlightId: string): HighlightState => {
+    return (
+      highlightStates[highlightId] || {
+        isEditing: false,
+        editedText: '',
+        showDeleteConfirm: false,
+      }
+    );
+  };
+
+  const updateHighlightState = (highlightId: string, updates: Partial<HighlightState>) => {
+    setHighlightStates((prev) => ({
+      ...prev,
+      [highlightId]: {
+        ...getHighlightState(highlightId),
+        ...updates,
+      },
+    }));
+  };
+
+  const handleToggleFavorite = (highlight: Highlight) => {
+    toggleFavorite.mutate({
+      highlightId: highlight.id,
+      isFavorite: !highlight.isFavorite,
+    });
+  };
+
+  const handleDelete = (highlightId: string) => {
+    deleteHighlight.mutate(highlightId);
+  };
+
+  const handleEdit = (highlight: Highlight) => {
+    updateHighlightState(highlight.id, {
+      isEditing: true,
+      editedText: highlight.text,
+    });
+  };
+
+  const handleSave = (highlight: Highlight) => {
+    const state = getHighlightState(highlight.id);
+    if (state.editedText.trim() !== highlight.text) {
+      updateHighlight.mutate({
+        highlightId: highlight.id,
+        updates: { text: state.editedText.trim() },
+      });
     }
-    return highlights;
-  }, [highlights, limit]);
+    updateHighlightState(highlight.id, {
+      isEditing: false,
+    });
+  };
+
+  const handleCancel = (highlight: Highlight) => {
+    updateHighlightState(highlight.id, {
+      isEditing: false,
+      editedText: highlight.text,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -38,7 +104,7 @@ const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
     );
   }
 
-  if (sortedHighlights.length === 0) {
+  if (highlights.length === 0) {
     return <EmptyHighlightState />;
   }
 
@@ -46,12 +112,30 @@ const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
     <div>
       <div className="space-y-4">
         <h2 className="text-lg font-semibold leading-tight text-slate-500">
-          {limit ? `Recent Highlights (${sortedHighlights.length})` : `Highlights (${sortedHighlights.length})`}
+          {limit ? `Recent Highlights (${highlights.length})` : `Highlights (${highlights.length})`}
         </h2>
         <div className="grid gap-4">
-          {sortedHighlights.map((highlight) => (
-            <HighlightCard key={highlight.id} highlight={highlight} />
-          ))}
+          {highlights.map((highlight) => {
+            const state = getHighlightState(highlight.id);
+            return (
+              <HighlightCard
+                key={highlight.id}
+                highlight={highlight}
+                isEditing={state.isEditing}
+                editedText={state.editedText || highlight.text}
+                showDeleteConfirm={state.showDeleteConfirm}
+                isDeleting={deleteHighlight.isPending}
+                isUpdating={updateHighlight.isPending}
+                onToggleFavorite={() => handleToggleFavorite(highlight)}
+                onDelete={() => handleDelete(highlight.id)}
+                onEdit={() => handleEdit(highlight)}
+                onSave={() => handleSave(highlight)}
+                onCancel={() => handleCancel(highlight)}
+                onTextChange={(text) => updateHighlightState(highlight.id, { editedText: text })}
+                onShowDeleteConfirm={(show) => updateHighlightState(highlight.id, { showDeleteConfirm: show })}
+              />
+            );
+          })}
         </div>
       </div>
     </div>

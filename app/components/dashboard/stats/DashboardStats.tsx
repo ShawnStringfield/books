@@ -1,7 +1,7 @@
 import React from 'react';
 import { MonthlyStats } from '@/app/(features)/dashboard/components/stats/MonthlyStats';
 import { YearlyStats } from '@/app/(features)/dashboard/components/stats/YearlyStats';
-import { useBookStore, selectBooks, selectIsLoading, selectError, selectHasHydrated } from '@/app/stores/useBookStore';
+import { useBooks } from '@/app/hooks/books/useBooks';
 import { useBookGoals } from '@/app/(features)/profile-onboarding/hooks/useBookGoals';
 import { calculateReadingStats } from '@/app/utils/bookUtils';
 import { Skeleton } from '@/app/components/ui/skeleton';
@@ -16,13 +16,10 @@ const StatsLoadingSkeleton = () => (
 );
 
 export const DashboardStats = () => {
-  const books = useBookStore(selectBooks);
-  const isLoading = useBookStore(selectIsLoading);
-  const error = useBookStore(selectError);
-  const hasHydrated = useBookStore(selectHasHydrated);
+  const { data: books = [], isLoading, error } = useBooks();
   const bookGoals = useBookGoals();
 
-  if (!hasHydrated || isLoading) {
+  if (isLoading) {
     return <StatsLoadingSkeleton />;
   }
 
@@ -30,7 +27,7 @@ export const DashboardStats = () => {
     return (
       <Alert variant="destructive" className="mb-8">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Failed to load reading stats: {error}</AlertDescription>
+        <AlertDescription>Failed to load reading stats: {error.message}</AlertDescription>
       </Alert>
     );
   }

@@ -1,46 +1,5 @@
-import { Book, Highlight } from '@/app/stores/types';
+import { Book, Highlight, EnrichedHighlight } from '@/app/stores/types';
 import { isCurrentMonth, isWithinDateRange } from '@/app/utils/dateUtils';
-
-export interface EnrichedHighlight extends Highlight {
-  bookTitle: string;
-  bookAuthor: string;
-  bookCurrentPage: number;
-  bookTotalPages: number;
-  readingProgress: number;
-}
-
-/**
- * Enriches highlights with book data
- */
-export const enrichHighlights = (highlights: Highlight[], books: Book[]): EnrichedHighlight[] => {
-  const bookMap = new Map(
-    books.map((book) => [
-      book.id,
-      {
-        title: book.title,
-        author: book.author,
-        currentPage: book.currentPage,
-        totalPages: book.totalPages,
-      },
-    ])
-  );
-
-  return highlights
-    .map((highlight) => {
-      const book = bookMap.get(highlight.bookId);
-      if (!book) return null;
-
-      return {
-        ...highlight,
-        bookTitle: book.title,
-        bookAuthor: book.author,
-        bookCurrentPage: book.currentPage,
-        bookTotalPages: book.totalPages,
-        readingProgress: Math.round((book.currentPage / book.totalPages) * 100),
-      };
-    })
-    .filter((h): h is EnrichedHighlight => h !== null);
-};
 
 export type HighlightSortOption = 'date' | 'book' | 'page' | 'length' | 'favorite';
 
@@ -168,4 +127,37 @@ export const filterHighlights = <T extends Highlight>(
     if (filters.dateRange && !isWithinDateRange(highlight.createdAt, filters.dateRange)) return false;
     return true;
   });
+};
+
+/**
+ * Enriches highlights with book data
+ */
+export const enrichHighlights = (highlights: Highlight[], books: Book[]): EnrichedHighlight[] => {
+  const bookMap = new Map(
+    books.map((book) => [
+      book.id,
+      {
+        title: book.title,
+        author: book.author,
+        currentPage: book.currentPage,
+        totalPages: book.totalPages,
+      },
+    ])
+  );
+
+  return highlights
+    .map((highlight) => {
+      const book = bookMap.get(highlight.bookId);
+      if (!book) return null;
+
+      return {
+        ...highlight,
+        bookTitle: book.title,
+        bookAuthor: book.author,
+        bookCurrentPage: book.currentPage,
+        bookTotalPages: book.totalPages,
+        readingProgress: Math.round((book.currentPage / book.totalPages) * 100),
+      };
+    })
+    .filter((h): h is EnrichedHighlight => h !== null);
 };

@@ -4,7 +4,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SignIn } from '@/app/components/auth/sign-in';
-import { SignOut } from '@/app/components/auth/sign-out';
 import { Loader2 } from 'lucide-react';
 import type { AuthAction, AuthError } from '@/lib/auth/types';
 import { getErrorMessage, normalizeError } from '@/lib/auth/utils/error-utils';
@@ -13,7 +12,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 export default function AuthPage(): JSX.Element {
   const [authAction, setAuthAction] = useState<AuthAction>(null);
   const [error, setError] = useState<AuthError | null>(null);
-  const { user, loading, signIn, signUp, signInWithGoogle, logout } = useAuth();
+  const { user, loading, signIn, signUp, signInWithGoogle } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -67,24 +66,6 @@ export default function AuthPage(): JSX.Element {
       const normalizedError = normalizeError(err);
       setError(normalizedError);
       console.error('Google sign in error:', {
-        message: normalizedError.message,
-        code: normalizedError.code,
-        details: normalizedError.cause,
-      });
-    }
-  };
-
-  const handleSignOut = async (): Promise<void> => {
-    setError(null);
-    setAuthAction('signout');
-    try {
-      await logout();
-      router.push('/');
-    } catch (err) {
-      setAuthAction(null);
-      const normalizedError = normalizeError(err);
-      setError(normalizedError);
-      console.error('Sign out error:', {
         message: normalizedError.message,
         code: normalizedError.code,
         details: normalizedError.cause,

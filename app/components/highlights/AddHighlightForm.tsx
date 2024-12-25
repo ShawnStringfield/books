@@ -29,7 +29,7 @@ const AddHighlightForm = ({ bookId, currentPage, onClose }: AddHighlightFormProp
   // Reset error when input changes
   useEffect(() => {
     if (error) setError(null);
-  }, [newHighlight]);
+  }, [newHighlight, error]);
 
   const handleAddHighlight = useCallback(async () => {
     try {

@@ -1,6 +1,5 @@
-import { EnrichedHighlight } from '@/app/stores/useBookStore';
+import { Book, ReadingStatus, EnrichedHighlight } from '@/app/stores/types';
 import { getHighlightsByBook } from '@/app/utils/highlightUtils';
-import { Book, ReadingStatus } from '@/app/stores/types';
 import { safeDate } from '@/app/utils/dateUtils';
 
 export interface ReadingStats {

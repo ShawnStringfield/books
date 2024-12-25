@@ -9,15 +9,16 @@ export interface GoogleBooksResponse {
 }
 
 export const ReadingStatus = {
-  NOT_STARTED: 'not-started',
-  IN_PROGRESS: 'in-progress',
-  COMPLETED: 'completed',
+  NOT_STARTED: "not-started",
+  IN_PROGRESS: "in-progress",
+  COMPLETED: "completed",
 } as const;
 
-export type ReadingStatusType = (typeof ReadingStatus)[keyof typeof ReadingStatus];
+export type ReadingStatusType =
+  (typeof ReadingStatus)[keyof typeof ReadingStatus];
 
 export interface BaseBook {
-  id: string;
+  id?: string;
   title: string;
   subtitle?: string;
   author: string;
@@ -80,7 +81,7 @@ export interface BookHighlight {
   modifiedAt?: string;
 }
 
-interface GoogleBookVolumeInfo {
+export interface GoogleBookVolumeInfo {
   title: string;
   subtitle?: string;
   authors?: string[];

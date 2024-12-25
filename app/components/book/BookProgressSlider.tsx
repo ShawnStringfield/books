@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils";
 import BookProgressPercentage from "./BookProgressPercentage";
 
 interface BookProgressSliderProps {
+  bookId: string;
   currentPage: number;
   totalPages: number;
-  onPageChange: (value: number[]) => void;
+  onPageChange: (value: number[]) => void | Promise<void>;
   uniqueId: string;
   variant?: "mobile" | "desktop";
   showSlider?: boolean;
@@ -16,6 +17,7 @@ interface BookProgressSliderProps {
 }
 
 const BookProgressSlider = ({
+  bookId,
   currentPage,
   totalPages,
   onPageChange,
@@ -34,13 +36,22 @@ const BookProgressSlider = ({
     handleInputBlur,
     handleSliderChange,
     pagesRemaining,
+    error: pageProgressError,
   } = usePageProgress({
+    bookId,
     initialPage: currentPage,
     totalPages,
-    onPageChange: (value) => {
-      onPageChange(value);
+    onPageChange: async (value) => {
+      if (!pageProgressError) {
+        await onPageChange(value);
+      }
     },
   });
+
+  if (!bookId) {
+    console.error("Book ID is required for BookProgressSlider");
+    return null;
+  }
 
   return (
     <div className={cn("w-full", className)}>

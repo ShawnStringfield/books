@@ -2,7 +2,10 @@ import { useState, useCallback } from "react";
 import { useToast } from "@/app/hooks/ui/use-toast";
 import { ReadingStatus, ReadingStatusType } from "@/app/stores/types";
 import { canChangeBookStatus } from "@/app/utils/bookStatusUtils";
-import { useUpdateReadingProgress } from "@/app/hooks/books/useBooks";
+import {
+  useUpdateReadingProgress,
+  useUpdateReadingStatus,
+} from "@/app/hooks/books/useBooks";
 
 interface Book {
   id: string;
@@ -25,6 +28,7 @@ interface UseBookStatusResult {
 export const useBookStatus = (books: Book[]): UseBookStatusResult => {
   const { toast } = useToast();
   const updateProgressMutation = useUpdateReadingProgress();
+  const updateStatusMutation = useUpdateReadingStatus();
   const [isChangingStatus, setIsChangingStatus] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -55,7 +59,13 @@ export const useBookStatus = (books: Book[]): UseBookStatusResult => {
       setError(null);
 
       try {
-        // If marking as completed, update progress to total pages
+        // First update the status
+        await updateStatusMutation.mutateAsync({
+          bookId: book.id,
+          status: newStatus,
+        });
+
+        // Then update progress if needed
         if (
           newStatus === ReadingStatus.COMPLETED &&
           book.currentPage !== book.totalPages
@@ -64,22 +74,25 @@ export const useBookStatus = (books: Book[]): UseBookStatusResult => {
             bookId: book.id,
             currentPage: book.totalPages,
           });
-        }
-
-        // If marking as not started, reset progress to 0
-        if (newStatus === ReadingStatus.NOT_STARTED && book.currentPage > 0) {
+        } else if (
+          newStatus === ReadingStatus.NOT_STARTED &&
+          book.currentPage > 0
+        ) {
           await updateProgressMutation.mutateAsync({
             bookId: book.id,
             currentPage: 0,
           });
         }
 
+        // Only show toast if status is successfully updated
+        const statusDisplay = newStatus
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+
         toast({
           title: "Status Updated",
-          description: `${book.title} has been moved to ${newStatus.replace(
-            "_",
-            " "
-          )}`,
+          description: `${book.title} has been moved to ${statusDisplay}`,
         });
 
         return true;
@@ -101,7 +114,7 @@ export const useBookStatus = (books: Book[]): UseBookStatusResult => {
         setIsChangingStatus(false);
       }
     },
-    [toast, books.length, updateProgressMutation]
+    [toast, books.length, updateProgressMutation, updateStatusMutation]
   );
 
   return {

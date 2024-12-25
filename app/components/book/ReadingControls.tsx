@@ -4,11 +4,12 @@ import ReadingStatusSelect from "./ReadingStatusSelect";
 import BookProgressSlider from "./BookProgressSlider";
 import { cn } from "@/lib/utils";
 import { Button } from "@/app/components/ui/button";
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import WarningAlert from "@/app/components/ui/warning-alert";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUpdateBook } from "@/app/hooks/books/useBooks";
 
+// Types
 interface ReadingControlsProps {
   bookId: string;
   currentPage: number;
@@ -27,11 +28,73 @@ interface ReadingControlsProps {
   manualTotalPages?: string;
   onManualTotalPagesChange?: (value: string) => void;
   onTotalPagesUpdate?: (value: number) => void;
-  onDelete?: () => void;
-  isLastBook?: boolean;
   fromGoogle?: boolean;
   shouldWarnOnReset?: boolean;
 }
+
+// Subcomponents
+const TotalPagesEditor = memo(
+  ({
+    manualTotalPages = "",
+    onManualTotalPagesChange,
+    onUpdate,
+    onCancel,
+  }: {
+    manualTotalPages: string;
+    onManualTotalPagesChange: (value: string) => void;
+    onUpdate: (value: number) => void;
+    onCancel: () => void;
+  }) => {
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      const value = parseInt(e.target.value, 10);
+      if (!isNaN(value) && value > 0) {
+        onUpdate(value);
+      }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        const value = parseInt(e.currentTarget.value, 10);
+        if (!isNaN(value) && value > 0) {
+          onUpdate(value);
+        }
+        e.currentTarget.blur();
+      } else if (e.key === "Escape") {
+        onCancel();
+        e.currentTarget.blur();
+      }
+    };
+
+    return (
+      <div className="inline-flex items-center gap-1">
+        <input
+          type="text"
+          inputMode="numeric"
+          className="w-16 h-6 text-base text-center border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+          value={manualTotalPages}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === "" || /^\d*$/.test(value)) {
+              onManualTotalPagesChange(value);
+            }
+          }}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          autoFocus
+        />
+        <button
+          onClick={onCancel}
+          className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+          title="Cancel editing"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      </div>
+    );
+  }
+);
+
+TotalPagesEditor.displayName = "TotalPagesEditor";
 
 const ReadingControls = ({
   bookId,
@@ -55,56 +118,87 @@ const ReadingControls = ({
   const [isEditing, setIsEditing] = useState(false);
   const updateBookMutation = useUpdateBook();
 
-  const canEditPages = !fromGoogle || totalPages === 0;
-
-  const handleStatusChange = (
-    bookId: string,
-    newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]
-  ) => {
-    if (
-      shouldWarnOnReset &&
-      newStatus === ReadingStatus.NOT_STARTED &&
-      currentPage > 0
-    ) {
-      setShowWarning(true);
-    } else {
-      onStatusChange(bookId, newStatus);
-    }
-  };
-
-  const handleTotalPagesUpdate = async (value: number) => {
-    if (!isNaN(value) && value > 0) {
-      try {
-        // Update total pages first
-        await updateBookMutation.mutateAsync({
-          bookId,
-          updates: { totalPages: value },
-        });
-
-        // Then update the reading progress if needed
-        const newCurrentPage = Math.min(currentPage || 0, value);
-        if (newCurrentPage !== currentPage) {
-          onProgressChange([newCurrentPage]);
+  const handleStatusChange = useCallback(
+    async (newStatus: (typeof ReadingStatus)[keyof typeof ReadingStatus]) => {
+      if (
+        shouldWarnOnReset &&
+        newStatus === ReadingStatus.NOT_STARTED &&
+        currentPage > 0
+      ) {
+        setShowWarning(true);
+      } else {
+        try {
+          await onStatusChange(bookId, newStatus);
+        } catch (error) {
+          console.error("Failed to change status:", error);
         }
-
-        onManualTotalPagesChange?.("");
-        onTotalPagesUpdate?.(value);
-        setIsEditing(false);
-      } catch (error) {
-        console.error("Failed to update book:", error);
       }
-    }
-  };
+    },
+    [bookId, currentPage, onStatusChange, shouldWarnOnReset]
+  );
 
-  const startEditing = () => {
+  const handleProgressChange = useCallback(
+    async (newPage: number) => {
+      try {
+        await onProgressChange([newPage]);
+      } catch (error) {
+        console.error("Failed to update progress:", error);
+      }
+    },
+    [onProgressChange]
+  );
+
+  const handleTotalPagesUpdate = useCallback(
+    async (value: number) => {
+      if (!isNaN(value) && value > 0) {
+        try {
+          // Update total pages first
+          await updateBookMutation.mutateAsync({
+            bookId,
+            updates: { totalPages: value },
+          });
+
+          // Then update the reading progress if needed
+          const newCurrentPage = Math.min(currentPage || 0, value);
+          if (newCurrentPage !== currentPage) {
+            await handleProgressChange(newCurrentPage);
+          }
+
+          onManualTotalPagesChange?.("");
+          onTotalPagesUpdate?.(value);
+          setIsEditing(false);
+        } catch (error) {
+          console.error("Failed to update book:", error);
+        }
+      }
+    },
+    [
+      bookId,
+      currentPage,
+      handleProgressChange,
+      onManualTotalPagesChange,
+      onTotalPagesUpdate,
+      updateBookMutation,
+    ]
+  );
+
+  const startEditing = useCallback(() => {
     setIsEditing(true);
     onManualTotalPagesChange?.(totalPages?.toString() || "");
-  };
+  }, [onManualTotalPagesChange, totalPages]);
 
-  const cancelEditing = () => {
+  const cancelEditing = useCallback(() => {
     setIsEditing(false);
     onManualTotalPagesChange?.("");
-  };
+  }, [onManualTotalPagesChange]);
+
+  // Early return if no bookId
+  if (!bookId) {
+    console.error("Book ID is required for ReadingControls");
+    return null;
+  }
+
+  const canEditPages = !fromGoogle || totalPages === 0;
 
   const warningActions = [
     {
@@ -149,58 +243,26 @@ const ReadingControls = ({
       <div className="space-y-2">
         <div className="inline-flex items-center gap-1">
           {isEditing && canEditPages ? (
-            <div className="inline-flex items-center gap-1">
-              <input
-                type="text"
-                inputMode="numeric"
-                className="w-16 h-6 text-base text-center border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                value={manualTotalPages}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  const value = e.target.value;
-                  if (value === "" || /^\d*$/.test(value)) {
-                    onManualTotalPagesChange?.(value);
-                  }
-                }}
-                onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
-                  const value = parseInt(e.target.value, 10);
-                  if (!isNaN(value) && value > 0) {
-                    handleTotalPagesUpdate(value);
-                  }
-                }}
-                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                  if (e.key === "Enter") {
-                    const value = parseInt(e.currentTarget.value, 10);
-                    if (!isNaN(value) && value > 0) {
-                      handleTotalPagesUpdate(value);
-                    }
-                    e.currentTarget.blur();
-                  } else if (e.key === "Escape") {
-                    cancelEditing();
-                    e.currentTarget.blur();
-                  }
-                }}
-                autoFocus
-              />
-              <button
-                onClick={cancelEditing}
-                className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
-                title="Cancel editing"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
+            <TotalPagesEditor
+              manualTotalPages={manualTotalPages}
+              onManualTotalPagesChange={onManualTotalPagesChange!}
+              onUpdate={handleTotalPagesUpdate}
+              onCancel={cancelEditing}
+            />
           ) : (
-            <span className="text-sm text-gray-600">{totalPages || 0}</span>
-          )}
-          <label className="text-sm font-medium">Total Pages</label>
-          {canEditPages && !isEditing && (
-            <button
-              onClick={startEditing}
-              className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
-              title="Edit total pages"
-            >
-              <Pencil className="h-3 w-3" />
-            </button>
+            <>
+              <span className="text-sm text-gray-600">{totalPages || 0}</span>
+              <label className="text-sm font-medium">Total Pages</label>
+              {canEditPages && (
+                <button
+                  onClick={startEditing}
+                  className="inline-flex items-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+                  title="Edit total pages"
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
+              )}
+            </>
           )}
         </div>
         {totalPages === 0 && (
@@ -211,31 +273,12 @@ const ReadingControls = ({
         )}
       </div>
 
-      {/* Reading Progress Section */}
+      {/* Progress Slider */}
       <BookProgressSlider
+        bookId={bookId}
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={(value) => {
-          const newPage = value[0];
-          onProgressChange(value);
-
-          // Let parent component handle status changes based on progress
-          if (newPage === 0 && status !== ReadingStatus.NOT_STARTED) {
-            handleStatusChange(bookId, ReadingStatus.NOT_STARTED);
-          } else if (
-            newPage === totalPages &&
-            status !== ReadingStatus.COMPLETED
-          ) {
-            handleStatusChange(bookId, ReadingStatus.COMPLETED);
-          } else if (
-            newPage > 0 &&
-            newPage < totalPages &&
-            (status === ReadingStatus.NOT_STARTED ||
-              status === ReadingStatus.COMPLETED)
-          ) {
-            handleStatusChange(bookId, ReadingStatus.IN_PROGRESS);
-          }
-        }}
+        onPageChange={async ([newPage]) => handleProgressChange(newPage)}
         variant={variant}
         uniqueId={uniqueId}
         showPercentage={true}
@@ -249,9 +292,7 @@ const ReadingControls = ({
         <div>
           <ReadingStatusSelect
             status={status}
-            onStatusChange={(newStatus) =>
-              handleStatusChange(bookId, newStatus)
-            }
+            onStatusChange={handleStatusChange}
             size={size}
             aria-label="Reading status"
           />
@@ -293,4 +334,4 @@ const ReadingControls = ({
   );
 };
 
-export default ReadingControls;
+export default memo(ReadingControls);

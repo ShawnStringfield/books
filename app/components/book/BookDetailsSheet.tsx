@@ -55,9 +55,18 @@ const BookDetailsSheet = ({
   const deleteHighlightMutation = useDeleteHighlight();
   const { toggleFavorite } = useHighlightActions();
 
+  // Early return if no book id
+  if (!book.id) {
+    return null;
+  }
+
+  // After this point, book.id is definitely defined
+  const bookId: string = book.id;
+  const description = `${book.title} by ${book.author}`;
+
   const handleDelete = () => {
-    if (!isLastBook && book.id) {
-      deleteBookMutation.mutate(book.id);
+    if (!isLastBook) {
+      deleteBookMutation.mutate(bookId);
       router.push("/dashboard/library");
     }
   };
@@ -66,13 +75,11 @@ const BookDetailsSheet = ({
     id: string;
     isFavorite: boolean;
   }) => {
-    if (book.id) {
-      toggleFavorite.mutate({
-        highlightId: highlight.id,
-        isFavorite: !highlight.isFavorite,
-        bookId: book.id,
-      });
-    }
+    toggleFavorite.mutate({
+      highlightId: highlight.id,
+      isFavorite: !highlight.isFavorite,
+      bookId: bookId,
+    });
   };
 
   const handleEdit = (highlight: { id: string; text: string }) => {
@@ -81,7 +88,7 @@ const BookDetailsSheet = ({
   };
 
   const handleSave = (highlight: { id: string }) => {
-    if (book.id && editedText.trim()) {
+    if (editedText.trim()) {
       updateHighlightMutation.mutate({
         highlightId: highlight.id,
         updates: {
@@ -99,13 +106,9 @@ const BookDetailsSheet = ({
   };
 
   const handleDeleteHighlight = (highlightId: string) => {
-    if (book.id) {
-      deleteHighlightMutation.mutate(highlightId);
-      setHighlightToDelete(null);
-    }
+    deleteHighlightMutation.mutate(highlightId);
+    setHighlightToDelete(null);
   };
-
-  const description = `${book.title} by ${book.author}`;
 
   return (
     <Sheet>
@@ -126,7 +129,7 @@ const BookDetailsSheet = ({
       </SheetTrigger>
 
       <SheetContent side="right" className="w-full sm:max-w-xl p-0">
-        <BookProgressManager book={book} books={books}>
+        <BookProgressManager book={book}>
           {({
             handleProgressChange,
             handleStatusChange,
@@ -139,6 +142,9 @@ const BookDetailsSheet = ({
             toggleHighlightForm,
             setManualTotalPages,
             setShowDeleteWarning,
+            resetControls,
+            isUpdating,
+            error,
           }) => (
             <>
               <div className="flex flex-col h-full">
@@ -175,7 +181,7 @@ const BookDetailsSheet = ({
                     <div className="flex-grow">
                       <SheetTitle className="text-xl sm:text-2xl font-bold">
                         <Link
-                          href={`/dashboard/library/${book.id}`}
+                          href={`/dashboard/library/${bookId}`}
                           className="hover:text-blue-600 transition-colors cursor-pointer"
                         >
                           {book.title}
@@ -305,27 +311,27 @@ const BookDetailsSheet = ({
 
                   {showReadingControls && (
                     <ReadingControls
-                      bookId={book.id || ""}
+                      bookId={bookId}
                       currentPage={book.currentPage}
                       totalPages={book.totalPages}
                       status={book.status}
                       uniqueId={uniqueId}
                       variant="desktop"
-                      onStatusChange={handleStatusChange}
+                      onStatusChange={(_: string, status) =>
+                        handleStatusChange(status)
+                      }
                       onProgressChange={handleProgressChange}
                       onCancel={() => toggleReadingControls()}
                       manualTotalPages={manualTotalPages}
                       onManualTotalPagesChange={setManualTotalPages}
                       onTotalPagesUpdate={handleTotalPagesUpdate}
-                      onDelete={() => setShowDeleteWarning(true)}
-                      isLastBook={isLastBook}
                       fromGoogle={book.fromGoogle}
                     />
                   )}
 
                   {showHighlightForm && (
                     <BookHighlights
-                      bookId={book.id || ""}
+                      bookId={bookId}
                       currentPage={book.currentPage}
                       showForm={showHighlightForm}
                       onClose={() => toggleHighlightForm()}

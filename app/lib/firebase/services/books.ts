@@ -1,4 +1,4 @@
-import { db } from '../firebase';
+import { db } from "../firebase";
 import {
   collection,
   doc,
@@ -12,17 +12,21 @@ import {
   orderBy,
   serverTimestamp,
   type Timestamp,
-} from 'firebase/firestore';
-import type { Book, BaseBook, ReadingStatusType } from '@/app/stores/types';
-import type { FirebaseModel, WithTimestamps } from '../types';
+} from "firebase/firestore";
+import type { Book, BaseBook, ReadingStatusType } from "@/app/stores/types";
+import type { FirebaseModel, WithTimestamps } from "../types";
 
-const BOOKS_COLLECTION = 'books';
+const BOOKS_COLLECTION = "books";
 
 type FirestoreBook = FirebaseModel<Book>;
 
 export async function getBooks(userId: string): Promise<Book[]> {
   const booksRef = collection(db, BOOKS_COLLECTION);
-  const q = query(booksRef, where('userId', '==', userId), orderBy('updatedAt', 'desc'));
+  const q = query(
+    booksRef,
+    where("userId", "==", userId),
+    orderBy("updatedAt", "desc")
+  );
 
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => {
@@ -41,7 +45,7 @@ export async function getBook(bookId: string): Promise<Book> {
   const bookDoc = await getDoc(bookRef);
 
   if (!bookDoc.exists()) {
-    throw new Error('Book not found');
+    throw new Error("Book not found");
   }
 
   const data = bookDoc.data();
@@ -74,21 +78,47 @@ export async function addBook(userId: string, book: BaseBook): Promise<Book> {
   };
 }
 
-export async function updateBook(bookId: string, updates: Partial<BaseBook>): Promise<WithTimestamps<Partial<BaseBook> & { id: string }>> {
+export async function updateBook(
+  bookId: string,
+  updates: Partial<BaseBook>
+): Promise<WithTimestamps<Partial<BaseBook> & { id: string }>> {
+  if (!bookId) {
+    throw new Error("Book ID is required for update");
+  }
+
+  // Clean undefined values from updates
+  const cleanUpdates = Object.entries(updates).reduce<Partial<BaseBook>>(
+    (acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key as keyof BaseBook] = value as BaseBook[keyof BaseBook];
+      }
+      return acc;
+    },
+    {}
+  );
+
+  if (Object.keys(cleanUpdates).length === 0) {
+    throw new Error("No valid updates provided");
+  }
+
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
   const timestamp = serverTimestamp();
   const updateData = {
-    ...updates,
+    ...cleanUpdates,
     updatedAt: timestamp,
   };
 
   await updateDoc(bookRef, updateData);
   const now = new Date().toISOString();
 
+  // Get the current document to include createdAt in the response
+  const bookSnap = await getDoc(bookRef);
+  const bookData = bookSnap.data();
+
   return {
+    ...cleanUpdates,
     id: bookId,
-    ...updates,
-    createdAt: now,
+    createdAt: bookData?.createdAt ?? now,
     updatedAt: now,
   };
 }
@@ -98,7 +128,10 @@ export async function deleteBook(bookId: string): Promise<void> {
   await deleteDoc(bookRef);
 }
 
-export async function updateReadingStatus(bookId: string, status: ReadingStatusType): Promise<void> {
+export async function updateReadingStatus(
+  bookId: string,
+  status: ReadingStatusType
+): Promise<void> {
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
   const timestamp = serverTimestamp();
   const updateData = {
@@ -109,7 +142,10 @@ export async function updateReadingStatus(bookId: string, status: ReadingStatusT
   await updateDoc(bookRef, updateData);
 }
 
-export async function updateReadingProgress(bookId: string, currentPage: number): Promise<void> {
+export async function updateReadingProgress(
+  bookId: string,
+  currentPage: number
+): Promise<void> {
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
   const timestamp = serverTimestamp();
   const updateData = {

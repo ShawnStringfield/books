@@ -4,7 +4,6 @@ import { useBookControls } from "@/app/hooks/books/useBookControls";
 
 interface BookProgressManagerProps {
   book: Book;
-  books?: Book[];
   children: (props: {
     handleProgressChange: (value: number[]) => Promise<void>;
     handleStatusChange: (
@@ -31,7 +30,6 @@ interface BookProgressManagerProps {
 
 export default function BookProgressManager({
   book,
-  books,
   children,
   onStatusChange,
   onProgressChange,
@@ -44,8 +42,10 @@ export default function BookProgressManager({
     isUpdating,
     error,
   } = useBookProgress({
-    book,
-    books,
+    id: book.id || "",
+    currentPage: book.currentPage,
+    totalPages: book.totalPages,
+    status: book.status,
     onStatusChange,
     onProgressChange,
     onTotalPagesUpdate,
@@ -64,9 +64,12 @@ export default function BookProgressManager({
   } = useBookControls();
 
   return children({
-    handleProgressChange,
-    handleStatusChange,
-    handleTotalPagesUpdate,
+    handleProgressChange: async (value: number[]) =>
+      handleProgressChange(value[0]),
+    handleStatusChange: async (bookId: string, status: ReadingStatusType) =>
+      handleStatusChange(status),
+    handleTotalPagesUpdate: async (value: number) =>
+      handleTotalPagesUpdate(value),
     showReadingControls,
     showHighlightForm,
     manualTotalPages,

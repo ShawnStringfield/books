@@ -1,7 +1,9 @@
-import { useCallback } from 'react';
-import { useToast } from '@/app/hooks/use-toast';
+import { useCallback } from "react";
+import { useToast } from "@/app/hooks/ui/use-toast";
 
-export type StepValidationRules<TStep extends string, TState> = Partial<Record<TStep, (state: TState) => boolean>>;
+export type StepValidationRules<TStep extends string, TState> = Partial<
+  Record<TStep, (state: TState) => boolean>
+>;
 
 interface OnboardingNavigationConfig<TStep extends string, TState> {
   steps: TStep[];
@@ -10,7 +12,10 @@ interface OnboardingNavigationConfig<TStep extends string, TState> {
   getCurrentState: () => TState;
 }
 
-export function useProgressNavigation<TStep extends string, TState extends { currentStep: TStep }>({
+export function useProgressNavigation<
+  TStep extends string,
+  TState extends { currentStep: TStep }
+>({
   steps,
   validationRules = {},
   onStepChange,
@@ -43,9 +48,9 @@ export function useProgressNavigation<TStep extends string, TState extends { cur
       // Validate current step when moving forward
       if (targetIndex > currentIndex && !validateStep(currentStep)) {
         toast({
-          title: 'Please complete this step',
-          description: 'Fill in all required information before proceeding.',
-          variant: 'destructive',
+          title: "Please complete this step",
+          description: "Fill in all required information before proceeding.",
+          variant: "destructive",
         });
         return;
       }

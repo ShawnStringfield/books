@@ -1,6 +1,6 @@
 import { BookOpen } from "lucide-react";
 import { Slider } from "@/app/components/ui/slider";
-import { usePageProgress } from "@/app/hooks/usePageProgress";
+import { usePageProgress } from "@/app/hooks/books/usePageProgress";
 import { cn } from "@/lib/utils";
 import BookProgressPercentage from "./BookProgressPercentage";
 

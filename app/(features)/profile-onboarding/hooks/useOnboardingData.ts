@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/app/lib/firebase/firebase";
-import { useToast } from "@/app/hooks/use-toast";
+import { useToast } from "@/app/hooks/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import type { OnboardingData } from "@profile-onboarding/types/onboarding";

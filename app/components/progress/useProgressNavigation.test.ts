@@ -1,22 +1,22 @@
-import { act, renderHook } from '@testing-library/react';
-import { useProgressNavigation } from './useProgressNavigation';
-import { useToast } from '@/app/hooks/use-toast';
+import { act, renderHook } from "@testing-library/react";
+import { useProgressNavigation } from "./useProgressNavigation";
+import { useToast } from "@/app/hooks/ui/use-toast";
 
-jest.mock('../../hooks/use-toast', () => ({
+jest.mock("../../hooks/ui/use-toast", () => ({
   useToast: jest.fn(),
 }));
 
-describe('useProgressNavigation', () => {
+describe("useProgressNavigation", () => {
   // Define our test types
-  type TestStep = 'step1' | 'step2' | 'step3';
+  type TestStep = "step1" | "step2" | "step3";
   interface TestState {
     currentStep: TestStep;
   }
 
   // Setup default test props
   const defaultProps = {
-    steps: ['step1', 'step2', 'step3'] as TestStep[],
-    getCurrentState: () => ({ currentStep: 'step1' } as TestState),
+    steps: ["step1", "step2", "step3"] as TestStep[],
+    getCurrentState: () => ({ currentStep: "step1" } as TestState),
   };
 
   let mockToast: jest.Mock;
@@ -30,11 +30,11 @@ describe('useProgressNavigation', () => {
     });
   });
 
-  it('should return correct initial state values', () => {
+  it("should return correct initial state values", () => {
     const { result } = renderHook(() => useProgressNavigation(defaultProps));
 
     expect(result.current).toEqual({
-      currentStep: 'step1',
+      currentStep: "step1",
       handleStepChange: expect.any(Function),
       handleNextStep: expect.any(Function),
       handlePreviousStep: expect.any(Function),
@@ -43,16 +43,16 @@ describe('useProgressNavigation', () => {
     });
   });
 
-  it('should correctly identify middle step', () => {
+  it("should correctly identify middle step", () => {
     const middleStepProps = {
       ...defaultProps,
-      getCurrentState: () => ({ currentStep: 'step2' } as TestState),
+      getCurrentState: () => ({ currentStep: "step2" } as TestState),
     };
 
     const { result } = renderHook(() => useProgressNavigation(middleStepProps));
 
     expect(result.current).toEqual({
-      currentStep: 'step2',
+      currentStep: "step2",
       handleStepChange: expect.any(Function),
       handleNextStep: expect.any(Function),
       handlePreviousStep: expect.any(Function),
@@ -61,16 +61,16 @@ describe('useProgressNavigation', () => {
     });
   });
 
-  it('should correctly identify last step', () => {
+  it("should correctly identify last step", () => {
     const lastStepProps = {
       ...defaultProps,
-      getCurrentState: () => ({ currentStep: 'step3' } as TestState),
+      getCurrentState: () => ({ currentStep: "step3" } as TestState),
     };
 
     const { result } = renderHook(() => useProgressNavigation(lastStepProps));
 
     expect(result.current).toEqual({
-      currentStep: 'step3',
+      currentStep: "step3",
       handleStepChange: expect.any(Function),
       handleNextStep: expect.any(Function),
       handlePreviousStep: expect.any(Function),
@@ -79,7 +79,7 @@ describe('useProgressNavigation', () => {
     });
   });
 
-  it('should prevent navigation when validation fails', () => {
+  it("should prevent navigation when validation fails", () => {
     const mockToast = jest.fn();
 
     (useToast as jest.Mock).mockReturnValue({ toast: mockToast });
@@ -99,13 +99,13 @@ describe('useProgressNavigation', () => {
 
     // Should show error toast
     expect(mockToast).toHaveBeenCalledWith({
-      title: 'Please complete this step',
-      description: 'Fill in all required information before proceeding.',
-      variant: 'destructive',
+      title: "Please complete this step",
+      description: "Fill in all required information before proceeding.",
+      variant: "destructive",
     });
   });
 
-  it('should allow navigation when validation passes', () => {
+  it("should allow navigation when validation passes", () => {
     const onStepChangeMock = jest.fn();
     const validationProps = {
       ...defaultProps,
@@ -124,10 +124,10 @@ describe('useProgressNavigation', () => {
     // Verify no toast was shown
     expect(mockToast).not.toHaveBeenCalled();
     // Verify navigation occurred
-    expect(onStepChangeMock).toHaveBeenCalledWith('step2');
+    expect(onStepChangeMock).toHaveBeenCalledWith("step2");
   });
 
-  it('should prevent skipping steps', () => {
+  it("should prevent skipping steps", () => {
     const onStepChangeMock = jest.fn();
     const props = {
       ...defaultProps,
@@ -137,17 +137,17 @@ describe('useProgressNavigation', () => {
     const { result } = renderHook(() => useProgressNavigation(props));
 
     act(() => {
-      result.current.handleStepChange('step3');
+      result.current.handleStepChange("step3");
     });
 
     expect(onStepChangeMock).not.toHaveBeenCalled();
   });
 
-  it('should handle edge cases for next/previous navigation', () => {
+  it("should handle edge cases for next/previous navigation", () => {
     const onStepChangeMock = jest.fn();
     const lastStepProps = {
       ...defaultProps,
-      getCurrentState: () => ({ currentStep: 'step3' } as TestState),
+      getCurrentState: () => ({ currentStep: "step3" } as TestState),
       onStepChange: onStepChangeMock,
     };
 
@@ -165,7 +165,9 @@ describe('useProgressNavigation', () => {
       onStepChange: onStepChangeMock,
     };
 
-    const { result: firstStepResult } = renderHook(() => useProgressNavigation(firstStepProps));
+    const { result: firstStepResult } = renderHook(() =>
+      useProgressNavigation(firstStepProps)
+    );
 
     act(() => {
       firstStepResult.current.handlePreviousStep();
@@ -173,11 +175,11 @@ describe('useProgressNavigation', () => {
     expect(onStepChangeMock).not.toHaveBeenCalled();
   });
 
-  it('should handle valid next/previous navigation between steps', () => {
+  it("should handle valid next/previous navigation between steps", () => {
     const onStepChangeMock = jest.fn();
     const props = {
       ...defaultProps,
-      getCurrentState: () => ({ currentStep: 'step2' } as TestState),
+      getCurrentState: () => ({ currentStep: "step2" } as TestState),
       onStepChange: onStepChangeMock,
     };
 
@@ -187,12 +189,12 @@ describe('useProgressNavigation', () => {
     act(() => {
       result.current.handleNextStep();
     });
-    expect(onStepChangeMock).toHaveBeenCalledWith('step3');
+    expect(onStepChangeMock).toHaveBeenCalledWith("step3");
 
     // Test previous navigation
     act(() => {
       result.current.handlePreviousStep();
     });
-    expect(onStepChangeMock).toHaveBeenCalledWith('step1');
+    expect(onStepChangeMock).toHaveBeenCalledWith("step1");
   });
 });

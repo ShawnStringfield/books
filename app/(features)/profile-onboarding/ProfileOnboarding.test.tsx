@@ -1,12 +1,12 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import ProfileOnboarding from './page';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { STEPS } from '@profile-onboarding/constants';
-import { useToast } from '@/app/hooks/use-toast';
-import { act } from '@testing-library/react';
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import ProfileOnboarding from "./page";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { STEPS } from "@profile-onboarding/constants";
+import { useToast } from "@/app/hooks/ui/use-toast";
+import { act } from "@testing-library/react";
 
 // Mock Next.js navigation hooks
-jest.mock('next/navigation', () => ({
+jest.mock("next/navigation", () => ({
   useRouter: jest.fn(() => ({
     push: jest.fn(),
     replace: jest.fn(),
@@ -18,14 +18,14 @@ jest.mock('next/navigation', () => ({
   })),
 }));
 
-jest.mock('../../hooks/use-toast', () => ({
+jest.mock("../../hooks/use-toast", () => ({
   useToast: jest.fn(),
 }));
 
 let queryClient: QueryClient;
 let mockToast: jest.Mock;
 
-describe('ProfileOnboarding', () => {
+describe("ProfileOnboarding", () => {
   beforeEach(() => {
     queryClient = new QueryClient({
       defaultOptions: {
@@ -44,7 +44,7 @@ describe('ProfileOnboarding', () => {
     jest.clearAllMocks();
   });
 
-  it('renders progress wizard with correct steps', () => {
+  it("renders progress wizard with correct steps", () => {
     // Arrange
     render(
       <QueryClientProvider client={queryClient}>
@@ -55,8 +55,10 @@ describe('ProfileOnboarding', () => {
     // Assert
     // Check if all steps are rendered
     STEPS.forEach((step) => {
-      const progressWizard = screen.getByTestId('progress-wizard');
-      const stepElement = within(progressWizard).getByText(new RegExp(step, 'i'));
+      const progressWizard = screen.getByTestId("progress-wizard");
+      const stepElement = within(progressWizard).getByText(
+        new RegExp(step, "i")
+      );
       expect(stepElement).toBeInTheDocument();
     });
 
@@ -65,8 +67,8 @@ describe('ProfileOnboarding', () => {
   });
 });
 
-describe('Validation Rules', () => {
-  it('genres step - requires at least one genre selected', async () => {
+describe("Validation Rules", () => {
+  it("genres step - requires at least one genre selected", async () => {
     // Arrange
     render(
       <QueryClientProvider client={queryClient}>
@@ -75,7 +77,7 @@ describe('Validation Rules', () => {
     );
 
     // Navigate to the genres step
-    const nextButton = screen.getByRole('button', { name: /next/i });
+    const nextButton = screen.getByRole("button", { name: /next/i });
     await act(async () => {
       fireEvent.click(nextButton);
     });
@@ -88,12 +90,12 @@ describe('Validation Rules', () => {
     // Assert - Check that the mock toast was called with correct params
     expect(mockToast).toHaveBeenCalledWith({
       title: expect.any(String),
-      description: 'Fill in all required information before proceeding.',
-      variant: 'destructive',
+      description: "Fill in all required information before proceeding.",
+      variant: "destructive",
     });
   });
 
-  it('goals step - requires monthly target greater than 0', async () => {
+  it("goals step - requires monthly target greater than 0", async () => {
     // Arrange
     render(
       <QueryClientProvider client={queryClient}>
@@ -103,13 +105,13 @@ describe('Validation Rules', () => {
 
     // Helper function to navigate to goals step
     const navigateToGoalsStep = async () => {
-      const nextButton = screen.getByRole('button', { name: /next/i });
+      const nextButton = screen.getByRole("button", { name: /next/i });
       // Navigate past initial step
       await act(async () => {
         fireEvent.click(nextButton);
       });
       // Complete genres step using data-testid instead of text content
-      const genreButton = screen.getByTestId('genre-button-fiction');
+      const genreButton = screen.getByTestId("genre-button-fiction");
       await act(async () => {
         fireEvent.click(genreButton);
         fireEvent.click(nextButton);
@@ -120,10 +122,10 @@ describe('Validation Rules', () => {
     await navigateToGoalsStep();
 
     // Test goals step validation
-    const decreaseButton = screen.getByRole('button', {
+    const decreaseButton = screen.getByRole("button", {
       name: /decrease monthly book target/i,
     });
-    const nextButton = screen.getByRole('button', { name: /next/i });
+    const nextButton = screen.getByRole("button", { name: /next/i });
 
     // Set target to 0
     await act(async () => {
@@ -139,12 +141,12 @@ describe('Validation Rules', () => {
     // Assert
     expect(mockToast).toHaveBeenCalledWith({
       title: expect.any(String),
-      description: 'Fill in all required information before proceeding.',
-      variant: 'destructive',
+      description: "Fill in all required information before proceeding.",
+      variant: "destructive",
     });
   });
 
-  it('schedule step - requires at least one day selected with preferences', async () => {
+  it("schedule step - requires at least one day selected with preferences", async () => {
     // Arrange
     render(
       <QueryClientProvider client={queryClient}>
@@ -153,7 +155,7 @@ describe('Validation Rules', () => {
     );
 
     // Get the step buttons from the progress wizard
-    const progressWizard = screen.getByTestId('progress-wizard');
+    const progressWizard = screen.getByTestId("progress-wizard");
     const scheduleStepButton = within(progressWizard).getByText(/schedule/i);
 
     // Click directly on the schedule step
@@ -162,7 +164,7 @@ describe('Validation Rules', () => {
     });
 
     // Now we can test the schedule step validation
-    const nextButton = screen.getByRole('button', { name: /next/i });
+    const nextButton = screen.getByRole("button", { name: /next/i });
 
     // Attempt to proceed without selecting any days
     await act(async () => {
@@ -172,28 +174,28 @@ describe('Validation Rules', () => {
     // Assert
     expect(mockToast).toHaveBeenCalledWith({
       title: expect.any(String),
-      description: 'Fill in all required information before proceeding.',
-      variant: 'destructive',
+      description: "Fill in all required information before proceeding.",
+      variant: "destructive",
     });
   });
 });
 
-describe('State Management', () => {
-  it('updates genres correctly when selected/deselected', () => {});
-  it('updates goals when new targets are set', () => {});
-  it('updates schedule preferences correctly', () => {});
-  it('maintains state between step navigation', () => {});
+describe("State Management", () => {
+  it("updates genres correctly when selected/deselected", () => {});
+  it("updates goals when new targets are set", () => {});
+  it("updates schedule preferences correctly", () => {});
+  it("maintains state between step navigation", () => {});
 });
 
-describe('Completion Handler', () => {
-  it('handles notification permission request when notifications enabled', () => {});
-  it('saves reading schedule to localStorage when permissions granted', () => {});
-  it('calls completeOnboarding and submits data on completion', () => {});
-  it('handles notification permission errors gracefully', () => {});
+describe("Completion Handler", () => {
+  it("handles notification permission request when notifications enabled", () => {});
+  it("saves reading schedule to localStorage when permissions granted", () => {});
+  it("calls completeOnboarding and submits data on completion", () => {});
+  it("handles notification permission errors gracefully", () => {});
 });
 
-describe('Component Memoization', () => {
-  it('prevents unnecessary re-renders of step components', () => {});
-  it('maintains stable references for callbacks', () => {});
-  it('only updates step content when current step changes', () => {});
+describe("Component Memoization", () => {
+  it("prevents unnecessary re-renders of step components", () => {});
+  it("maintains stable references for callbacks", () => {});
+  it("only updates step content when current step changes", () => {});
 });

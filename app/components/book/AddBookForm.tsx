@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Search } from "lucide-react";
-import { useDebounce } from "@/app/hooks/useDebounce";
+import { useDebounce } from "@/app/hooks/utils/useDebounce";
 import {
   GoogleBook,
   GoogleBooksResponse,

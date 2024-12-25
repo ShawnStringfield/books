@@ -1,13 +1,34 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import * as bookService from "@/app/lib/firebase/services/books";
+import * as highlightService from "@/app/lib/firebase/services/highlights";
 import type { Book, BaseBook } from "@/app/stores/types";
+import { ReadingStatus } from "@/app/stores/types";
+import { useEffect } from "react";
 
 // Collection and query keys as constants
 const BOOKS_KEY = "books";
 
 export function useBooks() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Set up real-time subscription
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const unsubscribe = bookService.subscribeToBooks(
+      user.uid,
+      (books) => {
+        queryClient.setQueryData([BOOKS_KEY], books);
+      },
+      (error) => {
+        console.error("Books subscription error:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user?.uid, queryClient]);
 
   return useQuery({
     queryKey: [BOOKS_KEY],
@@ -102,10 +123,15 @@ export function useDeleteBook() {
       if (!user?.uid) {
         throw new Error("Authentication required to delete book");
       }
+      // First delete all highlights associated with the book
+      await highlightService.deleteHighlightsByBook(bookId);
+      // Then delete the book itself
       return bookService.deleteBook(bookId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [BOOKS_KEY] });
+      // Also invalidate highlights queries since we've deleted some
+      queryClient.invalidateQueries({ queryKey: ["highlights"] });
     },
   });
 }
@@ -118,16 +144,18 @@ export function useUpdateReadingStatus() {
     mutationFn: async ({
       bookId,
       status,
+      updates = {},
     }: {
       bookId: string;
       status: Book["status"];
+      updates?: Partial<Omit<Book, "startDate" | "completedDate">>;
     }) => {
       if (!user?.uid) {
         throw new Error("Authentication required to update reading status");
       }
-      return bookService.updateReadingStatus(bookId, status);
+      return bookService.updateReadingStatus(bookId, status, updates);
     },
-    onMutate: async ({ bookId, status }) => {
+    onMutate: async ({ bookId, status, updates = {} }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: [BOOKS_KEY] });
       await queryClient.cancelQueries({ queryKey: [BOOKS_KEY, bookId] });
@@ -136,17 +164,43 @@ export function useUpdateReadingStatus() {
       const previousBooks = queryClient.getQueryData<Book[]>([BOOKS_KEY]);
       const previousBook = queryClient.getQueryData<Book>([BOOKS_KEY, bookId]);
 
-      // Optimistically update the cache
-      if (previousBooks) {
-        queryClient.setQueryData<Book[]>([BOOKS_KEY], (old) =>
-          old?.map((book) => (book.id === bookId ? { ...book, status } : book))
-        );
-      }
+      // Get current book data to determine date changes
+      const currentBook =
+        previousBook || previousBooks?.find((b) => b.id === bookId);
+      if (currentBook) {
+        const now = new Date().toISOString();
+        let startDate = currentBook.startDate;
+        let completedDate = currentBook.completedDate;
 
-      if (previousBook) {
-        queryClient.setQueryData<Book>([BOOKS_KEY, bookId], (old) =>
-          old ? { ...old, status } : old
-        );
+        // Update dates based on status change
+        if (
+          status === ReadingStatus.IN_PROGRESS &&
+          currentBook.status === ReadingStatus.NOT_STARTED
+        ) {
+          startDate = now;
+        } else if (status === ReadingStatus.NOT_STARTED) {
+          startDate = undefined;
+          completedDate = undefined;
+        } else if (status === ReadingStatus.COMPLETED) {
+          completedDate = now;
+        }
+
+        // Optimistically update the cache
+        if (previousBooks) {
+          queryClient.setQueryData<Book[]>([BOOKS_KEY], (old) =>
+            old?.map((book) =>
+              book.id === bookId
+                ? { ...book, status, ...updates, startDate, completedDate }
+                : book
+            )
+          );
+        }
+
+        if (previousBook) {
+          queryClient.setQueryData<Book>([BOOKS_KEY, bookId], (old) =>
+            old ? { ...old, status, ...updates, startDate, completedDate } : old
+          );
+        }
       }
 
       return { previousBooks, previousBook };

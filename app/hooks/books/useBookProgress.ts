@@ -171,16 +171,13 @@ export function useBookProgress({
         newPage = totalPages;
       }
 
-      // Determine dates based on status change
-      const now = new Date().toISOString();
-      let startDate: string | undefined = undefined;
-      let completedDate: string | undefined = undefined;
-
       // Get current book data
       const currentBook = queryClient.getQueryData<Book>(["books", id]);
       if (currentBook) {
-        startDate = currentBook.startDate;
-        completedDate = currentBook.completedDate;
+        // Determine dates based on status change
+        const now = new Date().toISOString();
+        let startDate = currentBook.startDate;
+        let completedDate = currentBook.completedDate;
 
         // Update dates based on status change
         if (
@@ -205,21 +202,14 @@ export function useBookProgress({
         });
       }
 
-      // First update the status using updateReadingStatus
+      // Update status and page in a single operation
       await updateReadingStatusMutation.mutateAsync({
         bookId: id,
         status: newStatus,
+        updates: {
+          currentPage: newPage,
+        },
       });
-
-      // Then update the page if needed
-      if (newPage !== currentPage) {
-        await updateBookMutation.mutateAsync({
-          bookId: id,
-          updates: {
-            currentPage: newPage,
-          },
-        });
-      }
 
       // Call the callback functions if provided
       onStatusChange?.(newStatus);

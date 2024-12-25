@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { useSelectedGenres } from '../../profile-onboarding/hooks/useOnboardingStore';
-import Image from 'next/image';
+import { useSelectedGenres } from "../../profile-onboarding/hooks/useOnboardingStore";
+import Image from "next/image";
 
 interface BookItem {
   id: string;
@@ -31,7 +31,9 @@ const GoogleBooks = () => {
   useEffect(() => {
     const fetchBooksForGenre = async (genre: string) => {
       const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=subject:${genre.toLowerCase()}&maxResults=4&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
+        `https://www.googleapis.com/books/v1/volumes?q=subject:${genre.toLowerCase()}&maxResults=4&key=${
+          process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+        }`
       );
 
       if (!response.ok) {
@@ -45,10 +47,13 @@ const GoogleBooks = () => {
     const fetchAllBooks = async () => {
       try {
         // Use default genre if none selected
-        const genresToFetch = selectedGenres.length > 0 ? selectedGenres : ['fiction'];
+        const genresToFetch =
+          selectedGenres.length > 0 ? selectedGenres : ["fiction"];
 
         // Fetch books for all genres in parallel
-        const bookResults = await Promise.all(genresToFetch.map(fetchBooksForGenre));
+        const bookResults = await Promise.all(
+          genresToFetch.map(fetchBooksForGenre)
+        );
 
         // Combine and shuffle all books
         const allBooks = bookResults.flat();
@@ -56,7 +61,7 @@ const GoogleBooks = () => {
 
         setBooks(shuffledBooks);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setIsLoading(false);
       }
@@ -88,7 +93,10 @@ const GoogleBooks = () => {
       {selectedGenres.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
           {selectedGenres.map((genre, index) => (
-            <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+            <span
+              key={index}
+              className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+            >
               {genre}
             </span>
           ))}
@@ -96,29 +104,45 @@ const GoogleBooks = () => {
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {books.map((book, index) => (
-          <div key={index} className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <div
+            key={index}
+            className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          >
             {book.volumeInfo.imageLinks && (
               <Image
                 key={book.id}
                 src={book.volumeInfo.imageLinks.thumbnail}
                 alt={`Cover of ${book.volumeInfo.title}`}
-                width={200}
-                height={192} // 48rem = 192px
-                className="w-full h-48 object-contain mb-4"
+                width={128}
+                height={192}
+                className="w-auto h-auto max-h-[192px] object-contain mb-4 mx-auto"
               />
             )}
-            <h2 className="text-xl font-semibold mb-2">{book.volumeInfo.title}</h2>
-            {book.volumeInfo.authors && <p className="text-gray-600 mb-2">By {book.volumeInfo.authors.join(', ')}</p>}
+            <h2 className="text-xl font-semibold mb-2">
+              {book.volumeInfo.title}
+            </h2>
+            {book.volumeInfo.authors && (
+              <p className="text-gray-600 mb-2">
+                By {book.volumeInfo.authors.join(", ")}
+              </p>
+            )}
             {book.volumeInfo.categories && (
               <div className="flex flex-wrap gap-2 mb-2">
                 {book.volumeInfo.categories.map((category, index) => (
-                  <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                  <span
+                    key={index}
+                    className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                  >
                     {category}
                   </span>
                 ))}
               </div>
             )}
-            {book.volumeInfo.description && <p className="text-gray-700 line-clamp-3">{book.volumeInfo.description}</p>}
+            {book.volumeInfo.description && (
+              <p className="text-gray-700 line-clamp-3">
+                {book.volumeInfo.description}
+              </p>
+            )}
           </div>
         ))}
       </div>

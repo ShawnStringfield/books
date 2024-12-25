@@ -126,13 +126,14 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
 
     return {
       title: volumeInfo.title,
-      subtitle: volumeInfo.subtitle,
+      ...(volumeInfo.subtitle ? { subtitle: volumeInfo.subtitle } : {}),
       author: volumeInfo.authors?.[0] || "Unknown Author",
       totalPages: volumeInfo.pageCount || 0,
       currentPage: addAsInProgress ? 1 : 0,
       status: addAsInProgress
         ? ReadingStatus.IN_PROGRESS
         : ReadingStatus.NOT_STARTED,
+      ...(addAsInProgress ? { startDate: new Date().toISOString() } : {}),
       categories: volumeInfo.categories || [],
       previewLink: volumeInfo.previewLink,
       infoLink: volumeInfo.infoLink,
@@ -185,7 +186,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
                   alt={book.volumeInfo.title}
                   width={50}
                   height={75}
-                  className="rounded shadow-sm"
+                  className="rounded shadow-sm h-auto"
                 />
               )}
             </div>
@@ -221,7 +222,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
               alt={selectedBook.volumeInfo.title}
               width={80}
               height={120}
-              className="rounded shadow-sm"
+              className="rounded shadow-sm h-auto"
             />
           )}
         </div>

@@ -2,12 +2,12 @@ import React from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Heart, Trash2, Pencil, Check, X } from "lucide-react";
-import type { Highlight } from "@/app/stores/types";
+import type { Highlight, EnrichedHighlight } from "@/app/stores/types";
 import { formatDistanceToNow } from "date-fns";
 import { DeleteConfirm } from "@/app/components/ui/delete-confirm";
 
 interface HighlightCardProps {
-  highlight: Highlight;
+  highlight: EnrichedHighlight;
   isEditing: boolean;
   editedText: string;
   showDeleteConfirm: boolean;
@@ -41,6 +41,9 @@ export default function HighlightCard({
     <Card className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 relative">
       <CardContent className="p-4">
         <div className="flex flex-col gap-4">
+          <div className="text-xs font-medium text-gray-500">
+            {highlight.bookTitle}
+          </div>
           {isEditing ? (
             <textarea
               value={editedText}

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import * as highlightService from "@/app/lib/firebase/services/highlights";
 import type { BaseHighlight } from "@/app/stores/types";
+import { useEffect, useState } from "react";
 
 // Query keys as constants
 const HIGHLIGHTS_KEY = "highlights";
@@ -10,86 +11,100 @@ const FAVORITES_KEY = "favorites";
 
 export function useHighlights() {
   const { user } = useAuth();
+  const [data, setData] = useState<BaseHighlight[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const query = useQuery({
-    queryKey: [HIGHLIGHTS_KEY],
-    queryFn: async () => {
-      console.log("Fetching all highlights for user:", user?.uid);
-      try {
-        const highlights = await highlightService.getHighlights(user!.uid);
-        console.log("Successfully fetched highlights:", highlights);
-        return highlights;
-      } catch (error) {
-        console.error("Error fetching highlights:", error);
-        throw error;
+  useEffect(() => {
+    if (!user) {
+      setData([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    const unsubscribe = highlightService.subscribeToHighlights(
+      user.uid,
+      (highlights) => {
+        setData(highlights);
+        setIsLoading(false);
+      },
+      (error) => {
+        setError(error);
+        setIsLoading(false);
       }
-    },
-    enabled: !!user,
-  });
+    );
 
-  console.log("useHighlights query state:", {
-    isLoading: query.isLoading,
-    isError: query.isError,
-    error: query.error,
-    data: query.data,
-  });
+    return () => unsubscribe();
+  }, [user]);
 
-  return query;
+  return { data, isLoading, error };
 }
 
 export function useHighlightsByBook(bookId: string, limit?: number) {
   const { user } = useAuth();
+  const [data, setData] = useState<BaseHighlight[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  console.log("useHighlightsByBook called with:", {
-    bookId,
-    isAuthenticated: !!user,
-    userId: user?.uid,
-    limit,
-  });
+  useEffect(() => {
+    if (!user || !bookId) {
+      setData([]);
+      setIsLoading(false);
+      return;
+    }
 
-  const query = useQuery({
-    queryKey: [HIGHLIGHTS_KEY, BOOK_KEY, bookId, limit],
-    queryFn: async () => {
-      console.log("Fetching highlights for book:", {
-        bookId,
-        userId: user!.uid,
-        limit,
-      });
+    setIsLoading(true);
+    const unsubscribe = highlightService.subscribeToHighlightsByBook(
+      user.uid,
+      bookId,
+      (highlights) => {
+        setData(highlights);
+        setIsLoading(false);
+      },
+      (error) => {
+        setError(error);
+        setIsLoading(false);
+      },
+      limit
+    );
 
-      try {
-        const highlights = await highlightService.getHighlightsByBook(
-          user!.uid,
-          bookId,
-          limit
-        );
-        console.log("Fetched highlights:", highlights);
-        return highlights;
-      } catch (error) {
-        console.error("Error fetching highlights:", error);
-        throw error;
-      }
-    },
-    enabled: !!user && !!bookId,
-  });
+    return () => unsubscribe();
+  }, [user, bookId, limit]);
 
-  console.log("useHighlightsByBook query state:", {
-    isLoading: query.isLoading,
-    isError: query.isError,
-    error: query.error,
-    data: query.data,
-  });
-
-  return query;
+  return { data, isLoading, error };
 }
 
 export function useFavoriteHighlights() {
   const { user } = useAuth();
+  const [data, setData] = useState<BaseHighlight[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  return useQuery({
-    queryKey: [HIGHLIGHTS_KEY, FAVORITES_KEY],
-    queryFn: () => highlightService.getFavoriteHighlights(user!.uid),
-    enabled: !!user,
-  });
+  useEffect(() => {
+    if (!user) {
+      setData([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    const unsubscribe = highlightService.subscribeToFavoriteHighlights(
+      user.uid,
+      (highlights) => {
+        setData(highlights);
+        setIsLoading(false);
+      },
+      (error) => {
+        setError(error);
+        setIsLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user]);
+
+  return { data, isLoading, error };
 }
 
 export function useAddHighlight() {
@@ -134,7 +149,32 @@ export function useUpdateHighlight() {
       highlightId: string;
       updates: Partial<BaseHighlight>;
     }) => highlightService.updateHighlight(highlightId, updates),
-    onSuccess: (_, { updates }) => {
+    onMutate: async ({ highlightId, updates }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: [HIGHLIGHTS_KEY] });
+
+      // Snapshot the previous value
+      const previousHighlights = queryClient.getQueryData([HIGHLIGHTS_KEY]);
+
+      // Optimistically update the cache
+      queryClient.setQueryData([HIGHLIGHTS_KEY], (old: any[]) => {
+        return old?.map((highlight) =>
+          highlight.id === highlightId
+            ? { ...highlight, ...updates }
+            : highlight
+        );
+      });
+
+      return { previousHighlights };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousHighlights) {
+        queryClient.setQueryData([HIGHLIGHTS_KEY], context.previousHighlights);
+      }
+    },
+    onSettled: (_, __, { updates }) => {
+      // Always refetch after error or success to ensure cache consistency
       queryClient.invalidateQueries({ queryKey: [HIGHLIGHTS_KEY] });
       if (updates.bookId) {
         queryClient.invalidateQueries({
@@ -170,41 +210,73 @@ export function useToggleFavorite() {
       isFavorite: boolean;
       bookId: string;
     }) => {
-      console.log("Toggling favorite for highlight:", {
-        highlightId,
-        currentFavoriteState: isFavorite,
-        bookId,
-        userId: user?.uid,
-      });
-
       if (!user) {
         throw new Error("User must be authenticated to toggle favorite");
       }
+      return highlightService.toggleFavorite(highlightId, isFavorite);
+    },
+    onMutate: async ({ highlightId, isFavorite, bookId }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: [HIGHLIGHTS_KEY] });
+      await queryClient.cancelQueries({ queryKey: [FAVORITES_KEY] });
 
-      try {
-        await highlightService.toggleFavorite(highlightId, isFavorite);
-        console.log("Successfully toggled favorite");
-        return { highlightId, isFavorite };
-      } catch (error) {
-        console.error("Error toggling favorite:", error);
-        throw error;
+      // Snapshot the previous values
+      const previousHighlights =
+        queryClient.getQueryData<BaseHighlight[]>([HIGHLIGHTS_KEY]) || [];
+      const previousFavorites =
+        queryClient.getQueryData<BaseHighlight[]>([
+          HIGHLIGHTS_KEY,
+          FAVORITES_KEY,
+        ]) || [];
+
+      // Optimistically update highlights cache
+      queryClient.setQueryData<BaseHighlight[]>(
+        [HIGHLIGHTS_KEY],
+        (old = []) => {
+          return old.map((highlight) =>
+            highlight.id === highlightId
+              ? { ...highlight, isFavorite }
+              : highlight
+          );
+        }
+      );
+
+      // Optimistically update favorites cache
+      queryClient.setQueryData<BaseHighlight[]>(
+        [HIGHLIGHTS_KEY, FAVORITES_KEY],
+        (old = []) => {
+          if (isFavorite) {
+            const highlight = previousHighlights.find(
+              (h) => h.id === highlightId
+            );
+            return highlight ? [...old, highlight] : old;
+          } else {
+            return old.filter((highlight) => highlight.id !== highlightId);
+          }
+        }
+      );
+
+      return { previousHighlights, previousFavorites };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, roll back both caches
+      if (context?.previousHighlights) {
+        queryClient.setQueryData([HIGHLIGHTS_KEY], context.previousHighlights);
+      }
+      if (context?.previousFavorites) {
+        queryClient.setQueryData(
+          [HIGHLIGHTS_KEY, FAVORITES_KEY],
+          context.previousFavorites
+        );
       }
     },
-    onSuccess: (_, { highlightId, bookId }) => {
-      console.log("Invalidating queries after toggling favorite:", {
-        highlightId,
-        bookId,
-      });
-
-      // Invalidate all relevant queries
+    onSettled: (_, __, { bookId }) => {
+      // Always refetch after error or success to ensure cache consistency
       queryClient.invalidateQueries({ queryKey: [HIGHLIGHTS_KEY] });
       queryClient.invalidateQueries({ queryKey: [FAVORITES_KEY] });
       queryClient.invalidateQueries({
         queryKey: [HIGHLIGHTS_KEY, BOOK_KEY, bookId],
       });
-    },
-    onError: (error) => {
-      console.error("Mutation error in toggleFavorite:", error);
     },
   });
 }

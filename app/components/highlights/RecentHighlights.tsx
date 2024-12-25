@@ -15,6 +15,8 @@ import {
 } from "@/app/components/ui/card";
 import { Loader2, Highlighter } from "lucide-react";
 import HighlightCard from "./HighlightCard";
+import { useBooks } from "@/app/hooks/books/useBooks";
+import { enrichHighlights } from "@/app/utils/highlightUtils";
 
 interface RecentHighlightsProps {
   limit?: number;
@@ -27,7 +29,8 @@ interface HighlightState {
 }
 
 export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
-  const { data: highlights, isLoading } = useHighlights();
+  const { data: highlights, isLoading: isHighlightsLoading } = useHighlights();
+  const { data: books = [], isLoading: isBooksLoading } = useBooks();
   const toggleFavorite = useToggleFavorite();
   const deleteHighlight = useDeleteHighlight();
   const updateHighlight = useUpdateHighlight();
@@ -58,7 +61,7 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
     }));
   };
 
-  if (isLoading) {
+  if (isHighlightsLoading || isBooksLoading) {
     return (
       <div className="flex justify-center py-8">
         <Loader2 className="w-6 h-6 animate-spin" />
@@ -66,7 +69,10 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
     );
   }
 
-  const recentHighlights = highlights?.slice(0, limit) ?? [];
+  const recentHighlights = enrichHighlights(
+    highlights?.slice(0, limit) ?? [],
+    books
+  );
 
   if (recentHighlights.length === 0) {
     return (
@@ -140,7 +146,9 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
                 updateHighlightState(highlight.id, { editedText: text })
               }
               onShowDeleteConfirm={(show) =>
-                updateHighlightState(highlight.id, { showDeleteConfirm: show })
+                updateHighlightState(highlight.id, {
+                  showDeleteConfirm: show,
+                })
               }
             />
           );

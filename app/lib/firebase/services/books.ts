@@ -15,6 +15,7 @@ import {
   FieldValue,
   deleteField,
   limit,
+  onSnapshot,
 } from "firebase/firestore";
 import type { Book, BaseBook, ReadingStatusType } from "@/app/stores/types";
 import type { WithTimestamps } from "../types";
@@ -95,49 +96,17 @@ export async function addBook(userId: string, book: BaseBook): Promise<Book> {
 
 export async function updateBook(
   bookId: string,
-  updates: Partial<BaseBook>
-): Promise<WithTimestamps<Partial<BaseBook> & { id: string }>> {
-  if (!bookId) {
-    throw new Error("Book ID is required for update");
-  }
-
-  // Clean undefined values from updates
-  const cleanUpdates = Object.entries(updates).reduce<Partial<BaseBook>>(
-    (acc, [key, value]) => {
-      if (value !== undefined) {
-        (acc as Record<keyof BaseBook, BaseBook[keyof BaseBook]>)[
-          key as keyof BaseBook
-        ] = value;
-      }
-      return acc;
-    },
-    {}
-  );
-
-  if (Object.keys(cleanUpdates).length === 0) {
-    throw new Error("No valid updates provided");
-  }
-
+  updates: Partial<Book>
+): Promise<void> {
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
   const timestamp = serverTimestamp();
+
   const updateData = {
-    ...cleanUpdates,
+    ...updates,
     updatedAt: timestamp,
   };
 
   await updateDoc(bookRef, updateData);
-  const now = new Date().toISOString();
-
-  // Get the current document to include createdAt in the response
-  const bookSnap = await getDoc(bookRef);
-  const bookData = bookSnap.data();
-
-  return {
-    ...cleanUpdates,
-    id: bookId,
-    createdAt: bookData?.createdAt ?? now,
-    updatedAt: now,
-  };
 }
 
 export async function deleteBook(bookId: string): Promise<void> {
@@ -147,7 +116,8 @@ export async function deleteBook(bookId: string): Promise<void> {
 
 export async function updateReadingStatus(
   bookId: string,
-  status: ReadingStatusType
+  status: ReadingStatusType,
+  additionalUpdates: Partial<Omit<Book, "startDate" | "completedDate">> = {}
 ): Promise<void> {
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
   const timestamp = serverTimestamp();
@@ -157,48 +127,109 @@ export async function updateReadingStatus(
   const bookData = bookSnap.data();
   const currentStatus = bookData?.status;
 
-  const updateData: {
-    status: ReadingStatusType;
-    updatedAt: FieldValue;
-    startDate?: FieldValue;
-    completedDate?: FieldValue;
-  } = {
+  // Create base update data
+  const baseUpdate = {
     status,
     updatedAt: timestamp,
+    ...additionalUpdates,
   };
 
-  // Only set startDate when transitioning from NOT_STARTED to IN_PROGRESS
+  // Handle date fields separately to ensure proper typing
+  let dateUpdates: {
+    startDate?: FieldValue | Timestamp;
+    completedDate?: FieldValue;
+  } = {};
+
+  // Handle startDate
   if (
     currentStatus === ReadingStatus.NOT_STARTED &&
     status === ReadingStatus.IN_PROGRESS
   ) {
-    updateData.startDate = timestamp;
+    // Set start date when starting a book
+    dateUpdates.startDate = timestamp;
   } else if (status === ReadingStatus.NOT_STARTED) {
-    // Remove startDate when moving back to NOT_STARTED
-    updateData.startDate = deleteField();
+    // Clear both dates when resetting
+    dateUpdates.startDate = deleteField();
+    dateUpdates.completedDate = deleteField();
+  } else if (
+    status === ReadingStatus.COMPLETED ||
+    status === ReadingStatus.IN_PROGRESS
+  ) {
+    // Preserve existing start date if it exists
+    if (bookData?.startDate) {
+      dateUpdates.startDate = bookData.startDate;
+    } else {
+      // If no start date exists (edge case), set it now
+      dateUpdates.startDate = timestamp;
+    }
   }
 
-  // Set completedDate when marking as completed
+  // Handle completedDate
   if (status === ReadingStatus.COMPLETED) {
-    updateData.completedDate = timestamp;
+    dateUpdates.completedDate = timestamp;
   } else if (currentStatus === ReadingStatus.COMPLETED) {
-    // Remove completedDate when moving from completed to another status
-    updateData.completedDate = deleteField();
+    dateUpdates.completedDate = deleteField();
   }
+
+  // Combine updates
+  const updateData = {
+    ...baseUpdate,
+    ...dateUpdates,
+  };
 
   await updateDoc(bookRef, updateData);
 }
 
 export async function updateReadingProgress(
   bookId: string,
-  currentPage: number
+  currentPage: number,
+  additionalUpdates: Partial<Book> = {}
 ): Promise<void> {
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
   const timestamp = serverTimestamp();
+
   const updateData = {
     currentPage,
     updatedAt: timestamp,
+    ...additionalUpdates,
   };
 
   await updateDoc(bookRef, updateData);
+}
+
+export function subscribeToBooks(
+  userId: string,
+  onUpdate: (books: Book[]) => void,
+  onError?: (error: Error) => void
+): () => void {
+  const booksRef = collection(db, BOOKS_COLLECTION);
+  const q = query(
+    booksRef,
+    where("userId", "==", userId),
+    orderBy("updatedAt", "desc"),
+    limit(50)
+  );
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      try {
+        const books = snapshot.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...transformTimestamps(doc.data()),
+            } as Book)
+        );
+        onUpdate(books);
+      } catch (error) {
+        console.error("Error processing books snapshot:", error);
+        onError?.(error as Error);
+      }
+    },
+    (error) => {
+      console.error("Books subscription error:", error);
+      onError?.(error);
+    }
+  );
 }

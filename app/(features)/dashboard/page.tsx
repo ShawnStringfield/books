@@ -10,12 +10,20 @@ import DashboardStats from "@/app/components/dashboard/stats/DashboardStats";
 import { useBooks } from "@/app/hooks/books/useBooks";
 import { ReadingStatus } from "@/app/stores/types";
 import { Loader2 } from "lucide-react";
+import {
+  useHighlights,
+  useFavoriteHighlights,
+} from "@/app/hooks/highlights/useHighlights";
 
 export default function DashboardPage() {
   useOnboardingCheck();
-  const { data: books, isLoading } = useBooks();
+  const { data: books, isLoading: isBooksLoading } = useBooks();
+  const { data: highlights = [], isLoading: isHighlightsLoading } =
+    useHighlights();
+  const { data: favoriteHighlights = [], isLoading: isFavoritesLoading } =
+    useFavoriteHighlights();
 
-  if (isLoading) {
+  if (isBooksLoading || isHighlightsLoading || isFavoritesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
@@ -25,9 +33,7 @@ export default function DashboardPage() {
 
   const currentlyReadingBooks =
     books?.filter((book) => book.status === ReadingStatus.IN_PROGRESS) ?? [];
-  const hasRecentHighlights = false; // TODO: Implement with Firebase
-  const hasFavoriteHighlights = false; // TODO: Implement with Firebase
-  const bothEmpty = !hasRecentHighlights && !hasFavoriteHighlights;
+  const bothEmpty = highlights.length === 0 && favoriteHighlights.length === 0;
 
   return (
     <DashboardLayout>
@@ -38,7 +44,13 @@ export default function DashboardPage() {
         <div className="mb-8">
           <CurrentlyReading books={currentlyReadingBooks} />
         </div>
-        <div className="space-y-6">
+        <div
+          className={
+            bothEmpty
+              ? "grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch"
+              : "space-y-6"
+          }
+        >
           <RecentHighlights limit={5} />
           <FavHighlightsOnboarding />
         </div>

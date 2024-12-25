@@ -18,10 +18,12 @@ import { BookProgressSection } from "@/app/components/book/details/BookProgressS
 import { BookDetailsSkeleton } from "@/app/components/book/details/BookDetailsSkeleton";
 import { useBookProgress } from "@/app/hooks/books/useBookProgress";
 import { Button } from "@/app/components/ui/button";
-import { BookDetailsLayout } from "@/app/components/book/details/BookDetailsLayout";
-import { BookDetailsHeader } from "@/app/components/book/details/BookDetailsHeader";
+import { BookHeader } from "@/app/components/book/details/BookHeader";
 import { ReadingControlsSection } from "@/app/components/book/details/ReadingControlsSection";
 import { HighlightsSection } from "@/app/components/book/details/HighlightsSection";
+import DashboardLayout from "@/app/components/dashboard/DashboardLayout";
+import { calculatePercentComplete } from "@/app/utils/bookUtils";
+import ReadingProgressBar from "@/app/components/book/ReadingProgressBar";
 
 function BookDetailsContent() {
   const router = useRouter();
@@ -86,15 +88,17 @@ function BookDetailsContent() {
   // Show loading state if data is being fetched
   if (isBooksLoading || isBookLoading) {
     return (
-      <BookDetailsLayout>
-        <BookDetailsSkeleton />
-      </BookDetailsLayout>
+      <DashboardLayout>
+        <div className="p-6 pb-12 max-w-4xl mx-auto space-y-8">
+          <BookDetailsSkeleton />
+        </div>
+      </DashboardLayout>
     );
   }
 
   if (!book || !book.id) {
     return (
-      <BookDetailsLayout>
+      <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
           <h1 className="text-2xl font-bold">Book not found</h1>
           <Button
@@ -104,7 +108,7 @@ function BookDetailsContent() {
             Return to Library
           </Button>
         </div>
-      </BookDetailsLayout>
+      </DashboardLayout>
     );
   }
 
@@ -161,70 +165,79 @@ function BookDetailsContent() {
   };
 
   return (
-    <BookDetailsLayout>
-      <BookDetailsHeader
-        book={validatedBook}
-        showEditControls={showEditControls}
-        showReadingControls={showReadingControls}
-        showHighlightForm={showHighlightForm}
-        onReadingControlsClick={toggleReadingControls}
-        onHighlightClick={toggleHighlightForm}
-        onEditClick={toggleEditControls}
-        onDeleteClick={() => setShowDeleteWarning(true)}
-        onCancelEdit={toggleEditControls}
-        onSaveChanges={handleSaveChanges}
+    <DashboardLayout>
+      <ReadingProgressBar
+        currentPage={book.currentPage || 0}
+        totalPages={book.totalPages || 0}
+        progress={calculatePercentComplete(book.currentPage, book.totalPages)}
+        variant="bleed"
+        className="relative -mt-[1px] bg-white overflow-visible"
       />
+      <div className="p-6 pb-12 max-w-4xl mx-auto space-y-8">
+        <BookHeader
+          book={validatedBook}
+          showEditControls={showEditControls}
+          showReadingControls={showReadingControls}
+          showHighlightForm={showHighlightForm}
+          onReadingControlsClick={toggleReadingControls}
+          onHighlightClick={toggleHighlightForm}
+          onEditClick={toggleEditControls}
+          onDeleteClick={() => setShowDeleteWarning(true)}
+          onCancelEdit={toggleEditControls}
+          onSaveChanges={handleSaveChanges}
+        />
 
-      <DeleteBookDialog
-        isOpen={showDeleteWarning}
-        onClose={() => setShowDeleteWarning(false)}
-        onConfirm={handleDelete}
-        bookTitle={validatedBook.title}
-      />
+        <DeleteBookDialog
+          isOpen={showDeleteWarning}
+          onClose={() => setShowDeleteWarning(false)}
+          onConfirm={handleDelete}
+          bookTitle={validatedBook.title}
+        />
 
-      <BookMetadata
-        book={validatedBook}
-        showEditControls={showEditControls}
-        onGenreChange={setEditedGenre}
-      />
+        <BookMetadata
+          book={validatedBook}
+          showEditControls={showEditControls}
+          onGenreChange={setEditedGenre}
+        />
 
-      {showHighlightForm && (
+        {showHighlightForm && (
+          <HighlightsSection
+            book={validatedBook}
+            showForm={true}
+            onClose={toggleHighlightForm}
+          />
+        )}
+
+        {showReadingControls && (
+          <ReadingControlsSection
+            book={validatedBook}
+            isLastBook={isLastBook}
+            manualTotalPages={manualTotalPages}
+            onStatusChange={handleStatusChange}
+            onProgressChange={handleProgressChange}
+            onCancel={toggleReadingControls}
+            onManualTotalPagesChange={setManualTotalPages}
+            onTotalPagesUpdate={handleTotalPagesUpdate}
+            isUpdating={isUpdating}
+            error={error}
+          />
+        )}
+
+        <BookDescription
+          book={validatedBook}
+          showEditControls={showEditControls}
+          onDescriptionChange={setEditedDescription}
+        />
+
         <HighlightsSection
           book={validatedBook}
-          showForm={true}
+          showForm={false}
           onClose={toggleHighlightForm}
         />
-      )}
 
-      {showReadingControls && (
-        <ReadingControlsSection
-          book={validatedBook}
-          isLastBook={isLastBook}
-          manualTotalPages={manualTotalPages}
-          onStatusChange={handleStatusChange}
-          onProgressChange={handleProgressChange}
-          onCancel={toggleReadingControls}
-          onManualTotalPagesChange={setManualTotalPages}
-          onTotalPagesUpdate={handleTotalPagesUpdate}
-          isUpdating={isUpdating}
-          error={error}
-        />
-      )}
-
-      <BookDescription
-        book={validatedBook}
-        showEditControls={showEditControls}
-        onDescriptionChange={setEditedDescription}
-      />
-
-      <HighlightsSection
-        book={validatedBook}
-        showForm={false}
-        onClose={toggleHighlightForm}
-      />
-
-      <BookProgressSection book={validatedBook} />
-    </BookDetailsLayout>
+        <BookProgressSection book={validatedBook} />
+      </div>
+    </DashboardLayout>
   );
 }
 

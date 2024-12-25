@@ -1,4 +1,9 @@
-import { Sheet, SheetContent, SheetTrigger } from "@/app/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/app/components/ui/sheet";
 import { Book } from "@/app/stores/types";
 import { useId, useState } from "react";
 import ReadingProgressBar from "../ReadingProgressBar";
@@ -119,6 +124,7 @@ const BookDetailsSheet = ({
       </SheetTrigger>
 
       <SheetContent side="right" className="w-full sm:max-w-xl p-0">
+        <SheetTitle className="sr-only">{book.title} Details</SheetTitle>
         <BookProgressManager book={book}>
           {({
             handleProgressChange,

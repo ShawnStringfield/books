@@ -1,19 +1,29 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { WelcomeStep } from '@profile-onboarding/components/steps/WelcomeStep';
-import { GenresStep } from '@profile-onboarding/components/steps/GenresStep';
-import { GoalsStep } from '@profile-onboarding/components/steps/GoalsStep';
-import { ScheduleStep } from '@profile-onboarding/components/steps/ScheduleStep';
-import { CompleteStep } from '@profile-onboarding/components/steps/CompleteStep';
-import { useOnboardingUI, useOnboardingActions } from '@profile-onboarding/hooks/useOnboardingStore';
-import { useOnboardingData } from '@profile-onboarding/hooks/useOnboardingData';
-import { STEPS } from '@profile-onboarding/constants';
-import { StepId, OnboardingData, ReadingPreference } from '@profile-onboarding/types/onboarding';
-import { useProgressNavigation, StepValidationRules } from '@/app/components/progress/useProgressNavigation';
-import { ProgressWizard } from '@/app/components/progress/ProgressWizard';
-import { memo, useCallback, useMemo, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useEffect } from "react";
+import { WelcomeStep } from "@profile-onboarding/components/steps/WelcomeStep";
+import { GenresStep } from "@profile-onboarding/components/steps/GenresStep";
+import { GoalsStep } from "@profile-onboarding/components/steps/GoalsStep";
+import { ScheduleStep } from "@profile-onboarding/components/steps/ScheduleStep";
+import { CompleteStep } from "@profile-onboarding/components/steps/CompleteStep";
+import {
+  useOnboardingUI,
+  useOnboardingActions,
+} from "@profile-onboarding/hooks/useOnboardingStore";
+import { useOnboardingData } from "@profile-onboarding/hooks/useOnboardingData";
+import { STEPS } from "@profile-onboarding/constants";
+import {
+  StepId,
+  OnboardingData,
+  ReadingPreference,
+} from "@profile-onboarding/types/onboarding";
+import {
+  useProgressNavigation,
+  StepValidationRules,
+} from "@/app/components/progress/useProgressNavigation";
+import { ProgressWizard } from "@/app/components/progress/ProgressWizard";
+import { memo, useCallback, useMemo, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 interface OnboardingState {
   currentStep: StepId;
@@ -36,7 +46,8 @@ const ProfileOnboarding = () => {
   const [formData, setFormData] = useState<OnboardingData>(DEFAULT_FORM_DATA);
 
   // Server mutation
-  const { saveData, isSaving, existingData, isLoadingData } = useOnboardingData();
+  const { saveData, isSaving, existingData, isLoadingData } =
+    useOnboardingData();
 
   // Load existing data if available
   useEffect(() => {
@@ -52,7 +63,9 @@ const ProfileOnboarding = () => {
       goals: (state) => state.formData.bookGoals.monthlyTarget > 0,
       schedule: (state) =>
         state.formData.readingSchedule.preferences.length > 0 &&
-        state.formData.readingSchedule.preferences.every((pref: ReadingPreference) => pref.daysOfWeek.length > 0),
+        state.formData.readingSchedule.preferences.every(
+          (pref: ReadingPreference) => pref.daysOfWeek.length > 0
+        ),
     }),
     []
   );
@@ -76,37 +89,49 @@ const ProfileOnboarding = () => {
     [currentStep, handleStepChange]
   );
 
-  const { handleNextStep, handlePreviousStep, isFirstStep, isLastStep } = useProgressNavigation({
-    steps: STEPS,
-    validationRules,
-    onStepChange: handleProgressStepChange,
-    getCurrentState,
-  });
+  const { handleNextStep, handlePreviousStep, isFirstStep, isLastStep } =
+    useProgressNavigation({
+      steps: STEPS,
+      validationRules,
+      onStepChange: handleProgressStepChange,
+      getCurrentState,
+    });
 
   // Form update handlers
   const handleGenreSelect = useCallback((genre: string) => {
     setFormData((prev) => ({
       ...prev,
-      selectedGenres: prev.selectedGenres.includes(genre) ? prev.selectedGenres.filter((g) => g !== genre) : [...prev.selectedGenres, genre],
+      selectedGenres: prev.selectedGenres.includes(genre)
+        ? prev.selectedGenres.filter((g) => g !== genre)
+        : [...prev.selectedGenres, genre],
     }));
   }, []);
 
-  const handleGoalsUpdate = useCallback((goals: OnboardingData['bookGoals']) => {
-    setFormData((prev) => ({ ...prev, bookGoals: goals }));
-  }, []);
+  const handleGoalsUpdate = useCallback(
+    (goals: OnboardingData["bookGoals"]) => {
+      setFormData((prev) => ({ ...prev, bookGoals: goals }));
+    },
+    []
+  );
 
-  const handleScheduleUpdate = useCallback((schedule: OnboardingData['readingSchedule']) => {
-    setFormData((prev) => ({ ...prev, readingSchedule: schedule }));
-  }, []);
+  const handleScheduleUpdate = useCallback(
+    (schedule: OnboardingData["readingSchedule"]) => {
+      setFormData((prev) => ({ ...prev, readingSchedule: schedule }));
+    },
+    []
+  );
 
   const handleComplete = useCallback(async () => {
-    const hasNotificationPreferences = formData.readingSchedule.preferences.some((pref: ReadingPreference) => pref.notifications);
+    const hasNotificationPreferences =
+      formData.readingSchedule.preferences.some(
+        (pref: ReadingPreference) => pref.notifications
+      );
 
     if (hasNotificationPreferences) {
       try {
         await Notification.requestPermission();
       } catch (error) {
-        console.error('Error requesting notification permission:', error);
+        console.error("Error requesting notification permission:", error);
       }
     }
 
@@ -117,9 +142,24 @@ const ProfileOnboarding = () => {
   const STEP_COMPONENTS = useMemo(
     () => ({
       welcome: () => <WelcomeStep />,
-      genres: () => <GenresStep selectedGenres={formData.selectedGenres} onGenreSelect={handleGenreSelect} />,
-      goals: () => <GoalsStep goals={formData.bookGoals} onGoalsUpdate={handleGoalsUpdate} />,
-      schedule: () => <ScheduleStep schedule={formData.readingSchedule} onScheduleUpdate={handleScheduleUpdate} />,
+      genres: () => (
+        <GenresStep
+          selectedGenres={formData.selectedGenres}
+          onGenreSelect={handleGenreSelect}
+        />
+      ),
+      goals: () => (
+        <GoalsStep
+          goals={formData.bookGoals}
+          onGoalsUpdate={handleGoalsUpdate}
+        />
+      ),
+      schedule: () => (
+        <ScheduleStep
+          schedule={formData.readingSchedule}
+          onScheduleUpdate={handleScheduleUpdate}
+        />
+      ),
       complete: () => <CompleteStep onDashboardClick={handleComplete} />,
     }),
     [

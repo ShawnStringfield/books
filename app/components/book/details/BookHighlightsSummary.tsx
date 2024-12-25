@@ -1,5 +1,7 @@
 import { type Highlight } from "@/app/stores/types";
 import HighlightCard from "@/app/components/highlights/HighlightCard";
+import { useBooks } from "@/app/hooks/books/useBooks";
+import { enrichHighlights } from "@/app/utils/highlightUtils";
 
 interface BookHighlightsSummaryProps {
   highlights: Highlight[];
@@ -34,7 +36,11 @@ export function BookHighlightsSummary({
   isDeleting,
   isUpdating,
 }: BookHighlightsSummaryProps) {
+  const { data: books = [] } = useBooks();
+
   if (highlights.length === 0) return null;
+
+  const enrichedHighlights = enrichHighlights(highlights, books);
 
   return (
     <div className="mt-6">
@@ -48,7 +54,7 @@ export function BookHighlightsSummary({
         </button>
       </div>
       <div className="space-y-3">
-        {highlights.slice(0, 3).map((highlight) => (
+        {enrichedHighlights.slice(0, 3).map((highlight) => (
           <HighlightCard
             key={highlight.id}
             highlight={highlight}

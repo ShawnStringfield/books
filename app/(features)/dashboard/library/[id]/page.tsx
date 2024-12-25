@@ -11,7 +11,6 @@ import {
   useUpdateBook,
 } from "@/app/hooks/books/useBooks";
 import { ErrorBoundary } from "@/app/components/ErrorBoundary";
-import { BookMetadata } from "@/app/components/book/details/BookMetadata";
 import { BookDescription } from "@/app/components/book/details/BookDescription";
 import { BookProgressSection } from "@/app/components/book/details/BookProgressSection";
 import { BookDetailsSkeleton } from "@/app/components/book/details/BookDetailsSkeleton";
@@ -232,11 +231,6 @@ function BookDetailsContent() {
           showEditControls={showEditControls}
           onCancelEdit={toggleEditControls}
           onSaveChanges={handleSaveChanges}
-        />
-
-        <BookMetadata
-          book={validatedBook}
-          showEditControls={showEditControls}
           onGenreChange={setEditedGenre}
         />
 
@@ -251,8 +245,6 @@ function BookDetailsContent() {
           showForm={false}
           onClose={toggleHighlightForm}
         />
-
-        <BookProgressSection book={validatedBook} />
       </div>
     </DashboardLayout>
   );

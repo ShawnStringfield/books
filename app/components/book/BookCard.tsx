@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Book, ReadingStatusType } from "@/app/stores/types";
 import Link from "next/link";
-import BookDetailsSheet from "./BookDetailsSheet";
+import BookDetailsSheet from "./details/BookDetailsSheet";
 import { Trash2, Highlighter, Eye } from "lucide-react";
 import { useMemo } from "react";
 import { useHighlightsByBook } from "@/app/hooks/highlights/useHighlights";

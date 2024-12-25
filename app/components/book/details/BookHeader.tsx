@@ -1,12 +1,14 @@
-import { ExternalLink, Info } from "lucide-react";
-import { type Book } from "@/app/stores/types";
 import { Button } from "@/app/components/ui/button";
+import { ExternalLink } from "lucide-react";
+import { type Book } from "@/app/stores/types";
+import { BookMetadata } from "./BookMetadata";
 
 interface BookHeaderProps {
   book: Required<Book>;
   showEditControls: boolean;
   onCancelEdit: () => void;
   onSaveChanges: () => void;
+  onGenreChange: (genre: string) => void;
 }
 
 export function BookHeader({
@@ -14,6 +16,7 @@ export function BookHeader({
   showEditControls,
   onCancelEdit,
   onSaveChanges,
+  onGenreChange,
 }: BookHeaderProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -46,25 +49,13 @@ export function BookHeader({
         </div>
       )}
 
-      <div className="mt-2">
-        <div className="my-4">
-          <p className="text-sm text-mono">
-            By: {book.author} • {book.totalPages || 0} pages
-          </p>
-        </div>
+      <div className="mt-0">
+        <BookMetadata
+          book={book}
+          showEditControls={showEditControls}
+          onGenreChange={onGenreChange}
+        />
         <div className="flex items-center gap-4 mt-3">
-          {book.previewLink && (
-            <a
-              href={book.previewLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-sm text-brand hover:text-blue-800 transition-colors"
-              aria-label="Preview book"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Preview
-            </a>
-          )}
           {book.infoLink && (
             <a
               href={book.infoLink}
@@ -73,7 +64,7 @@ export function BookHeader({
               className="flex items-center gap-1 text-sm text-brand hover:text-blue-800 transition-colors"
               aria-label="More information about book"
             >
-              <Info className="h-4 w-4" />
+              <ExternalLink className="h-4 w-4" />
               More Information
             </a>
           )}

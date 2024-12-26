@@ -1,5 +1,5 @@
+import { useAuth } from "@/app/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@/contexts/AuthContext";
 import * as highlightService from "@/app/lib/firebase/services/highlights";
 import type { BaseHighlight, Highlight } from "@/app/stores/types";
 import { useEffect, useState } from "react";

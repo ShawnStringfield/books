@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { cn } from "@/app/lib/utils";
 
 interface EditableBookDescriptionProps {
   description: string;
@@ -8,7 +8,11 @@ interface EditableBookDescriptionProps {
   onChange: (value: string) => void;
 }
 
-export default function EditableBookDescription({ description, isEditing, onChange }: EditableBookDescriptionProps) {
+export default function EditableBookDescription({
+  description,
+  isEditing,
+  onChange,
+}: EditableBookDescriptionProps) {
   const [value, setValue] = useState(description);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -35,14 +39,21 @@ export default function EditableBookDescription({ description, isEditing, onChan
     <div className="space-y-2">
       {description ? (
         <div>
-          <p className={cn('leading-tight md:leading-normal', !isExpanded && 'line-clamp-3 md:line-clamp-none')}>{description}</p>
+          <p
+            className={cn(
+              "leading-tight md:leading-normal",
+              !isExpanded && "line-clamp-3 md:line-clamp-none"
+            )}
+          >
+            {description}
+          </p>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="text-blue-600 text-sm mt-1 hover:underline md:hidden"
             aria-expanded={isExpanded}
             aria-controls="description-text"
           >
-            {isExpanded ? 'Show less' : 'View more'}
+            {isExpanded ? "Show less" : "View more"}
           </button>
         </div>
       ) : (

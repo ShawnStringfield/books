@@ -1,7 +1,7 @@
-import { Calendar, BookOpen } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { Book, ReadingStatus } from "@/app/stores/types";
-import { formatRelativeDate } from "@/app/utils/dateUtils";
-import { cn } from "@/lib/utils";
+import { formatRelativeDate } from "@/app/lib/utils/dateUtils";
+import { cn } from "@/app/lib/utils";
 
 interface ReadingDatesProps {
   book: Book;
@@ -17,13 +17,13 @@ const ReadingDates = ({ book, className }: ReadingDatesProps) => {
     <div className={cn("flex flex-col gap-1 text-sm text-mono", className)}>
       {showStartDate && book.startDate ? (
         <div className="flex items-center gap-1.5">
-          <Calendar className="w-3.5 h-3.5 text-mono" />
+          <CalendarDays className="w-3.5 h-3.5 text-mono" />
           <span>Started {formatRelativeDate(book.startDate).formatted}</span>
         </div>
       ) : null}
       {book.status === ReadingStatus.COMPLETED && book.completedDate ? (
         <div className="flex items-center gap-1.5">
-          <BookOpen className="w-3.5 h-3.5 " />
+          <CalendarDays className="w-3.5 h-3.5 " />
           <span>
             Completed {formatRelativeDate(book.completedDate).formatted}
           </span>

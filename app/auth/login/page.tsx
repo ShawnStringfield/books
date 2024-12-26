@@ -1,13 +1,13 @@
 // app/auth/page.tsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { SignIn } from '@/app/components/auth/sign-in';
-import { Loader2 } from 'lucide-react';
-import type { AuthAction, AuthError } from '@/lib/auth/types';
-import { getErrorMessage, normalizeError } from '@/lib/auth/utils/error-utils';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { SignIn } from "@/app/components/auth/sign-in";
+import { Loader2 } from "lucide-react";
+import type { AuthAction, AuthError } from "@/lib/auth/types";
+import { getErrorMessage, normalizeError } from "@/lib/auth/utils/error-utils";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AuthPage(): JSX.Element {
   const [authAction, setAuthAction] = useState<AuthAction>(null);
@@ -19,23 +19,28 @@ export default function AuthPage(): JSX.Element {
   // If user is already authenticated, redirect them
   useEffect(() => {
     if (user && !loading) {
-      const redirectTo = searchParams.get('from') || '/';
+      const redirectTo = searchParams.get("from") || "/";
       router.push(redirectTo);
     }
   }, [user, loading, router, searchParams]);
 
   const handleRedirectAfterAuth = () => {
-    const redirectTo = searchParams.get('from') || '/';
+    const redirectTo = searchParams.get("from") || "/";
     router.push(redirectTo);
   };
 
-  const handleAuth = async (email?: string, password?: string): Promise<void> => {
+  const handleAuth = async (
+    email?: string,
+    password?: string
+  ): Promise<void> => {
     if (!email || !password) return;
 
     setError(null);
-    setAuthAction('signin');
+    setAuthAction("signin");
     try {
-      const isSignUp = document.forms[0]?.querySelector('button[type="submit"]')?.textContent === 'Create Account';
+      const isSignUp =
+        document.forms[0]?.querySelector('button[type="submit"]')
+          ?.textContent === "Create Account";
 
       if (isSignUp) {
         await signUp(email, password);
@@ -47,7 +52,7 @@ export default function AuthPage(): JSX.Element {
       setAuthAction(null);
       const normalizedError = normalizeError(err);
       setError(normalizedError);
-      console.error('Authentication error:', {
+      console.error("Authentication error:", {
         message: normalizedError.message,
         code: normalizedError.code,
         details: normalizedError.cause,
@@ -57,7 +62,7 @@ export default function AuthPage(): JSX.Element {
 
   const handleGoogleSignIn = async (): Promise<void> => {
     setError(null);
-    setAuthAction('signin');
+    setAuthAction("signin");
     try {
       await signInWithGoogle();
       handleRedirectAfterAuth();
@@ -65,7 +70,7 @@ export default function AuthPage(): JSX.Element {
       setAuthAction(null);
       const normalizedError = normalizeError(err);
       setError(normalizedError);
-      console.error('Google sign in error:', {
+      console.error("Google sign in error:", {
         message: normalizedError.message,
         code: normalizedError.code,
         details: normalizedError.cause,

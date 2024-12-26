@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/app/contexts/AuthContext";
 import * as bookService from "@/app/lib/firebase/services/books";
 import * as highlightService from "@/app/lib/firebase/services/highlights";
 import type { Book, BaseBook } from "@/app/stores/types";

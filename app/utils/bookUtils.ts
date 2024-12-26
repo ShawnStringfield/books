@@ -4,7 +4,7 @@ import {
   EnrichedHighlight,
   GoogleBookVolumeInfo,
 } from "@/app/stores/types";
-import { getHighlightsByBook } from "@/app/utils/highlightUtils";
+import { getHighlightsByBook } from "@/app/lib/utils/highlightUtils";
 import { safeDate } from "@/app/utils/dateUtils";
 
 export interface ReadingStats {

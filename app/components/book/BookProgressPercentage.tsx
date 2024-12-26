@@ -1,7 +1,7 @@
-import { cn } from '@/lib/utils';
-import { calculatePercentComplete } from '@/app/utils/bookUtils';
+import { cn } from "@/app/lib/utils";
+import { calculatePercentComplete } from "@/app/utils/bookUtils";
 
-type ProgressVariant = 'default' | 'verbose';
+type ProgressVariant = "default" | "verbose";
 
 interface BookProgressPercentageProps {
   currentPage: number;
@@ -10,12 +10,17 @@ interface BookProgressPercentageProps {
   variant?: ProgressVariant;
 }
 
-const BookProgressPercentage = ({ currentPage, totalPages, className, variant = 'default' }: BookProgressPercentageProps) => {
+const BookProgressPercentage = ({
+  currentPage,
+  totalPages,
+  className,
+  variant = "default",
+}: BookProgressPercentageProps) => {
   const percentComplete = calculatePercentComplete(currentPage, totalPages);
 
   return (
-    <span className={cn('text-xs', className)}>
-      {percentComplete}%{variant === 'verbose' && ' Complete'}
+    <span className={cn("text-xs", className)}>
+      {percentComplete}%{variant === "verbose" && " Complete"}
     </span>
   );
 };

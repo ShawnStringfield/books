@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useToast } from "@/app/hooks/ui/use-toast";
-import { ReadingStatus, ReadingStatusType } from "@/app/stores/types";
+import { ReadingStatus, ReadingStatusType } from "@/app/lib/utils";
 import { canChangeBookStatus } from "@/app/utils/bookStatusUtils";
 import {
   useUpdateReadingProgress,

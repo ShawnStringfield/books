@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react";
 import { BookOpen } from "lucide-react";
 import { Slider } from "@/app/components/ui/slider";
 import { usePageProgress } from "@/app/hooks/books/usePageProgress";
-import { cn } from "@/lib/utils";
+import { cn } from "@/app/lib/utils";
 import BookProgressPercentage from "./BookProgressPercentage";
 
 interface BookProgressSliderProps {

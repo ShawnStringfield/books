@@ -2,7 +2,7 @@
 
 import { Button } from "@/app/components/ui/button";
 import { UserMenu } from "@/app/components/menus/UserMenu";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/app/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
 export function HomeHeader() {

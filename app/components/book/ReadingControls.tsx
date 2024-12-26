@@ -2,7 +2,7 @@ import { Settings2, Pencil, AlertCircle, X } from "lucide-react";
 import { ReadingStatus } from "@/app/stores/types";
 import ReadingStatusSelect from "./ReadingStatusSelect";
 import BookProgressSlider from "./BookProgressSlider";
-import { cn } from "@/lib/utils";
+import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
 import { useState, useCallback, memo } from "react";
 import WarningAlert from "@/app/components/ui/warning-alert";

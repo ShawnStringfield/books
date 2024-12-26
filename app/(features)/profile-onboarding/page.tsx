@@ -24,6 +24,7 @@ import {
 import { ProgressWizard } from "@/app/components/progress/ProgressWizard";
 import { memo, useCallback, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useSettingsStore } from "@/app/(features)/dashboard/settings/hooks/useSettingsStore";
 
 interface OnboardingState {
   currentStep: StepId;
@@ -48,6 +49,10 @@ const ProfileOnboarding = () => {
   // Server mutation
   const { saveData, isSaving, existingData, isLoadingData } =
     useOnboardingData();
+
+  const updateReadingGoals = useSettingsStore(
+    (state) => state.updateReadingGoals
+  );
 
   // Load existing data if available
   useEffect(() => {
@@ -135,8 +140,12 @@ const ProfileOnboarding = () => {
       }
     }
 
+    // Update settings store with reading goals
+    updateReadingGoals(formData.bookGoals);
+
+    // Save to backend
     saveData({ ...formData, isOnboardingComplete: true });
-  }, [formData, saveData]);
+  }, [formData, saveData, updateReadingGoals]);
 
   // Step Components
   const STEP_COMPONENTS = useMemo(

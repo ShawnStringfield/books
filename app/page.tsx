@@ -1,15 +1,13 @@
-'use client';
+"use client";
 
-import { UserMenu } from '@/app/components/menus/UserMenu';
-import { ColorPalette } from '@/app/components/ColorPalette';
+import { ColorPalette } from "@/app/components/ColorPalette";
+import { HomeHeader } from "@/app/components/home/HomeHeader";
 
 export default function Home() {
   return (
     <div className="w-full flex flex-col items-center">
-      <div className="w-[1200px] relative">
-        <div className="absolute right-4 top-4">
-          <UserMenu />
-        </div>
+      <div className="w-full max-w-[1200px]">
+        <HomeHeader />
       </div>
 
       {/* Color Palette Section */}

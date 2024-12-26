@@ -1,10 +1,5 @@
-import { useOnboardingData } from './useOnboardingData';
+import { useReadingGoals } from "@/app/(features)/dashboard/settings/hooks/useSettingsStore";
 
 export function useBookGoals() {
-  const { existingData } = useOnboardingData();
-
-  return {
-    monthlyTarget: existingData?.bookGoals?.monthlyTarget ?? 2,
-    yearlyTarget: existingData?.bookGoals?.yearlyTarget ?? 24,
-  };
+  return useReadingGoals();
 }

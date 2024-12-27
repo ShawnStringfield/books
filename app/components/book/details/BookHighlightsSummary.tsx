@@ -1,7 +1,7 @@
 import { type Highlight } from "@/app/stores/types";
 import HighlightCard from "@/app/components/highlights/HighlightCard";
 import { useBooks } from "@/app/hooks/books/useBooks";
-import { enrichHighlights } from "@/app/utils/highlightUtils";
+import { enrichHighlights } from "@/app/lib/utils/highlightUtils";
 
 interface BookHighlightsSummaryProps {
   highlights: Highlight[];

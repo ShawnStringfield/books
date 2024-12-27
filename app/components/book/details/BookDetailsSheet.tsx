@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import BookHighlights from "@/app/components/highlights/BookHighlights";
 import { DeleteBookDialog } from "@/app/components/dialogs/DeleteBookDialog";
 import ReadingControls from "@/app/components/book/ReadingControls";
-import { calculatePercentComplete } from "@/app/utils/bookUtils";
+import { calculatePercentComplete } from "@/app/lib/utils/bookUtils";
 import { useDeleteBook } from "@/app/hooks/books/useBooks";
 import {
   useHighlightsByBook,

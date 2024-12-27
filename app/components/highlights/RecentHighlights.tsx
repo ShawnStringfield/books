@@ -10,7 +10,7 @@ import {
 import { Loader2, Highlighter } from "lucide-react";
 import HighlightCard from "./HighlightCard";
 import { useBooks } from "@/app/hooks/books/useBooks";
-import { enrichHighlights } from "@/app/utils/highlightUtils";
+import { enrichHighlights } from "@/app/lib/utils/highlightUtils";
 
 interface RecentHighlightsProps {
   limit?: number;

@@ -3,7 +3,7 @@ import { MonthlyStats } from "@/app/(features)/dashboard/components/stats/Monthl
 import { YearlyStats } from "@/app/(features)/dashboard/components/stats/YearlyStats";
 import { useBooks } from "@/app/hooks/books/useBooks";
 import { useBookGoals } from "@/app/(features)/profile-onboarding/hooks/useBookGoals";
-import { calculateReadingStats } from "@/app/utils/bookUtils";
+import { calculateReadingStats } from "@/app/lib/utils/bookUtils";
 import { Skeleton } from "@/app/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/app/components/ui/alert";
 import { AlertCircle } from "lucide-react";

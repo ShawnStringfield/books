@@ -20,7 +20,7 @@ import { BookHeader } from "@/app/components/book/details/BookHeader";
 import { ReadingControlsSection } from "@/app/components/book/details/ReadingControlsSection";
 import { HighlightsSection } from "@/app/components/book/details/HighlightsSection";
 import DashboardLayout from "@/app/components/dashboard/DashboardLayout";
-import { calculatePercentComplete } from "@/app/utils/bookUtils";
+import { calculatePercentComplete } from "@/app/lib/utils/bookUtils";
 import ReadingProgressBar from "@/app/components/book/ReadingProgressBar";
 import WarningAlert from "@/app/components/ui/warning-alert";
 import BookToolbar from "@/app/components/book/BookToolbar";

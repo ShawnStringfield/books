@@ -4,7 +4,7 @@ import { ReadingStatus, EnrichedHighlight } from "@/app/stores/types";
 import {
   getRecentHighlightsData,
   sortHighlights,
-} from "@/app/utils/highlightUtils";
+} from "@/app/lib/utils/highlightUtils";
 
 describe("useBookStore", () => {
   describe("basic store operations", () => {

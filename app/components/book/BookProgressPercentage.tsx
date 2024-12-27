@@ -1,5 +1,5 @@
 import { cn } from "@/app/lib/utils";
-import { calculatePercentComplete } from "@/app/utils/bookUtils";
+import { calculatePercentComplete } from "@/app/lib/utils/bookUtils";
 
 type ProgressVariant = "default" | "verbose";
 

@@ -1,6 +1,6 @@
 import { type Book } from "@/app/stores/types";
 import ReadingProgressBar from "../ReadingProgressBar";
-import { calculatePercentComplete } from "@/app/utils/bookUtils";
+import { calculatePercentComplete } from "@/app/lib/utils/bookUtils";
 
 interface BookProgressSectionProps {
   book: Required<Book>;

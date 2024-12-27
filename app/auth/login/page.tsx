@@ -5,8 +5,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { SignIn } from "@/app/components/auth/sign-in";
 import { Loader2 } from "lucide-react";
-import type { AuthAction, AuthError } from "@/lib/auth/types";
-import { getErrorMessage, normalizeError } from "@/lib/auth/utils/error-utils";
+import type { AuthAction, AuthError } from "@/app/lib/auth/types";
+import {
+  getErrorMessage,
+  normalizeError,
+} from "@/app/lib/auth/utils/error-utils";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AuthPage(): JSX.Element {

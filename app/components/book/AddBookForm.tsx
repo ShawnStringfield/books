@@ -14,7 +14,7 @@ import { Button } from "@/app/components/ui/button";
 import { Separator } from "@/app/components/ui/separator";
 import { AlertCircle } from "lucide-react";
 import { useAddBook, useBooks } from "@/app/hooks/books/useBooks";
-import { isDuplicateGoogleBook } from "@/app/utils/bookUtils";
+import { isDuplicateGoogleBook } from "@/app/lib/utils/bookUtils";
 
 // Constants
 const MAX_RESULTS = 10;

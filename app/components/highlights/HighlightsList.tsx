@@ -9,7 +9,7 @@ import {
 } from "@/app/hooks/highlights/useHighlights";
 import HighlightCard from "./HighlightCard";
 import { Highlighter } from "lucide-react";
-import type { Highlight } from "@/app/stores/types";
+import type { Highlight, EnrichedHighlight } from "@/app/stores/types";
 
 interface HighlightsListProps {
   bookId: string;
@@ -36,10 +36,21 @@ interface HighlightState {
   showDeleteConfirm: boolean;
 }
 
+const enrichHighlight = (highlight: Highlight): EnrichedHighlight => {
+  return {
+    ...highlight,
+    bookTitle: "Untitled", // These would ideally come from a book lookup
+    bookAuthor: "Unknown Author",
+    bookCurrentPage: highlight.page,
+    bookTotalPages: highlight.page,
+    readingProgress: 0,
+  };
+};
+
 const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
   const { data: highlights = [], isLoading } = useHighlightsByBook(
     bookId,
-    limit
+    limit,
   );
   const toggleFavorite = useToggleFavorite();
   const deleteHighlight = useDeleteHighlight();
@@ -62,7 +73,7 @@ const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
 
   const updateHighlightState = (
     highlightId: string,
-    updates: Partial<HighlightState>
+    updates: Partial<HighlightState>,
   ) => {
     setHighlightStates((prev) => ({
       ...prev,
@@ -138,7 +149,7 @@ const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
             return (
               <HighlightCard
                 key={highlight.id}
-                highlight={highlight}
+                highlight={enrichHighlight(highlight)}
                 isEditing={state.isEditing}
                 editedText={state.editedText || highlight.text}
                 showDeleteConfirm={state.showDeleteConfirm}

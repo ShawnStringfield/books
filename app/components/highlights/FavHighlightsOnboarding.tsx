@@ -8,7 +8,18 @@ import {
 } from "@/app/hooks/highlights/useHighlights";
 import { useState } from "react";
 import HighlightCard from "./HighlightCard";
-import type { Highlight } from "@/app/stores/types";
+import type { Highlight, EnrichedHighlight } from "@/app/stores/types";
+
+const enrichHighlight = (highlight: Highlight): EnrichedHighlight => {
+  return {
+    ...highlight,
+    bookTitle: "Untitled", // These would ideally come from a book lookup
+    bookAuthor: "Unknown Author",
+    bookCurrentPage: highlight.page,
+    bookTotalPages: highlight.page,
+    readingProgress: 0,
+  };
+};
 
 const FavHighlightsOnboarding = ({ className }: { className?: string }) => {
   const { data: favoriteHighlights = [], isLoading } = useFavoriteHighlights();
@@ -18,7 +29,7 @@ const FavHighlightsOnboarding = ({ className }: { className?: string }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedText, setEditedText] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
-    null
+    null,
   );
 
   const handleToggleFavorite = async (highlight: Highlight) => {
@@ -76,7 +87,7 @@ const FavHighlightsOnboarding = ({ className }: { className?: string }) => {
             {favoriteHighlights.slice(0, 3).map((highlight) => (
               <HighlightCard
                 key={highlight.id}
-                highlight={highlight}
+                highlight={enrichHighlight(highlight)}
                 isEditing={editingId === highlight.id}
                 editedText={
                   editingId === highlight.id ? editedText : highlight.text

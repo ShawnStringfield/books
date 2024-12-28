@@ -83,8 +83,8 @@ export function FeatureCard({
         </h3>
         <p
           className={cn(
-            "leading-relaxed",
-            variant === "emphasis" && "text-mono-subtle",
+            "text-sm",
+            variant === "emphasis" && " text-mono-subtle",
             descriptionClassName
           )}
         >

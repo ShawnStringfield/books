@@ -1,5 +1,5 @@
 import { useAuth } from "@/app/contexts/AuthContext";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as highlightService from "@/app/lib/firebase/services/highlights";
 import type { BaseHighlight, Highlight } from "@/app/stores/types";
 import { useEffect, useState } from "react";
@@ -157,7 +157,7 @@ export function useUpdateHighlight() {
       const previousHighlights = queryClient.getQueryData([HIGHLIGHTS_KEY]);
 
       // Optimistically update the cache
-      queryClient.setQueryData([HIGHLIGHTS_KEY], (old: any[]) => {
+      queryClient.setQueryData([HIGHLIGHTS_KEY], (old: Highlight[] = []) => {
         return old?.map((highlight) =>
           highlight.id === highlightId
             ? { ...highlight, ...updates }
@@ -204,7 +204,6 @@ export function useToggleFavorite() {
     mutationFn: async ({
       highlightId,
       isFavorite,
-      bookId,
     }: {
       highlightId: string;
       isFavorite: boolean;
@@ -215,7 +214,7 @@ export function useToggleFavorite() {
       }
       return highlightService.toggleFavorite(highlightId, isFavorite);
     },
-    onMutate: async ({ highlightId, isFavorite, bookId }) => {
+    onMutate: async ({ highlightId, isFavorite }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: [HIGHLIGHTS_KEY] });
       await queryClient.cancelQueries({ queryKey: [FAVORITES_KEY] });

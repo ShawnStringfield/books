@@ -18,7 +18,6 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import type { Book, BaseBook, ReadingStatusType } from "@/app/stores/types";
-import type { WithTimestamps } from "../types";
 import { ReadingStatus } from "@/app/stores/types";
 
 const BOOKS_COLLECTION = "books";
@@ -135,7 +134,7 @@ export async function updateReadingStatus(
   };
 
   // Handle date fields separately to ensure proper typing
-  let dateUpdates: {
+  const dateUpdates: {
     startDate?: FieldValue | Timestamp;
     completedDate?: FieldValue;
   } = {};

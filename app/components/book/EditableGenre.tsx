@@ -6,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select";
-import { BookMarked } from "lucide-react";
 
 // Predefined list of genres from GenresStep
 const GENRES = [

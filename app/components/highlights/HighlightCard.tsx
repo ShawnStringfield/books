@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Heart, Trash2, Pencil, Check, X } from "lucide-react";
-import type { Highlight, EnrichedHighlight } from "@/app/stores/types";
+import type { EnrichedHighlight } from "@/app/stores/types";
 import { formatDistanceToNow } from "date-fns";
 import { DeleteConfirm } from "@/app/components/ui/delete-confirm";
 

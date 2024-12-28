@@ -12,7 +12,6 @@ import {
 } from "@/app/hooks/books/useBooks";
 import { ErrorBoundary } from "@/app/components/ErrorBoundary";
 import { BookDescription } from "@/app/components/book/details/BookDescription";
-import { BookProgressSection } from "@/app/components/book/details/BookProgressSection";
 import { BookDetailsSkeleton } from "@/app/components/book/details/BookDetailsSkeleton";
 import { useBookProgress } from "@/app/hooks/books/useBookProgress";
 import { Button } from "@/app/components/ui/button";

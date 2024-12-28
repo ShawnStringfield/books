@@ -10,7 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { STEPS } from "@profile-onboarding/constants";
 import { useToast } from "@/app/hooks/ui/use-toast";
 import { act } from "@testing-library/react";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { AuthProvider } from "@/app/contexts/AuthContext";
 
 // Mock Firebase
 jest.mock("firebase/app", () => ({

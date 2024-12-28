@@ -1,5 +1,4 @@
 import { Toaster } from "@/app/components/ui/toaster";
-import { AuthContext } from "@/app/contexts/AuthContext";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SettingsProvider } from "./SettingsProvider";

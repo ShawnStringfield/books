@@ -1,6 +1,5 @@
 "use client";
 
-import { Metadata } from "next";
 import { SettingsContent } from "./components/SettingsContent";
 import DashboardLayout from "@/app/components/dashboard/DashboardLayout";
 

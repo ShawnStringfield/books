@@ -10,10 +10,10 @@ import {
   where,
   orderBy,
   serverTimestamp,
-  type Timestamp,
-  type FieldValue,
   limit as limitQuery,
   onSnapshot,
+  QueryDocumentSnapshot,
+  Timestamp,
 } from "firebase/firestore";
 import type { Highlight, BaseHighlight } from "@/app/stores/types";
 import type { FirebaseModel, WithTimestamps } from "../types";
@@ -23,7 +23,9 @@ const HIGHLIGHTS_COLLECTION = "highlights";
 type FirestoreHighlight = FirebaseModel<Highlight>;
 
 // Helper function to safely convert Firestore timestamp to ISO string
-function convertTimestamp(firestoreTimestamp: any): string {
+function convertTimestamp(
+  firestoreTimestamp: Timestamp | string | null
+): string {
   // If it's already a string (ISO format), return it
   if (typeof firestoreTimestamp === "string") {
     return firestoreTimestamp;
@@ -39,7 +41,7 @@ function convertTimestamp(firestoreTimestamp: any): string {
 }
 
 // Helper function to convert Firestore document to Highlight
-function convertDocToHighlight(doc: any): Highlight {
+function convertDocToHighlight(doc: QueryDocumentSnapshot): Highlight {
   const data = doc.data();
   const now = new Date().toISOString();
 

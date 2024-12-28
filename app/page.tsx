@@ -46,6 +46,17 @@ export default function Home() {
         "Update your reading journey with a simple interface that focuses on meaningful engagement rather than just completion.",
       icon: <LineChart className="w-full h-full stroke-[1.5]" />,
     },
+    {
+      title: "Get Started Today",
+      description:
+        "Join our community of mindful readers and start building your collection of meaningful insights.",
+      icon: (
+        <BookmarkPlus className="w-full h-full stroke-[1.5] text-mono-surface" />
+      ),
+      variant: "emphasis",
+      onClick: () => (window.location.href = "/auth/login"),
+      showArrow: true,
+    },
   ];
 
   const technologies = [

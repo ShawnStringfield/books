@@ -26,6 +26,7 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useSettingsStore } from "@/app/(features)/dashboard/settings/hooks/useSettingsStore";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/app/hooks/ui/use-toast";
 
 interface OnboardingState {
   currentStep: StepId;
@@ -41,6 +42,8 @@ const DEFAULT_FORM_DATA: OnboardingData = {
 
 const ProfileOnboarding = () => {
   const router = useRouter();
+  const { toast } = useToast();
+
   // UI State from store
   const { currentStep, progress, completedSteps } = useOnboardingUI();
   const { handleStepChange } = useOnboardingActions();
@@ -129,28 +132,52 @@ const ProfileOnboarding = () => {
   );
 
   const handleComplete = useCallback(async () => {
-    const hasNotificationPreferences =
-      formData.readingSchedule.preferences.some(
-        (pref: ReadingPreference) => pref.notifications,
-      );
+    try {
+      console.log("Starting onboarding completion process...");
 
-    if (hasNotificationPreferences) {
-      try {
-        await Notification.requestPermission();
-      } catch (error) {
-        console.error("Error requesting notification permission:", error);
+      const hasNotificationPreferences =
+        formData.readingSchedule.preferences.some(
+          (pref: ReadingPreference) => pref.notifications,
+        );
+
+      if (hasNotificationPreferences) {
+        try {
+          await Notification.requestPermission();
+        } catch (error) {
+          console.error("Error requesting notification permission:", error);
+        }
       }
+
+      // Update settings store with reading goals
+      updateReadingGoals(formData.bookGoals);
+      console.log("Reading goals updated in settings store");
+
+      // Save to backend
+      console.log("Saving onboarding data to backend...");
+      await saveData({ ...formData, isOnboardingComplete: true });
+      console.log("Onboarding data saved successfully");
+
+      // Set cookie to indicate onboarding completion
+      document.cookie = "user-onboarding-state=complete; path=/";
+
+      // Navigate to dashboard
+      console.log("Attempting to navigate to dashboard...");
+      try {
+        router.push("/dashboard");
+      } catch (error) {
+        console.error("Router navigation failed:", error);
+        // Fallback to window.location
+        window.location.href = "/dashboard";
+      }
+    } catch (error) {
+      console.error("Error in handleComplete:", error);
+      toast({
+        title: "Error",
+        description: "Failed to complete onboarding. Please try again.",
+        variant: "destructive",
+      });
     }
-
-    // Update settings store with reading goals
-    updateReadingGoals(formData.bookGoals);
-
-    // Save to backend
-    await saveData({ ...formData, isOnboardingComplete: true });
-
-    // Navigate to dashboard
-    router.push("/dashboard");
-  }, [formData, saveData, updateReadingGoals, router]);
+  }, [formData, saveData, updateReadingGoals, router, toast]);
 
   // Step Components
   const STEP_COMPONENTS = useMemo(

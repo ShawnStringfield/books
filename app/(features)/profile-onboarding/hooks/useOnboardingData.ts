@@ -43,7 +43,7 @@ export function useOnboardingData() {
   const { mutate: saveData, isPending: isSaving } = useMutation({
     mutationKey: ["saveOnboarding"],
     mutationFn: async (
-      data: OnboardingData
+      data: OnboardingData,
     ): Promise<OnboardingDataResponse> => {
       if (!user) {
         throw new Error("You must be logged in to complete onboarding");
@@ -81,15 +81,25 @@ export function useOnboardingData() {
     },
     onSuccess: (response) => {
       if (response.success) {
+        console.log(
+          "Onboarding completed successfully, preparing for dashboard redirect",
+        );
         toast({
           title: "Profile Complete!",
           description: "Welcome to BookBuddy. Redirecting to your dashboard...",
         });
 
-        // Increase timeout to ensure Firestore write is complete
+        // Increase timeout and add error boundary
         setTimeout(() => {
-          router.push("/dashboard");
-        }, 1000);
+          console.log("Attempting dashboard redirect...");
+          try {
+            router.push("/dashboard");
+          } catch (error) {
+            console.error("Dashboard redirect failed:", error);
+            // Fallback to window.location if router fails
+            window.location.href = "/dashboard";
+          }
+        }, 2000); // Increased timeout to ensure Firestore write is complete
       }
     },
     onError: (error: Error) => {

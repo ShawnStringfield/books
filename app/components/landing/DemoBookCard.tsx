@@ -13,6 +13,7 @@ interface DemoBookCardProps {
   onDelete?: (bookId: string) => void;
   className?: string;
   onAddHighlight?: () => void;
+  showCover?: boolean;
 }
 
 export function DemoBookCard({
@@ -21,6 +22,7 @@ export function DemoBookCard({
   onDelete,
   className = "",
   onAddHighlight,
+  showCover = false,
 }: DemoBookCardProps) {
   const handleDelete = () => {
     if (onDelete && book.id) {
@@ -38,7 +40,7 @@ export function DemoBookCard({
     <Card className={finalClassName}>
       <CardContent className="p-4">
         <div className="flex gap-4">
-          {book.coverUrl && (
+          {showCover && book.coverUrl && (
             <div className="flex-shrink-0 w-24">
               <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-sm">
                 <Image

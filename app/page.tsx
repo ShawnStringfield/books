@@ -4,6 +4,8 @@ import { HeroSection } from "./components/landing/HeroSection";
 import { GetStartedFeatureCard } from "./components/landing/GetStartedFeatureCard";
 import { FeatureCard } from "./components/landing/FeatureCard";
 import { LiveBookDemo } from "./components/landing/LiveBookDemo";
+import { BeliefComparison } from "./components/landing/BeliefComparison";
+import { GetStartedSection } from "./components/landing/GetStartedSection";
 import {
   BookmarkPlus,
   LayoutDashboard,
@@ -69,7 +71,14 @@ export default function Home() {
         </div>
       </div>
 
-      <LiveBookDemo />
+      <div className="mt-16">
+        <LiveBookDemo />
+      </div>
+
+      <div className="mt-16">
+        <GetStartedSection />
+      </div>
+      <BeliefComparison />
     </main>
   );
 }

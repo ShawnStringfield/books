@@ -13,6 +13,7 @@ import {
   Library,
   LineChart,
 } from "lucide-react";
+import { HomeHeader } from "./components/home/HomeHeader";
 
 export default function Home() {
   const features = [
@@ -50,6 +51,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
+      <HomeHeader />
       <HeroSection
         title="Your Reading Companion for Mindful Insights"
         subtitle="Read deeply. Capture meaningfully"

@@ -1,9 +1,9 @@
 "use client";
 
 import { HeroSection } from "./components/landing/HeroSection";
-import { GetStartedSection } from "./components/landing/GetStartedSection";
 import { GetStartedFeatureCard } from "./components/landing/GetStartedFeatureCard";
 import { FeatureCard } from "./components/landing/FeatureCard";
+import { LiveBookDemo } from "./components/landing/LiveBookDemo";
 import {
   BookmarkPlus,
   LayoutDashboard,
@@ -68,9 +68,8 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 py-24">
-        <GetStartedSection />
-      </div>
+
+      <LiveBookDemo />
     </main>
   );
 }

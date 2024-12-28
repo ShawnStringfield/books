@@ -1,4 +1,4 @@
-export type AuthAction = "signin" | "signup" | null;
+export type AuthAction = "signin" | "signup" | "signout" | null;
 
 export interface AuthError {
   code?: string;

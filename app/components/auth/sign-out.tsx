@@ -1,7 +1,7 @@
-import { Loader2 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/app/components/ui/alert';
-import type { AuthAction, AuthError } from '@/lib/auth/types';
-import { Button } from '@/app/components/ui/button';
+import { Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/app/components/ui/alert";
+import type { AuthAction, AuthError } from "@/app/lib/auth/types";
+import { Button } from "@/app/components/ui/button";
 
 interface SignOutProps {
   onSignOut: () => Promise<void>;
@@ -19,7 +19,11 @@ export function SignOut({ onSignOut, error, authAction }: SignOutProps) {
         <Alert variant="destructive" className="mb-4">
           <AlertDescription>
             {error.message}
-            {error.code && <span className="block text-sm text-gray-500">Error code: {error.code}</span>}
+            {error.code && (
+              <span className="block text-sm text-gray-500">
+                Error code: {error.code}
+              </span>
+            )}
           </AlertDescription>
         </Alert>
       )}
@@ -29,20 +33,20 @@ export function SignOut({ onSignOut, error, authAction }: SignOutProps) {
           onClick={onSignOut}
           disabled={authAction !== null}
           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
-          aria-busy={authAction === 'signout'}
+          aria-busy={authAction === "signout"}
         >
-          {authAction === 'signout' ? (
+          {authAction === "signout" ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Signing out...
             </>
           ) : (
-            'Sign Out'
+            "Sign Out"
           )}
         </Button>
         <a
           href="/"
-          className={`px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 ${authAction !== null ? 'pointer-events-none opacity-50' : ''}`}
+          className={`px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 ${authAction !== null ? "pointer-events-none opacity-50" : ""}`}
           tabIndex={authAction !== null ? -1 : 0}
           aria-disabled={authAction !== null}
         >

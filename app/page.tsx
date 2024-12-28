@@ -1,12 +1,10 @@
 "use client";
 
 import { HeroSection } from "./components/landing/HeroSection";
-import { FeaturesGrid } from "./components/landing/FeaturesGrid";
-import { TechnologiesSection } from "./components/landing/TechnologiesSection";
+import { GetStartedSection } from "./components/landing/GetStartedSection";
+import { GetStartedFeatureCard } from "./components/landing/GetStartedFeatureCard";
+import { FeatureCard } from "./components/landing/FeatureCard";
 import {
-  Code,
-  Globe,
-  Cpu,
   BookmarkPlus,
   LayoutDashboard,
   Lightbulb,
@@ -46,36 +44,6 @@ export default function Home() {
         "Update your reading journey with a simple interface that focuses on meaningful engagement rather than just completion.",
       icon: <LineChart className="w-full h-full stroke-[1.5]" />,
     },
-    {
-      title: "Get Started Today",
-      description:
-        "Join our community of mindful readers and start building your collection of meaningful insights.",
-      icon: (
-        <BookmarkPlus className="w-full h-full stroke-[1.5] text-mono-surface" />
-      ),
-      variant: "emphasis",
-      onClick: () => (window.location.href = "/auth/login"),
-      showArrow: true,
-    },
-  ];
-
-  const technologies = [
-    {
-      name: "React",
-      description: "The library for web and native user interfaces.",
-      logo: <Code className="w-full h-full" />,
-    },
-    {
-      name: "Turbopack",
-      description:
-        "Incremental bundler optimized for JavaScript and TypeScript.",
-      logo: <Cpu className="w-full h-full" />,
-    },
-    {
-      name: "Edge Runtime",
-      description: "Deploy globally with Edge Functions and Middleware.",
-      logo: <Globe className="w-full h-full" />,
-    },
   ];
 
   return (
@@ -84,8 +52,25 @@ export default function Home() {
         title="Your Reading Companion for Mindful Insights"
         subtitle="Read deeply. Capture meaningfully"
       />
-      <FeaturesGrid features={features} />
-      <TechnologiesSection technologies={technologies} />
+      <div className="px-4">
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-xl font-bold text-center">
+            Your Mindful Collection of Reading Insights
+          </h3>
+          <p className="text-xl text-center mb-8">
+            {`Great readers don't finish every book. They collect powerful ideas.`}
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, index) => (
+              <FeatureCard key={index} {...feature} />
+            ))}
+            <GetStartedFeatureCard />
+          </div>
+        </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 py-24">
+        <GetStartedSection />
+      </div>
     </main>
   );
 }

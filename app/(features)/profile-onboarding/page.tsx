@@ -25,6 +25,7 @@ import { ProgressWizard } from "@/app/components/progress/ProgressWizard";
 import { memo, useCallback, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useSettingsStore } from "@/app/(features)/dashboard/settings/hooks/useSettingsStore";
+import { useRouter } from "next/navigation";
 
 interface OnboardingState {
   currentStep: StepId;
@@ -39,6 +40,7 @@ const DEFAULT_FORM_DATA: OnboardingData = {
 };
 
 const ProfileOnboarding = () => {
+  const router = useRouter();
   // UI State from store
   const { currentStep, progress, completedSteps } = useOnboardingUI();
   const { handleStepChange } = useOnboardingActions();
@@ -51,7 +53,7 @@ const ProfileOnboarding = () => {
     useOnboardingData();
 
   const updateReadingGoals = useSettingsStore(
-    (state) => state.updateReadingGoals
+    (state) => state.updateReadingGoals,
   );
 
   // Load existing data if available
@@ -69,10 +71,10 @@ const ProfileOnboarding = () => {
       schedule: (state) =>
         state.formData.readingSchedule.preferences.length > 0 &&
         state.formData.readingSchedule.preferences.every(
-          (pref: ReadingPreference) => pref.daysOfWeek.length > 0
+          (pref: ReadingPreference) => pref.daysOfWeek.length > 0,
         ),
     }),
-    []
+    [],
   );
 
   // Get current state for validation
@@ -81,7 +83,7 @@ const ProfileOnboarding = () => {
       currentStep,
       formData,
     }),
-    [currentStep, formData]
+    [currentStep, formData],
   );
 
   // Navigation handlers
@@ -91,7 +93,7 @@ const ProfileOnboarding = () => {
         handleStepChange(step);
       }
     },
-    [currentStep, handleStepChange]
+    [currentStep, handleStepChange],
   );
 
   const { handleNextStep, handlePreviousStep, isFirstStep, isLastStep } =
@@ -116,20 +118,20 @@ const ProfileOnboarding = () => {
     (goals: OnboardingData["bookGoals"]) => {
       setFormData((prev) => ({ ...prev, bookGoals: goals }));
     },
-    []
+    [],
   );
 
   const handleScheduleUpdate = useCallback(
     (schedule: OnboardingData["readingSchedule"]) => {
       setFormData((prev) => ({ ...prev, readingSchedule: schedule }));
     },
-    []
+    [],
   );
 
   const handleComplete = useCallback(async () => {
     const hasNotificationPreferences =
       formData.readingSchedule.preferences.some(
-        (pref: ReadingPreference) => pref.notifications
+        (pref: ReadingPreference) => pref.notifications,
       );
 
     if (hasNotificationPreferences) {
@@ -144,8 +146,11 @@ const ProfileOnboarding = () => {
     updateReadingGoals(formData.bookGoals);
 
     // Save to backend
-    saveData({ ...formData, isOnboardingComplete: true });
-  }, [formData, saveData, updateReadingGoals]);
+    await saveData({ ...formData, isOnboardingComplete: true });
+
+    // Navigate to dashboard
+    router.push("/dashboard");
+  }, [formData, saveData, updateReadingGoals, router]);
 
   // Step Components
   const STEP_COMPONENTS = useMemo(
@@ -179,7 +184,7 @@ const ProfileOnboarding = () => {
       handleGoalsUpdate,
       handleScheduleUpdate,
       handleComplete,
-    ]
+    ],
   );
 
   if (isLoadingData) {

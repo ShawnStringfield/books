@@ -21,7 +21,7 @@ export function GetStartedFeatureCard({
       tabIndex={0}
       className={cn(
         "group relative rounded-lg border border-gray-800 bg-mono-strong hover:bg-gray-800 hover:border-gray-700 p-8 transition-all duration-200 overflow-hidden cursor-pointer",
-        className
+        className,
       )}
     >
       <div className="relative z-10">
@@ -54,7 +54,7 @@ export function GetStartedFeatureCard({
         </div>
       </div>
 
-      <BackgroundBeams className="opacity-100" />
+      <BackgroundBeams className="opacity-50" />
     </div>
   );
 }

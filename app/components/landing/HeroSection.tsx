@@ -16,7 +16,7 @@ export function HeroSection({ title, subtitle }: HeroSectionProps) {
 
       <div className="">
         <Link
-          href="/docs"
+          href="/auth/login"
           className="px-8 py-3 bg-mono-strong text-white rounded-full font-medium hover:bg-mono transition-colors"
         >
           <span>Get Started</span>

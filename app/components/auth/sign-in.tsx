@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/app/components/ui/alert';
-import type { AuthAction, AuthError } from '@/lib/auth/types';
-import { Button } from '@/app/components/ui/button';
-import { Input } from '@/app/components/ui/input';
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/app/components/ui/alert";
+import type { AuthAction, AuthError } from "@/app/lib/auth/types";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
 
 interface SignInProps {
   onSignIn: (email?: string, password?: string) => Promise<void>;
@@ -12,9 +12,14 @@ interface SignInProps {
   authAction: AuthAction;
 }
 
-export function SignIn({ onSignIn, onGoogleSignIn, error, authAction }: SignInProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export function SignIn({
+  onSignIn,
+  onGoogleSignIn,
+  error,
+  authAction,
+}: SignInProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,15 +30,25 @@ export function SignIn({ onSignIn, onGoogleSignIn, error, authAction }: SignInPr
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold">{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
-        <p className="text-gray-500">{isSignUp ? 'Create an account to continue' : 'Please sign in to continue'}</p>
+        <h2 className="text-3xl font-bold">
+          {isSignUp ? "Create Account" : "Welcome Back"}
+        </h2>
+        <p className="text-gray-500">
+          {isSignUp
+            ? "Create an account to continue"
+            : "Please sign in to continue"}
+        </p>
       </div>
 
       {error && (
         <Alert variant="destructive">
           <AlertDescription>
             {error.message}
-            {error.code && <span className="block text-sm text-gray-500">Error code: {error.code}</span>}
+            {error.code && (
+              <span className="block text-sm text-gray-500">
+                Error code: {error.code}
+              </span>
+            )}
           </AlertDescription>
         </Alert>
       )}
@@ -60,16 +75,20 @@ export function SignIn({ onSignIn, onGoogleSignIn, error, authAction }: SignInPr
           />
         </div>
 
-        <Button type="submit" disabled={authAction !== null} className="w-full bg-blue-600 hover:bg-blue-700">
-          {authAction === 'signin' ? (
+        <Button
+          type="submit"
+          disabled={authAction !== null}
+          className="w-full bg-blue-600 hover:bg-blue-700"
+        >
+          {authAction === "signin" ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {isSignUp ? 'Creating Account...' : 'Signing in...'}
+              {isSignUp ? "Creating Account..." : "Signing in..."}
             </>
           ) : isSignUp ? (
-            'Create Account'
+            "Create Account"
           ) : (
-            'Sign In'
+            "Sign In"
           )}
         </Button>
       </form>
@@ -83,8 +102,14 @@ export function SignIn({ onSignIn, onGoogleSignIn, error, authAction }: SignInPr
         </div>
       </div>
 
-      <Button type="button" onClick={onGoogleSignIn} disabled={authAction !== null} variant="outline" className="w-full">
-        {authAction === 'signin' ? (
+      <Button
+        type="button"
+        onClick={onGoogleSignIn}
+        disabled={authAction !== null}
+        variant="outline"
+        className="w-full"
+      >
+        {authAction === "signin" ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Signing in with Google...
@@ -115,8 +140,15 @@ export function SignIn({ onSignIn, onGoogleSignIn, error, authAction }: SignInPr
       </Button>
 
       <div className="text-center text-sm">
-        <button type="button" onClick={() => setIsSignUp(!isSignUp)} className="text-blue-600 hover:underline" disabled={authAction !== null}>
-          {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+        <button
+          type="button"
+          onClick={() => setIsSignUp(!isSignUp)}
+          className="text-blue-600 hover:underline"
+          disabled={authAction !== null}
+        >
+          {isSignUp
+            ? "Already have an account? Sign in"
+            : "Don't have an account? Sign up"}
         </button>
       </div>
     </div>

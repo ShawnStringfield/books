@@ -1,7 +1,6 @@
-export type AuthAction = "signin" | "signup" | "signout" | null;
+export type AuthAction = "signin" | "signup" | null;
 
 export interface AuthError {
-  code: string;
+  code?: string;
   message: string;
-  cause?: unknown;
 }

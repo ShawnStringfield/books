@@ -203,15 +203,22 @@ export function LiveBookDemo() {
           <div className="flex gap-2 mb-2">
             <Input
               type="text"
-              placeholder="Search for a book..."
+              placeholder={
+                selectedBook
+                  ? "Delete current book to search for a new one"
+                  : "Search for a book..."
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              onKeyDown={(e) =>
+                e.key === "Enter" && !selectedBook && handleSearch()
+              }
               className="flex-1"
+              disabled={!!selectedBook}
             />
             <Button
               onClick={handleSearch}
-              disabled={isSearching}
+              disabled={isSearching || !!selectedBook}
               className="min-w-[100px]"
             >
               {isSearching ? (
@@ -285,27 +292,30 @@ export function LiveBookDemo() {
             />
 
             {highlights.length > 0 && (
-              <div className="space-y-3 bg-white rounded-lg border border-gray-100 shadow-sm p-4">
-                <div className="flex justify-between items-center">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center px-4">
                   <p className="text-xs text-gray-500">{selectedBook.title}</p>
                   <h5 className="text-sm font-medium text-gray-900 flex items-center gap-2">
                     <Highlighter className="w-4 h-4 text-yellow-500" />
                     Highlights ({highlights.length})
                   </h5>
                 </div>
-                <div className="space-y-2">
+                <div className="grid gap-4">
                   <AnimatePresence initial={false}>
                     {highlights.map((highlight) => (
                       <motion.div
                         key={highlight.id}
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.2 }}
+                        className="bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
                       >
-                        <div className="text-sm p-3 relative">
-                          <p className="text-gray-800">{highlight.text}</p>
-                          <div className="flex justify-between items-center mt-1">
+                        <div className="p-4">
+                          <p className="text-gray-800 text-sm">
+                            {highlight.text}
+                          </p>
+                          <div className="flex justify-between items-center mt-3">
                             <p className="text-xs text-gray-500">
                               Page {highlight.page}
                             </p>
@@ -313,10 +323,10 @@ export function LiveBookDemo() {
                               onClick={() =>
                                 handleDeleteHighlight(highlight.id)
                               }
-                              className="text-red-500 hover:text-red-600 transition-colors rounded-full p-1 bg-red-50 hover:bg-red-100"
+                              className="text-gray-400 hover:text-red-500 transition-colors rounded-lg p-2 hover:bg-red-50 group"
                               aria-label="Delete highlight"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>

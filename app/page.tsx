@@ -6,6 +6,7 @@ import { FeatureCard } from "./components/landing/FeatureCard";
 import { LiveBookDemo } from "./components/landing/LiveBookDemo";
 import { BeliefComparison } from "./components/landing/BeliefComparison";
 import { GetStartedSection } from "./components/landing/GetStartedSection";
+import BetaBanner from "./components/ui/BetaBanner";
 import {
   BookmarkPlus,
   LayoutDashboard,
@@ -51,6 +52,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
+      <BetaBanner />
       <HomeHeader />
       <HeroSection
         title="Your Reading Companion for Mindful Insights"

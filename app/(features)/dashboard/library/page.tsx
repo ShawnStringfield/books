@@ -85,7 +85,7 @@ export default function LibraryPage() {
               !hasBooks ? "flex-1 flex items-center justify-center" : ""
             }
           >
-            <BooksList />
+            <BooksList showCovers={true} variant="full" />
           </div>
         )}
       </div>

@@ -17,6 +17,11 @@ import {
   useUpdateReadingStatus,
 } from "@/app/hooks/books/useBooks";
 
+interface BooksListProps {
+  showCovers?: boolean;
+  variant?: "avatar" | "full";
+}
+
 function EmptyLibraryState() {
   const [isAddBookSheetOpen, setAddBookSheetOpen] = useState(false);
 
@@ -65,7 +70,10 @@ function EmptyLibraryState() {
   );
 }
 
-export function BooksList() {
+export function BooksList({
+  showCovers = false,
+  variant = "avatar",
+}: BooksListProps) {
   const { data: books = [], isLoading, error } = useBooks();
   const deleteBookMutation = useDeleteBook();
   const updateStatusMutation = useUpdateReadingStatus();
@@ -116,6 +124,8 @@ export function BooksList() {
               onStatusChange={handleStatusChange}
               onDelete={(id) => setBookToDelete(id)}
               className="border-transparent hover:border-blue-200 transition-colors duration-200"
+              showCover={showCovers}
+              variant={variant}
             />
           </div>
         ))}

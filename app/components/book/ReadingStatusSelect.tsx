@@ -32,12 +32,9 @@ const ReadingStatusSelect = ({
       <SelectTrigger
         className={`${
           size === "sm" ? "h-7 text-xs" : "h-9 text-sm"
-        } w-[150px] ${className} pl-3 pr-2 border-none bg-gray-50 hover:bg-gray-100 transition-colors`}
+        } w-[140px] ${className} pl-3 pr-2 border border-mono-subtle bg-mono-surface hover:bg-mono-subtle/50 transition-colors`}
       >
         <div className="flex items-center gap-2 flex-1">
-          <span className="text-gray-500 w-4 flex justify-center shrink-0">
-            {currentOption?.icon}
-          </span>
           <span className="truncate">{currentOption?.label}</span>
         </div>
       </SelectTrigger>

@@ -9,14 +9,18 @@ const workSans = Work_Sans({
   subsets: ["latin"],
   variable: "--font-work-sans",
   display: "swap",
+  preload: true,
   weight: ["400", "500", "600", "700"],
+  adjustFontFallback: true,
 });
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  preload: true,
   weight: ["300", "400", "500", "600"],
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {

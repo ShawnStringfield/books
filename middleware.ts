@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   console.log("Middleware executing for path:", request.nextUrl.pathname);
 
   const authToken = request.cookies.get("auth-token");
-  const onboardingState = request.cookies.get("user-onboarding-state");
 
   // Add paths that should be protected
   const protectedPaths = ["/dashboard", "/profile"];
@@ -16,7 +15,6 @@ export function middleware(request: NextRequest) {
   console.log("Route protection check:", {
     isProtectedPath,
     hasAuthToken: !!authToken,
-    hasOnboardingState: !!onboardingState,
     path: request.nextUrl.pathname,
   });
 
@@ -30,29 +28,112 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl);
     }
 
-    // If authenticated but no onboarding state, redirect to onboarding
-    if (
-      !onboardingState &&
-      !request.nextUrl.pathname.startsWith("/profile-onboarding")
-    ) {
-      console.log("No onboarding state found, redirecting to onboarding");
-      return NextResponse.redirect(new URL("/profile-onboarding", request.url));
+    try {
+      // Verify token and get user data from Firebase
+      const verifyTokenResponse = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: authToken.value,
+          }),
+        },
+      );
+
+      if (!verifyTokenResponse.ok) {
+        throw new Error("Invalid auth token");
+      }
+
+      const userData = await verifyTokenResponse.json();
+      const uid = userData.users[0].localId;
+
+      // Get user's onboarding status from Firestore
+      const firestoreResponse = await fetch(
+        `https://firestore.googleapis.com/v1/projects/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken.value}`,
+          },
+        },
+      );
+
+      if (!firestoreResponse.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const firestoreData = await firestoreResponse.json();
+      const isOnboardingComplete =
+        firestoreData.fields?.isOnboardingComplete?.booleanValue || false;
+
+      // If authenticated but onboarding not complete, redirect to onboarding
+      if (
+        !isOnboardingComplete &&
+        !request.nextUrl.pathname.startsWith("/profile-onboarding")
+      ) {
+        console.log("Onboarding not complete, redirecting to onboarding");
+        return NextResponse.redirect(
+          new URL("/profile-onboarding", request.url),
+        );
+      }
+    } catch (error) {
+      console.error("Error verifying auth token:", error);
+      const redirectUrl = new URL("/auth/login", request.url);
+      redirectUrl.searchParams.set("from", request.nextUrl.pathname);
+      return NextResponse.redirect(redirectUrl);
     }
   }
 
   // Prevent completed users from accessing onboarding
-  if (
-    request.nextUrl.pathname.startsWith("/profile-onboarding") &&
-    onboardingState
-  ) {
+  if (request.nextUrl.pathname.startsWith("/profile-onboarding") && authToken) {
     try {
-      const onboardingData = JSON.parse(onboardingState.value);
-      if (onboardingData.isOnboardingComplete) {
+      // Verify token and get user data
+      const verifyTokenResponse = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: authToken.value,
+          }),
+        },
+      );
+
+      if (!verifyTokenResponse.ok) {
+        throw new Error("Invalid auth token");
+      }
+
+      const userData = await verifyTokenResponse.json();
+      const uid = userData.users[0].localId;
+
+      // Get user's onboarding status
+      const firestoreResponse = await fetch(
+        `https://firestore.googleapis.com/v1/projects/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken.value}`,
+          },
+        },
+      );
+
+      if (!firestoreResponse.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const firestoreData = await firestoreResponse.json();
+      const isOnboardingComplete =
+        firestoreData.fields?.isOnboardingComplete?.booleanValue || false;
+
+      if (isOnboardingComplete) {
         console.log("Onboarding already completed, redirecting to dashboard");
         return NextResponse.redirect(new URL("/dashboard", request.url));
       }
     } catch (error) {
-      console.error("Error parsing onboarding state:", error);
+      console.error("Error checking onboarding status:", error);
     }
   }
 

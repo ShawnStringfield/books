@@ -27,23 +27,19 @@ export function BeliefComparison() {
               className="group p-8 text-center border border-gray-200 dark:border-gray-800 rounded-lg bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm hover:border-gray-300 dark:hover:border-gray-700 transition-colors"
             >
               <div>
-                <p className="text-lg font-medium text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
+                <p className="text-lg font-medium">
                   &ldquo;{belief.commonBelief}&rdquo;
                 </p>
-                <p className="mt-1 text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500 font-medium">
+                <p className="mt-4 text-xs uppercase tracking-wider">
                   Common Belief
                 </p>
               </div>
 
-              <div className="my-4 opacity-30 group-hover:opacity-100 transition-opacity">
-                <div className="h-px w-12 mx-auto bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0"></div>
-              </div>
-
               <div>
-                <p className="text-lg font-medium text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors">
+                <p className="font-medium leading-tight my-4">
                   &ldquo;{belief.ourTake}&rdquo;
                 </p>
-                <p className="mt-1 text-xs uppercase tracking-wider text-emerald-500/70 dark:text-emerald-400/70 font-medium">
+                <p className="mt-1 text-xs uppercase tracking-wider">
                   Our Take
                 </p>
               </div>

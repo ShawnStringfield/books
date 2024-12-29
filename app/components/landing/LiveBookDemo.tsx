@@ -6,8 +6,6 @@ import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { Search, Highlighter, Trash2 } from "lucide-react";
 import { DemoBookCard } from "./DemoBookCard";
-import { Card, CardContent } from "@/app/components/ui/card";
-import { Skeleton } from "@/app/components/ui/skeleton";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -62,7 +60,7 @@ export function LiveBookDemo() {
       }
 
       const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-        searchQuery
+        searchQuery,
       )}&maxResults=5&key=${apiKey}`;
 
       const response = await fetch(url);
@@ -70,7 +68,7 @@ export function LiveBookDemo() {
 
       if (!response.ok) {
         throw new Error(
-          `Failed to fetch book data: ${response.status} ${response.statusText}`
+          `Failed to fetch book data: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -247,7 +245,7 @@ export function LiveBookDemo() {
                     <Image
                       src={result.volumeInfo.imageLinks.thumbnail.replace(
                         "http:",
-                        "https:"
+                        "https:",
                       )}
                       alt={result.volumeInfo.title}
                       width={64}
@@ -280,39 +278,11 @@ export function LiveBookDemo() {
         )}
 
         {!selectedBook && !searchResults.length && !error && (
-          <Card className="mt-4 bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <CardContent className="p-4">
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-24">
-                  <div className="relative aspect-[2/3] rounded-lg overflow-hidden">
-                    <Skeleton className="absolute inset-0" />
-                  </div>
-                </div>
-                <div className="flex flex-col flex-1 gap-2">
-                  <div>
-                    <Skeleton className="h-6 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                  <div className="space-y-4 mt-2">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="h-2 flex-1 rounded-full" />
-                      <Skeleton className="h-4 w-8" />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="h-8 w-32" />
-                      <Skeleton className="h-8 w-8" />
-                      <div className="flex-1" />
-                      <Skeleton className="h-8 w-8 rounded-full" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="mt-4">
+            <p className="text-sm text-gray-500 text-center">
+              Search for a book to get started
+            </p>
+          </div>
         )}
 
         {selectedBook && (

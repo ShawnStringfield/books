@@ -9,7 +9,7 @@ export function GetStartedSection() {
   return (
     <div className="relative h-[20rem] flex flex-col items-center justify-center overflow-hidden  border border-gray-200 bg-white/10">
       <div className="relative z-10 text-center space-y-5 px-8">
-        <h2 className="inline-block text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-mono-emphasis via-mono to-mono-emphasis leading-relaxed py-1">
+        <h2 className="inline-block text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-mono-emphasis via-mono to-mono-emphasis leading-tight">
           Start Your Reading Journey
         </h2>
         <p className="text-lg md:text-xl  max-w-2xl mx-auto">

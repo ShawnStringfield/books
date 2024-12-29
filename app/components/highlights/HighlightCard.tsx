@@ -5,6 +5,7 @@ import { Heart, Trash2, Pencil, Check, X } from "lucide-react";
 import type { EnrichedHighlight } from "@/app/stores/types";
 import { formatDistanceToNow } from "date-fns";
 import { DeleteConfirm } from "@/app/components/ui/delete-confirm";
+import { useRouter } from "next/navigation";
 
 interface HighlightCardProps {
   highlight: EnrichedHighlight;
@@ -13,6 +14,7 @@ interface HighlightCardProps {
   showDeleteConfirm: boolean;
   isDeleting: boolean;
   isUpdating: boolean;
+  showBookTitle?: boolean;
   onToggleFavorite: () => void;
   onDelete: () => void;
   onEdit: () => void;
@@ -29,6 +31,7 @@ export default function HighlightCard({
   showDeleteConfirm,
   isDeleting,
   isUpdating,
+  showBookTitle = true,
   onToggleFavorite,
   onDelete,
   onEdit,
@@ -37,13 +40,31 @@ export default function HighlightCard({
   onTextChange,
   onShowDeleteConfirm,
 }: HighlightCardProps) {
+  const router = useRouter();
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on buttons or textarea
+    if (
+      e.target instanceof Element &&
+      (e.target.closest("button") || e.target.closest("textarea"))
+    ) {
+      return;
+    }
+    router.push(`/dashboard/library/${highlight.bookId}`);
+  };
+
   return (
-    <Card className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 relative">
+    <Card
+      className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 relative cursor-pointer"
+      onClick={handleCardClick}
+    >
       <CardContent className="p-4">
         <div className="flex flex-col gap-4">
-          <div className="text-xs font-medium text-gray-500">
-            {highlight.bookTitle}
-          </div>
+          {showBookTitle && (
+            <div className="text-xs font-medium text-gray-500">
+              {highlight.bookTitle}
+            </div>
+          )}
           {isEditing ? (
             <textarea
               value={editedText}

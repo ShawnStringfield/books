@@ -157,6 +157,7 @@ const HighlightsList = ({ bookId, limit }: HighlightsListProps) => {
                 isUpdating={
                   updateHighlight.isPending || toggleFavorite.isPending
                 }
+                showBookTitle={false}
                 onToggleFavorite={() => handleToggleFavorite(highlight)}
                 onDelete={() => handleDelete(highlight.id)}
                 onEdit={() => handleEdit(highlight)}

@@ -40,6 +40,22 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Prevent completed users from accessing onboarding
+  if (
+    request.nextUrl.pathname.startsWith("/profile-onboarding") &&
+    onboardingState
+  ) {
+    try {
+      const onboardingData = JSON.parse(onboardingState.value);
+      if (onboardingData.isOnboardingComplete) {
+        console.log("Onboarding already completed, redirecting to dashboard");
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+    } catch (error) {
+      console.error("Error parsing onboarding state:", error);
+    }
+  }
+
   // If already authenticated and trying to access auth pages
   if (authToken && request.nextUrl.pathname.startsWith("/auth")) {
     console.log(

@@ -1,12 +1,21 @@
-import { useState } from 'react';
-import { DeleteBookDialog } from '@/app/components/dialogs/DeleteBookDialog';
-import BookCard from './BookCard';
-import { ReadingStatusType } from '@/app/stores/types';
-import { Button } from '@/app/components/ui/button';
-import { Library, PlusCircle, X } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/app/components/ui/sheet';
-import { AddBookForm } from './AddBookForm';
-import { useBooks, useDeleteBook, useUpdateReadingStatus } from '@/app/hooks/books/useBooks';
+import { useState } from "react";
+import { DeleteBookDialog } from "@/app/components/dialogs/DeleteBookDialog";
+import BookCard from "./BookCard";
+import { ReadingStatusType } from "@/app/stores/types";
+import { Button } from "@/app/components/ui/button";
+import { Library, PlusCircle, X } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/app/components/ui/sheet";
+import { AddBookForm } from "./AddBookForm";
+import {
+  useBooks,
+  useDeleteBook,
+  useUpdateReadingStatus,
+} from "@/app/hooks/books/useBooks";
 
 function EmptyLibraryState() {
   const [isAddBookSheetOpen, setAddBookSheetOpen] = useState(false);
@@ -20,7 +29,8 @@ function EmptyLibraryState() {
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Start Your Reading Journey</h3>
           <p className="text-sm text-gray-600 max-w-md mx-auto">
-            Track your reading progress, collect meaningful highlights, and discover new books to read.
+            Track your reading progress, collect meaningful highlights, and
+            discover new books to read.
           </p>
         </div>
         <div className="flex justify-center">
@@ -41,7 +51,10 @@ function EmptyLibraryState() {
                   </SheetClose>
                 </div>
                 <div className="h-[calc(100%-3.5rem)] overflow-y-auto overscroll-contain px-6 pb-8 pt-6">
-                  <AddBookForm onCancel={() => setAddBookSheetOpen(false)} onSuccess={() => setAddBookSheetOpen(false)} />
+                  <AddBookForm
+                    onCancel={() => setAddBookSheetOpen(false)}
+                    onSuccess={() => setAddBookSheetOpen(false)}
+                  />
                 </div>
               </div>
             </SheetContent>
@@ -78,7 +91,13 @@ export function BooksList() {
   }
 
   if (error) {
-    return <div className="text-red-600 text-center py-12">{error instanceof Error ? error.message : 'An error occurred while loading books'}</div>;
+    return (
+      <div className="text-red-600 text-center py-12">
+        {error instanceof Error
+          ? error.message
+          : "An error occurred while loading books"}
+      </div>
+    );
   }
 
   if (books.length === 0) {
@@ -87,7 +106,9 @@ export function BooksList() {
 
   return (
     <div className="w-full" role="list" aria-label="Books list">
-      <div className={`grid gap-4 ${books.length === 1 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'} w-full`}>
+      <div
+        className={`grid gap-4 ${books.length === 1 ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"} w-full`}
+      >
         {books.map((book) => (
           <div key={book.id} className="w-full" role="listitem">
             <BookCard
@@ -104,7 +125,7 @@ export function BooksList() {
         isOpen={!!bookToDelete}
         onClose={() => setBookToDelete(null)}
         onConfirm={handleDelete}
-        bookTitle={books.find((b) => b.id === bookToDelete)?.title || ''}
+        bookTitle={books.find((b) => b.id === bookToDelete)?.title || ""}
       />
     </div>
   );

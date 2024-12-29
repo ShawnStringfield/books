@@ -39,20 +39,20 @@ interface AddBookFormProps {
 
 const fetchGoogleBooks = async (
   searchQuery: string,
-  signal: AbortSignal
+  signal: AbortSignal,
 ): Promise<GoogleBook[]> => {
   const response = await fetch(
     `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-      searchQuery
+      searchQuery,
     )}&maxResults=${MAX_RESULTS}`,
-    { signal }
+    { signal },
   );
 
   if (!response.ok) {
     const errorData: GoogleBooksError = await response.json();
     throw new Error(
       errorData.error?.message ||
-        `API error: ${response.status} ${response.statusText}`
+        `API error: ${response.status} ${response.statusText}`,
     );
   }
 
@@ -95,7 +95,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
       try {
         const results = await fetchGoogleBooks(
           debouncedQuery,
-          controller.signal
+          controller.signal,
         );
         setBooks(results);
       } catch (err) {
@@ -108,7 +108,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         setIsFirstLoad(false);
       }
     },
-    [debouncedQuery, handleSearchError]
+    [debouncedQuery, handleSearchError],
   );
 
   useEffect(() => {

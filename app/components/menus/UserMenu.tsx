@@ -75,6 +75,11 @@ export const UserMenu: FC = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {user && (
+          <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+            Dashboard
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
           Settings
         </DropdownMenuItem>

@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      // Verify token and get user data from Firebase
+      // Verify token and get user data from Firebase Admin SDK
       const verifyTokenResponse = await fetch(
         `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}`,
         {
@@ -44,24 +44,35 @@ export async function middleware(request: NextRequest) {
       );
 
       if (!verifyTokenResponse.ok) {
+        const errorData = await verifyTokenResponse.json();
+        console.error("Token verification failed:", errorData);
         throw new Error("Invalid auth token");
       }
 
       const userData = await verifyTokenResponse.json();
-      const uid = userData.users[0].localId;
+      const uid = userData.users?.[0]?.localId;
 
-      // Get user's onboarding status from Firestore
+      if (!uid) {
+        console.error("No user ID found in token response");
+        throw new Error("Invalid user data");
+      }
+
+      // Get user's onboarding status from Firestore REST API
       const firestoreResponse = await fetch(
         `https://firestore.googleapis.com/v1/projects/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}`,
         {
           headers: {
             Authorization: `Bearer ${authToken.value}`,
+            "Content-Type": "application/json",
           },
         },
       );
 
       if (!firestoreResponse.ok) {
-        throw new Error("Failed to fetch user data");
+        const errorData = await firestoreResponse.json();
+        throw new Error(
+          `Failed to fetch user data: ${JSON.stringify(errorData)}`,
+        );
       }
 
       const firestoreData = await firestoreResponse.json();
@@ -104,11 +115,18 @@ export async function middleware(request: NextRequest) {
       );
 
       if (!verifyTokenResponse.ok) {
+        const errorData = await verifyTokenResponse.json();
+        console.error("Token verification failed:", errorData);
         throw new Error("Invalid auth token");
       }
 
       const userData = await verifyTokenResponse.json();
-      const uid = userData.users[0].localId;
+      const uid = userData.users?.[0]?.localId;
+
+      if (!uid) {
+        console.error("No user ID found in token response");
+        throw new Error("Invalid user data");
+      }
 
       // Get user's onboarding status
       const firestoreResponse = await fetch(
@@ -116,12 +134,16 @@ export async function middleware(request: NextRequest) {
         {
           headers: {
             Authorization: `Bearer ${authToken.value}`,
+            "Content-Type": "application/json",
           },
         },
       );
 
       if (!firestoreResponse.ok) {
-        throw new Error("Failed to fetch user data");
+        const errorData = await firestoreResponse.json();
+        throw new Error(
+          `Failed to fetch user data: ${JSON.stringify(errorData)}`,
+        );
       }
 
       const firestoreData = await firestoreResponse.json();

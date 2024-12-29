@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  console.log("Middleware executing for path:", request.nextUrl.pathname);
-
+export function middleware(request: NextRequest) {
   const authToken = request.cookies.get("auth-token");
+  const onboardingState = request.cookies.get("user-onboarding-state");
 
   // Add paths that should be protected
   const protectedPaths = ["/dashboard", "/profile"];
@@ -12,163 +11,29 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path),
   );
 
-  console.log("Route protection check:", {
-    isProtectedPath,
-    hasAuthToken: !!authToken,
-    path: request.nextUrl.pathname,
-  });
-
   // If trying to access a protected path
   if (isProtectedPath) {
     // Check if user is authenticated
     if (!authToken) {
-      console.log("No auth token found, redirecting to login");
       const redirectUrl = new URL("/auth/login", request.url);
       redirectUrl.searchParams.set("from", request.nextUrl.pathname);
       return NextResponse.redirect(redirectUrl);
     }
 
-    try {
-      // Verify token and get user data from Firebase Admin SDK
-      const verifyTokenResponse = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            idToken: authToken.value,
-          }),
-        },
-      );
-
-      if (!verifyTokenResponse.ok) {
-        const errorData = await verifyTokenResponse.json();
-        console.error("Token verification failed:", errorData);
-        throw new Error("Invalid auth token");
-      }
-
-      const userData = await verifyTokenResponse.json();
-      const uid = userData.users?.[0]?.localId;
-
-      if (!uid) {
-        console.error("No user ID found in token response");
-        throw new Error("Invalid user data");
-      }
-
-      // Get user's onboarding status from Firestore REST API
-      const firestoreResponse = await fetch(
-        `https://firestore.googleapis.com/v1/projects/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken.value}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      if (!firestoreResponse.ok) {
-        const errorData = await firestoreResponse.json();
-        throw new Error(
-          `Failed to fetch user data: ${JSON.stringify(errorData)}`,
-        );
-      }
-
-      const firestoreData = await firestoreResponse.json();
-      const isOnboardingComplete =
-        firestoreData.fields?.isOnboardingComplete?.booleanValue || false;
-
-      // If authenticated but onboarding not complete, redirect to onboarding
-      if (
-        !isOnboardingComplete &&
-        !request.nextUrl.pathname.startsWith("/profile-onboarding")
-      ) {
-        console.log("Onboarding not complete, redirecting to onboarding");
-        return NextResponse.redirect(
-          new URL("/profile-onboarding", request.url),
-        );
-      }
-    } catch (error) {
-      console.error("Error verifying auth token:", error);
-      const redirectUrl = new URL("/auth/login", request.url);
-      redirectUrl.searchParams.set("from", request.nextUrl.pathname);
-      return NextResponse.redirect(redirectUrl);
-    }
-  }
-
-  // Prevent completed users from accessing onboarding
-  if (request.nextUrl.pathname.startsWith("/profile-onboarding") && authToken) {
-    try {
-      // Verify token and get user data
-      const verifyTokenResponse = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            idToken: authToken.value,
-          }),
-        },
-      );
-
-      if (!verifyTokenResponse.ok) {
-        const errorData = await verifyTokenResponse.json();
-        console.error("Token verification failed:", errorData);
-        throw new Error("Invalid auth token");
-      }
-
-      const userData = await verifyTokenResponse.json();
-      const uid = userData.users?.[0]?.localId;
-
-      if (!uid) {
-        console.error("No user ID found in token response");
-        throw new Error("Invalid user data");
-      }
-
-      // Get user's onboarding status
-      const firestoreResponse = await fetch(
-        `https://firestore.googleapis.com/v1/projects/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken.value}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      if (!firestoreResponse.ok) {
-        const errorData = await firestoreResponse.json();
-        throw new Error(
-          `Failed to fetch user data: ${JSON.stringify(errorData)}`,
-        );
-      }
-
-      const firestoreData = await firestoreResponse.json();
-      const isOnboardingComplete =
-        firestoreData.fields?.isOnboardingComplete?.booleanValue || false;
-
-      if (isOnboardingComplete) {
-        console.log("Onboarding already completed, redirecting to dashboard");
-        return NextResponse.redirect(new URL("/dashboard", request.url));
-      }
-    } catch (error) {
-      console.error("Error checking onboarding status:", error);
+    // If authenticated but no onboarding state, redirect to onboarding
+    if (
+      !onboardingState &&
+      !request.nextUrl.pathname.startsWith("/profile-onboarding")
+    ) {
+      return NextResponse.redirect(new URL("/profile-onboarding", request.url));
     }
   }
 
   // If already authenticated and trying to access auth pages
   if (authToken && request.nextUrl.pathname.startsWith("/auth")) {
-    console.log(
-      "Authenticated user accessing auth page, redirecting to dashboard",
-    );
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Allow the request to proceed
-  console.log("Middleware check passed, proceeding with request");
   return NextResponse.next();
 }
 
@@ -177,6 +42,6 @@ export const config = {
     "/dashboard/:path*",
     "/profile/:path*",
     "/auth/:path*",
-    "/profile-onboarding/:path*", // Added to ensure onboarding routes are handled
+    // Add other protected routes here
   ],
 };

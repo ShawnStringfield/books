@@ -53,7 +53,7 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <BetaBanner />
-      <HomeHeader />
+      <HomeHeader className="mt-16" />
       <HeroSection
         title="Your Reading Companion for Mindful Insights"
         subtitle="Read deeply. Capture meaningfully"

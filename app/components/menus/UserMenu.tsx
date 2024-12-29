@@ -17,7 +17,11 @@ import {
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
-export const UserMenu: FC = () => {
+interface UserMenuProps {
+  size?: number;
+}
+
+export const UserMenu: FC<UserMenuProps> = ({ size = 40 }) => {
   const { user, logout } = useAuth();
   const router = useRouter();
 
@@ -50,7 +54,7 @@ export const UserMenu: FC = () => {
         className="focus:outline-none cursor-pointer"
         asChild
       >
-        <Avatar className="h-10 w-10">
+        <Avatar style={{ width: `${size}px`, height: `${size}px` }}>
           {photoURL ? (
             <AvatarImage
               src={photoURL}

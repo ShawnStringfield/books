@@ -5,7 +5,7 @@ import { UserMenu } from "@/app/components/menus/UserMenu";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
-export function HomeHeader() {
+export function HomeHeader({ className = "" }: { className?: string }) {
   const { user, signInWithGoogle } = useAuth();
   const router = useRouter();
 
@@ -19,9 +19,9 @@ export function HomeHeader() {
   };
 
   return (
-    <div className="w-full flex justify-end p-4">
+    <div className={`w-full flex justify-center items-center p-4 ${className}`}>
       {user ? (
-        <UserMenu />
+        <UserMenu size={128} />
       ) : (
         <Button
           onClick={handleLogin}

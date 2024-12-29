@@ -8,7 +8,7 @@ interface HeroSectionProps {
 export function HeroSection({ title, subtitle }: HeroSectionProps) {
   return (
     <div className="text-center mb-48 mt-16">
-      <h1 className="text-5xl md:text-6xl lg:text-6xl font-bold tracking-tight pb-8 p-16">
+      <h1 className="text-4xl md:text-6xl lg:text-6xl font-bold tracking-tight pb-8 p-16">
         {title}
       </h1>
 

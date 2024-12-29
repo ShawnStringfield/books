@@ -102,11 +102,6 @@ function EmptyReadingState({
             <Button onClick={() => setAddBookSheetOpen(true)} className="mt-4">
               Add New Book
             </Button>
-            <AddBookSheet
-              isOpen={isAddBookSheetOpen}
-              onOpenChange={setAddBookSheetOpen}
-              variant="new"
-            />
           </div>
         ) : (
           <div className="flex items-center justify-center">

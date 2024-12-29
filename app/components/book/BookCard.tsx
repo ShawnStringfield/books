@@ -41,16 +41,17 @@ const BookCard = ({
   };
 
   const baseClassName =
-    "bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 focus:outline-none";
+    "bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 focus:outline-none h-[200px]";
   const finalClassName = className
     ? `${baseClassName} ${className}`
     : baseClassName;
 
   return (
     <Card className={finalClassName}>
-      <CardContent className="p-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-start gap-2">
+      <CardContent className="p-4 h-full flex flex-col">
+        <div className="flex flex-col h-full">
+          {/* Header Section */}
+          <div className="flex justify-between items-start gap-2 mb-2">
             <div className="min-w-0 flex-1">
               <Link
                 href={`/dashboard/library/${book.id}`}
@@ -63,30 +64,32 @@ const BookCard = ({
               </Link>
               <p className="text-xs text-gray-600 truncate">by {book.author}</p>
             </div>
-            <div className="flex items-center gap-1 text-xs text-gray-500 shrink-0">
-              <Highlighter size={12} className="text-gray-400" />
+            <div className="flex items-center gap-1 text-xs text-mono shrink-0">
+              <Highlighter size={12} />
               <span>{highlightsCount}</span>
             </div>
           </div>
 
-          {highlightsCount === 0 ? (
-            <div className="flex items-center gap-2">
-              <Highlighter size={14} className="text-gray-400 shrink-0" />
-              <p className="text-xs text-gray-500">
-                Start capturing your favorite moments.
-              </p>
-            </div>
-          ) : (
-            latestHighlight && (
-              <div>
-                <p className="text-xs text-gray-600 line-clamp-2">
-                  {latestHighlight.text}
+          {/* Highlights Section - Flex Grow to Take Available Space */}
+          <div className="flex-1 min-h-0">
+            {highlightsCount === 0 ? (
+              <div className="flex items-center gap-2 mt-4">
+                <Highlighter size={14} className="text-mono shrink-0" />
+                <p className="text-xs text-gray-500">
+                  Start capturing your favorite moments.
                 </p>
               </div>
-            )
-          )}
+            ) : (
+              latestHighlight && (
+                <p className="text-xs text-mono line-clamp-2 mt-2">
+                  {latestHighlight.text}
+                </p>
+              )
+            )}
+          </div>
 
-          <div className="flex items-center gap-2">
+          {/* Footer Section */}
+          <div className="flex items-center gap-2 mt-4">
             <ReadingStatusSelect
               status={book.status}
               onStatusChange={(status) => onStatusChange(book.id || "", status)}

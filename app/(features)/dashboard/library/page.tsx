@@ -3,9 +3,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/app/components/dashboard/DashboardLayout";
 import { BooksList } from "@/app/components/book/BooksList";
-import { Plus } from "lucide-react";
 import { AddBookForm } from "@/app/components/book/AddBookForm";
-import Toolbar, { ToolbarAction } from "@/app/components/dashboard/Toolbar";
 import { useBooks } from "@/app/hooks/books/useBooks";
 import { useAuth } from "@/app/contexts/AuthContext";
 
@@ -13,16 +11,6 @@ export default function LibraryPage() {
   const { user, loading: authLoading } = useAuth();
   const { data: books = [], isLoading: booksLoading, error } = useBooks();
   const [isAddingBook, setIsAddingBook] = useState(false);
-
-  const toolbarActions: ToolbarAction[] = [
-    {
-      icon: Plus,
-      label: "Add Book",
-      onClick: () => setIsAddingBook(true),
-      disabled: isAddingBook,
-      variant: "default",
-    },
-  ];
 
   const isLoading = authLoading || booksLoading;
   const errorMessage =
@@ -56,12 +44,7 @@ export default function LibraryPage() {
           showEmptyState ? "h-[calc(100vh-80px)] flex flex-col" : ""
         }`}
       >
-        {hasBooks && (
-          <div className="mb-6">
-            <Toolbar actions={toolbarActions} />
-          </div>
-        )}
-
+        <h1 className="text-3xl font-bold mb-6">Library</h1>
         {isAddingBook && (
           <div className="mb-6">
             <AddBookForm

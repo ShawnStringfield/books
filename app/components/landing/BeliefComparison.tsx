@@ -15,19 +15,19 @@ export function BeliefComparison() {
   ];
 
   return (
-    <section className="py-20 px-4">
+    <section className="py-20 px-4 grid">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
           Rethink Your Reading Journey
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {beliefs.map((belief, index) => (
             <div
               key={index}
               className="group p-8 text-center border border-gray-200 dark:border-gray-800 rounded-lg bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm hover:border-gray-300 dark:hover:border-gray-700 transition-colors"
             >
               <div>
-                <p className="text-lg font-medium">
+                <p className="font-medium leading-tight">
                   &ldquo;{belief.commonBelief}&rdquo;
                 </p>
                 <p className="mt-4 text-xs uppercase tracking-wider">
@@ -36,7 +36,7 @@ export function BeliefComparison() {
               </div>
 
               <div>
-                <p className="font-medium leading-tight my-4">
+                <p className="font-medium text-mono-strong leading-tight my-4">
                   &ldquo;{belief.ourTake}&rdquo;
                 </p>
                 <p className="mt-1 text-xs uppercase tracking-wider">

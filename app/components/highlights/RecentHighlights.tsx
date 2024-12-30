@@ -44,7 +44,7 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
 
   const updateHighlightState = (
     highlightId: string,
-    updates: Partial<HighlightState>
+    updates: Partial<HighlightState>,
   ) => {
     setHighlightStates((prev) => ({
       ...prev,
@@ -65,7 +65,7 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
 
   const recentHighlights = enrichHighlights(
     highlights?.slice(0, limit) ?? [],
-    books
+    books,
   );
 
   if (recentHighlights.length === 0) {
@@ -92,7 +92,7 @@ export default function RecentHighlights({ limit = 5 }: RecentHighlightsProps) {
       <div className="mb-4">
         <h2 className="text-lg font-semibold">Recent Highlights</h2>
       </div>
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {recentHighlights.map((highlight) => {
           const state = getHighlightState(highlight.id);
           return (

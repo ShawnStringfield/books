@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server";
 
 const COOKIE_KEYS = {
   AUTH_TOKEN: "auth-token",
-  ONBOARDING_STATE: "user-onboarding-state",
 } as const;
 
 const PROTECTED_PATHS = ["/dashboard", "/profile"] as const;
@@ -36,7 +35,6 @@ export function middleware(request: NextRequest) {
     }
 
     const authToken = request.cookies.get(COOKIE_KEYS.AUTH_TOKEN);
-    const onboardingState = request.cookies.get(COOKIE_KEYS.ONBOARDING_STATE);
 
     // Create base response with security headers
     const response = addSecurityHeaders(NextResponse.next());
@@ -56,25 +54,25 @@ export function middleware(request: NextRequest) {
         : response;
     }
 
-    // If no auth token and trying to access protected or onboarding paths
-    if (!authToken && (isProtectedPath || isOnboardingPath)) {
+    // If no auth token and trying to access protected paths
+    if (!authToken && isProtectedPath) {
       const redirectUrl = new URL("/auth/login", request.url);
       redirectUrl.searchParams.set("from", pathname);
       return createRedirectResponse(redirectUrl);
     }
 
-    // Handle onboarding paths
+    // Redirect any onboarding path access to dashboard if authenticated, or login if not
     if (isOnboardingPath) {
-      return onboardingState
+      return authToken
         ? createRedirectResponse(new URL("/dashboard", request.url))
-        : response;
+        : createRedirectResponse(new URL("/auth/login", request.url));
     }
 
     // Handle protected paths
-    if (isProtectedPath && !onboardingState) {
-      return createRedirectResponse(
-        new URL("/profile-onboarding", request.url),
-      );
+    if (isProtectedPath) {
+      return authToken
+        ? response
+        : createRedirectResponse(new URL("/auth/login", request.url));
     }
 
     return response;

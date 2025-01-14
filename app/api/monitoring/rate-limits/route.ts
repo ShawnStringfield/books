@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+// Separate export for middleware usage
+export { updateMetrics };
+
 // Store rate limit metrics
 interface RateLimitMetrics {
   totalRequests: number;
@@ -19,7 +22,7 @@ const metrics: RateLimitMetrics = {
 // Store metrics in memory with a timestamp
 let lastMetricsUpdate = Date.now();
 
-export function updateMetrics(ip: string, wasLimited: boolean) {
+function updateMetrics(ip: string, wasLimited: boolean) {
   console.log("Updating metrics:", {
     ip,
     wasLimited,

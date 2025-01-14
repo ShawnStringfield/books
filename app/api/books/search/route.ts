@@ -91,7 +91,24 @@ export async function GET(request: Request) {
   try {
     // Get client IP for rate limiting
     const forwardedFor = request.headers.get("x-forwarded-for");
-    const ip = forwardedFor ? forwardedFor.split(",")[0] : "unknown";
+    const realIp = request.headers.get("x-real-ip");
+    const cfConnectingIp = request.headers.get("cf-connecting-ip");
+
+    // Try different headers in order of reliability
+    const ip = forwardedFor
+      ? forwardedFor.split(",")[0]
+      : realIp
+        ? realIp
+        : cfConnectingIp
+          ? cfConnectingIp
+          : request.headers.get("x-client-ip") || "127.0.0.1";
+
+    console.log("IP Detection:", {
+      forwardedFor,
+      realIp,
+      cfConnectingIp,
+      finalIp: ip,
+    });
 
     const hasRemainingQuota = checkRateLimit(ip);
     if (!hasRemainingQuota) {

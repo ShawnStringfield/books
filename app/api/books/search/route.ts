@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { updateMetrics } from "../../monitoring/rate-limits/route";
+import { updateMetrics } from "../../monitoring/rate-limits/metrics";
 
 interface BookItem {
   id: string;

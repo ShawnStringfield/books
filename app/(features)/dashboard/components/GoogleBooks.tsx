@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useSelectedGenres } from "../../profile-onboarding/hooks/useOnboardingStore";
 import Image from "next/image";
 
@@ -21,53 +21,37 @@ interface BooksResponse {
   totalItems: number;
 }
 
+const fetchBooksForGenre = async (genre: string): Promise<BookItem[]> => {
+  const response = await fetch(
+    `/api/books/search?genre=${encodeURIComponent(genre)}`,
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to fetch books for genre: ${genre}`);
+  }
+  const data: BooksResponse = await response.json();
+  return data.items || [];
+};
+
 const GoogleBooks = () => {
   const selectedGenres = useSelectedGenres();
-  const [books, setBooks] = useState<BookItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const genresToFetch =
+    selectedGenres.length > 0 ? selectedGenres : ["fiction"];
 
-  useEffect(() => {
-    const fetchBooksForGenre = async (genre: string) => {
-      const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=subject:${genre.toLowerCase()}&maxResults=4&key=${
-          process.env.NEXT_PUBLIC_GOOGLE_API_KEY
-        }`
+  const {
+    data: books = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["books", genresToFetch],
+    queryFn: async () => {
+      const bookResults = await Promise.all(
+        genresToFetch.map(fetchBooksForGenre),
       );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch books for genre: ${genre}`);
-      }
-
-      const data: BooksResponse = await response.json();
-      return data.items || [];
-    };
-
-    const fetchAllBooks = async () => {
-      try {
-        // Use default genre if none selected
-        const genresToFetch =
-          selectedGenres.length > 0 ? selectedGenres : ["fiction"];
-
-        // Fetch books for all genres in parallel
-        const bookResults = await Promise.all(
-          genresToFetch.map(fetchBooksForGenre)
-        );
-
-        // Combine and shuffle all books
-        const allBooks = bookResults.flat();
-        const shuffledBooks = allBooks.sort(() => Math.random() - 0.5);
-
-        setBooks(shuffledBooks);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllBooks();
-  }, [selectedGenres]);
+      return bookResults.flat().sort(() => Math.random() - 0.5);
+    },
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    gcTime: 30 * 60 * 1000, // Cache for 30 minutes
+  });
 
   if (isLoading) {
     return (
@@ -81,7 +65,7 @@ const GoogleBooks = () => {
     return (
       <div className="p-4 text-red-600 bg-red-50 rounded-md" role="alert">
         <h2 className="text-lg font-semibold">Error</h2>
-        <p>{error}</p>
+        <p>{error instanceof Error ? error.message : "An error occurred"}</p>
       </div>
     );
   }
@@ -104,12 +88,11 @@ const GoogleBooks = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {books.map((book, index) => (
           <div
-            key={index}
+            key={book.id || index}
             className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
           >
             {book.volumeInfo.imageLinks && (
               <Image
-                key={book.id}
                 src={book.volumeInfo.imageLinks.thumbnail}
                 alt={`Cover of ${book.volumeInfo.title}`}
                 width={128}

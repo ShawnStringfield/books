@@ -1872,6 +1872,11 @@
   dependencies:
     "@types/mdx" "^2.0.0"
 
+"@netlify/edge-functions@^2.11.1":
+  version "2.11.1"
+  resolved "https://registry.npmjs.org/@netlify/edge-functions/-/edge-functions-2.11.1.tgz"
+  integrity sha512-pyQOTZ8a+ge5lZlE+H/UAHyuqQqtL5gE0pXrHT9mOykr3YQqnkB2hZMtx12odatZ87gHg4EA+UPyMZUbLfnXvw==
+
 "@next/env@14.2.14":
   version "14.2.14"
   resolved "https://registry.npmjs.org/@next/env/-/env-14.2.14.tgz"

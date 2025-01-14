@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[edge_functions]]
+  path = "/api/*"
+  function = "api"
+
+[dev]
+  framework = "next"
+
+[functions]
+  node_bundler = "esbuild" 

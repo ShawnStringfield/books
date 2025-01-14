@@ -54,22 +54,13 @@ export function LiveBookDemo() {
     setIsSearching(true);
     setError(null);
     try {
-      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
-      if (!apiKey) {
-        throw new Error("Google Books API key is not configured");
-      }
-
-      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-        searchQuery,
-      )}&maxResults=5&key=${apiKey}`;
-
-      const response = await fetch(url);
+      const response = await fetch(
+        `/api/books/search?genre=${encodeURIComponent(searchQuery)}`,
+      );
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          `Failed to fetch book data: ${response.status} ${response.statusText}`,
-        );
+        throw new Error(data.error || "Failed to fetch books");
       }
 
       if (!data.items?.length) {

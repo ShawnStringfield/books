@@ -2,7 +2,8 @@
 
 import { Button } from "@/app/components/ui/button";
 import { BookMarked, CheckCircle2 } from "lucide-react";
-import { useSelectedGenres, useSettingsStore } from "../hooks/useSettingsStore";
+import { useGenrePreferencesQuery } from "../hooks/useGenrePreferencesQuery";
+import { Skeleton } from "@/app/components/ui/skeleton";
 
 const GENRES = [
   "Fiction",
@@ -17,17 +18,25 @@ const GENRES = [
 ];
 
 export function GenrePreferencesSection() {
-  const selectedGenres = useSelectedGenres();
-  const updateSelectedGenres = useSettingsStore(
-    (state) => state.updateSelectedGenres
-  );
+  const { selectedGenres, isLoading, updateGenres } =
+    useGenrePreferencesQuery();
 
   const handleGenreSelect = (genre: string) => {
     const newSelectedGenres = selectedGenres.includes(genre)
       ? selectedGenres.filter((g) => g !== genre)
       : [...selectedGenres, genre];
-    updateSelectedGenres(newSelectedGenres);
+    updateGenres(newSelectedGenres);
   };
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {GENRES.map((genre) => (
+          <Skeleton key={genre} className="h-16" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">

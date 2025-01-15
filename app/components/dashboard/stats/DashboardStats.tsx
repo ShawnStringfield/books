@@ -17,7 +17,7 @@ const StatsLoadingSkeleton = () => (
 
 export const DashboardStats = () => {
   const { data: books = [], isLoading, error } = useBooks();
-  const bookGoals = useBookGoals();
+  const { goals } = useBookGoals();
 
   // Memoize stats calculation to prevent unnecessary recalculations
   const stats = useMemo(() => calculateReadingStats(books), [books]);
@@ -42,11 +42,11 @@ export const DashboardStats = () => {
     <div className="grid grid-cols-2 gap-8 mb-8">
       <MonthlyStats
         booksThisMonth={stats.booksCompletedThisMonth}
-        monthlyGoal={bookGoals.monthlyTarget}
+        monthlyGoal={goals.monthlyTarget}
       />
       <YearlyStats
         booksThisYear={stats.booksCompletedThisYear}
-        yearlyGoal={bookGoals.yearlyTarget}
+        yearlyGoal={goals.yearlyTarget}
       />
     </div>
   );

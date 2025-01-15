@@ -2,21 +2,38 @@
 
 import { Button } from "@/app/components/ui/button";
 import { Plus, Minus } from "lucide-react";
-import { useReadingGoals, useSettingsStore } from "../hooks/useSettingsStore";
+import { useReadingGoalsQuery } from "@/app/(features)/settings/hooks/useReadingGoalsQuery";
+import { Skeleton } from "@/app/components/ui/skeleton";
 
 export function ReadingGoalsSection() {
-  const goals = useReadingGoals();
-  const updateReadingGoals = useSettingsStore(
-    (state) => state.updateReadingGoals
-  );
+  const { goals, isLoading, updateGoals } = useReadingGoalsQuery();
 
   const handleGoalChange = (change: number) => {
     const newMonthlyTarget = Math.max(1, goals.monthlyTarget + change);
-    updateReadingGoals({
+    const newGoals = {
       monthlyTarget: newMonthlyTarget,
       yearlyTarget: newMonthlyTarget * 12,
-    });
+    };
+    updateGoals(newGoals);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col space-y-6">
+        <div className="flex items-center justify-center space-x-4">
+          <Skeleton className="h-10 w-10" />
+          <div className="flex flex-col items-center space-y-2">
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <Skeleton className="h-10 w-10" />
+        </div>
+        <div className="text-center">
+          <Skeleton className="h-4 w-40 mx-auto" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col space-y-6">

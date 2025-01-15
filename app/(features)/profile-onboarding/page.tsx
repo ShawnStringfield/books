@@ -24,7 +24,7 @@ import {
 import { ProgressWizard } from "@/app/components/progress/ProgressWizard";
 import { memo, useCallback, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useSettingsStore } from "@/app/(features)/dashboard/settings/hooks/useSettingsStore";
+import { useReadingGoalsQuery } from "@/app/(features)/settings/hooks/useReadingGoalsQuery";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/app/hooks/ui/use-toast";
 
@@ -55,9 +55,7 @@ const ProfileOnboarding = () => {
   const { saveData, isSaving, existingData, isLoadingData } =
     useOnboardingData();
 
-  const updateReadingGoals = useSettingsStore(
-    (state) => state.updateReadingGoals,
-  );
+  const { updateGoals } = useReadingGoalsQuery();
 
   // Load existing data if available
   useEffect(() => {
@@ -148,9 +146,9 @@ const ProfileOnboarding = () => {
         }
       }
 
-      // Update settings store with reading goals
-      updateReadingGoals(formData.bookGoals);
-      console.log("Reading goals updated in settings store");
+      // Update reading goals in Firebase settings
+      await updateGoals(formData.bookGoals);
+      console.log("Reading goals updated in settings");
 
       // Save to backend
       console.log("Saving onboarding data to backend...");
@@ -177,7 +175,7 @@ const ProfileOnboarding = () => {
         variant: "destructive",
       });
     }
-  }, [formData, saveData, updateReadingGoals, router, toast]);
+  }, [formData, saveData, updateGoals, router, toast]);
 
   // Step Components
   const STEP_COMPONENTS = useMemo(

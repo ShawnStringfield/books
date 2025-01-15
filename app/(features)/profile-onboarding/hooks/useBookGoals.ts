@@ -1,5 +1,5 @@
-import { useReadingGoals } from "@/app/(features)/dashboard/settings/hooks/useSettingsStore";
+import { useReadingGoalsQuery } from "@/app/(features)/settings/hooks/useReadingGoalsQuery";
 
 export function useBookGoals() {
-  return useReadingGoals();
+  return useReadingGoalsQuery();
 }

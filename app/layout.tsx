@@ -3,6 +3,7 @@ import { AuthProvider } from "@/app/contexts/AuthContext";
 import { Toaster } from "@/app/components/ui/toaster";
 import { Work_Sans, Inter } from "next/font/google";
 import { Providers } from "@/app/providers/QueryClientProvider";
+import { Toaster as SonnerToaster } from "sonner";
 import "./globals.css";
 
 const workSans = Work_Sans({
@@ -48,6 +49,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <Toaster />
+            <SonnerToaster position="top-right" />
           </AuthProvider>
         </Providers>
       </body>

@@ -1,3 +1,3 @@
-export * from "./profiles";
+export * from "./settings";
 export * from "./books";
 export * from "./highlights";

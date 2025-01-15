@@ -10,6 +10,7 @@
     "server": "node --trace-warnings server.js",
     "lint": "next lint",
     "test": "jest",
+    "type-check": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepare": "husky"
@@ -97,7 +98,14 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
+      "prettier --write",
+      "eslint --fix --cache",
+      "bash -c 'yarn type-check'"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ],
+    "*.{css,scss}": [
       "prettier --write"
     ]
   }

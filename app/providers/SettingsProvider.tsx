@@ -1,12 +1,17 @@
 import { useEffect } from "react";
-import { useSettingsStore } from "@/app/(features)/dashboard/settings/hooks/useSettingsStore";
+import {
+  useSettingsStore,
+  type SettingsStore,
+} from "@/app/(features)/settings/hooks/useSettingsStore";
 
 interface SettingsProviderProps {
   children: React.ReactNode;
 }
 
 export function SettingsProvider({ children }: SettingsProviderProps) {
-  const initializeStore = useSettingsStore((state) => state.initializeStore);
+  const initializeStore = useSettingsStore(
+    (state: SettingsStore) => state.initializeStore,
+  );
 
   useEffect(() => {
     initializeStore();

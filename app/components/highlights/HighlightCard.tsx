@@ -58,10 +58,10 @@ export default function HighlightCard({
       className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 relative cursor-pointer"
       onClick={handleCardClick}
     >
-      <CardContent className="p-4">
-        <div className="flex flex-col gap-4">
+      <CardContent className="p-4 min-h-[200px] flex flex-col">
+        <div className="flex-1">
           {showBookTitle && (
-            <div className="text-xs font-medium text-gray-500">
+            <div className="text-xs font-medium text-gray-500 mb-4">
               {highlight.bookTitle}
             </div>
           )}
@@ -76,71 +76,71 @@ export default function HighlightCard({
           ) : (
             <p className="text-sm text-gray-900">{highlight.text}</p>
           )}
-          <div className="flex justify-between items-center text-xs text-gray-500">
-            <div className="flex items-center gap-2">
-              <span>Page {highlight.page}</span>
-              <span>•</span>
-              <span>
-                {formatDistanceToNow(new Date(highlight.createdAt), {
-                  addSuffix: true,
-                })}
-              </span>
-            </div>
-            <div className="flex items-center gap-0.5">
-              {isEditing ? (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onSave}
-                    className="text-green-500 hover:text-green-600 h-7 w-7"
-                    disabled={isUpdating}
-                  >
-                    <Check className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onCancel}
-                    className="text-gray-400 hover:text-gray-500 h-7 w-7"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onToggleFavorite}
-                    className={`h-7 w-7 ${
-                      highlight.isFavorite ? "text-red-500" : "text-gray-400"
-                    }`}
-                  >
-                    <Heart
-                      className="h-4 w-4"
-                      fill={highlight.isFavorite ? "currentColor" : "none"}
-                    />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onEdit}
-                    className="text-gray-400 hover:text-blue-500 h-7 w-7"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onShowDeleteConfirm(true)}
-                    className="text-gray-400 hover:text-red-500 h-7 w-7"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-            </div>
+        </div>
+        <div className="flex justify-between items-center text-xs text-gray-500 mt-4">
+          <div className="flex items-center gap-2">
+            <span>Page {highlight.page}</span>
+            <span>•</span>
+            <span>
+              {formatDistanceToNow(new Date(highlight.createdAt), {
+                addSuffix: true,
+              })}
+            </span>
+          </div>
+          <div className="flex items-center gap-0.5">
+            {isEditing ? (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onSave}
+                  className="text-green-500 hover:text-green-600 h-7 w-7"
+                  disabled={isUpdating}
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onCancel}
+                  className="text-gray-400 hover:text-gray-500 h-7 w-7"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onToggleFavorite}
+                  className={`h-7 w-7 ${
+                    highlight.isFavorite ? "text-red-500" : "text-gray-400"
+                  }`}
+                >
+                  <Heart
+                    className="h-4 w-4"
+                    fill={highlight.isFavorite ? "currentColor" : "none"}
+                  />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onEdit}
+                  className="text-gray-400 hover:text-blue-500 h-7 w-7"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onShowDeleteConfirm(true)}
+                  className="text-gray-400 hover:text-red-500 h-7 w-7"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
 

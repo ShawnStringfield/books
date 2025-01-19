@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Book, ReadingStatusType } from "@/app/stores/types";
 import Link from "next/link";
 import BookDetailsSheet from "./details/BookDetailsSheet";
-import { Trash2, Highlighter, Eye } from "lucide-react";
+import { Trash2, Eye } from "lucide-react";
 import { useMemo } from "react";
 import { useHighlightsByBook } from "@/app/hooks/highlights/useHighlights";
 import ReadingStatusSelect from "./ReadingStatusSelect";
@@ -119,18 +119,13 @@ const BookCard = ({
                   by {book.author}
                 </p>
               </div>
-              <div className="flex items-center gap-1 text-xs text-mono shrink-0">
-                <Highlighter size={12} />
-                <span>{highlightsCount}</span>
-              </div>
             </div>
 
             {/* Highlights Section - Flex Grow to Take Available Space */}
             <div className="flex-1 min-h-0">
               {highlightsCount === 0 ? (
                 <div className="flex items-center gap-2 mt-4">
-                  <Highlighter size={14} className="text-mono shrink-0" />
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 pt-4">
                     Start capturing your favorite moments.
                   </p>
                 </div>

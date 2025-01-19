@@ -24,7 +24,7 @@ type FirestoreHighlight = FirebaseModel<Highlight>;
 
 // Helper function to safely convert Firestore timestamp to ISO string
 function convertTimestamp(
-  firestoreTimestamp: Timestamp | string | null
+  firestoreTimestamp: Timestamp | string | null,
 ): string {
   // If it's already a string (ISO format), return it
   if (typeof firestoreTimestamp === "string") {
@@ -58,7 +58,7 @@ export async function getHighlights(userId: string): Promise<Highlight[]> {
   const q = query(
     highlightsRef,
     where("userId", "==", userId),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
   );
 
   const snapshot = await getDocs(q);
@@ -68,7 +68,7 @@ export async function getHighlights(userId: string): Promise<Highlight[]> {
 export async function getHighlightsByBook(
   userId: string,
   bookId: string,
-  limit?: number
+  limit?: number,
 ): Promise<Highlight[]> {
   console.log("getHighlightsByBook called with:", { userId, bookId, limit });
 
@@ -77,7 +77,7 @@ export async function getHighlightsByBook(
     highlightsRef,
     where("userId", "==", userId),
     where("bookId", "==", bookId),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
   );
 
   if (limit) {
@@ -113,14 +113,14 @@ export async function getHighlightsByBook(
 }
 
 export async function getFavoriteHighlights(
-  userId: string
+  userId: string,
 ): Promise<Highlight[]> {
   const highlightsRef = collection(db, HIGHLIGHTS_COLLECTION);
   const q = query(
     highlightsRef,
     where("userId", "==", userId),
     where("isFavorite", "==", true),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
   );
 
   const snapshot = await getDocs(q);
@@ -129,7 +129,7 @@ export async function getFavoriteHighlights(
 
 export async function addHighlight(
   userId: string,
-  highlight: BaseHighlight
+  highlight: BaseHighlight,
 ): Promise<Highlight> {
   const highlightsRef = collection(db, HIGHLIGHTS_COLLECTION);
   const timestamp = serverTimestamp();
@@ -156,7 +156,7 @@ export async function addHighlight(
 
 export async function updateHighlight(
   highlightId: string,
-  updates: Partial<BaseHighlight>
+  updates: Partial<BaseHighlight>,
 ): Promise<WithTimestamps<Partial<BaseHighlight> & { id: string }>> {
   const highlightRef = doc(db, HIGHLIGHTS_COLLECTION, highlightId);
   const timestamp = serverTimestamp();
@@ -182,9 +182,16 @@ export async function deleteHighlight(highlightId: string): Promise<void> {
   await deleteDoc(highlightRef);
 }
 
-export async function deleteHighlightsByBook(bookId: string): Promise<void> {
+export async function deleteHighlightsByBook(
+  bookId: string,
+  userId: string,
+): Promise<void> {
   const highlightsRef = collection(db, HIGHLIGHTS_COLLECTION);
-  const q = query(highlightsRef, where("bookId", "==", bookId));
+  const q = query(
+    highlightsRef,
+    where("bookId", "==", bookId),
+    where("userId", "==", userId),
+  );
   const snapshot = await getDocs(q);
 
   // Delete all highlights in parallel
@@ -194,7 +201,7 @@ export async function deleteHighlightsByBook(bookId: string): Promise<void> {
 
 export async function toggleFavorite(
   highlightId: string,
-  isFavorite: boolean
+  isFavorite: boolean,
 ): Promise<void> {
   const highlightRef = doc(db, HIGHLIGHTS_COLLECTION, highlightId);
   const timestamp = serverTimestamp();
@@ -209,14 +216,14 @@ export async function toggleFavorite(
 export function subscribeToHighlights(
   userId: string,
   onUpdate: (highlights: Highlight[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): () => void {
   console.log("Setting up highlights subscription for user:", userId);
   const highlightsRef = collection(db, HIGHLIGHTS_COLLECTION);
   const q = query(
     highlightsRef,
     where("userId", "==", userId),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
   );
 
   return onSnapshot(
@@ -234,7 +241,7 @@ export function subscribeToHighlights(
             } catch (error) {
               console.error(
                 `Error converting document at index ${index}:`,
-                error
+                error,
               );
               return null;
             }
@@ -250,7 +257,7 @@ export function subscribeToHighlights(
     (error) => {
       console.error("Subscription error:", error);
       onError?.(error);
-    }
+    },
   );
 }
 
@@ -259,7 +266,7 @@ export function subscribeToHighlightsByBook(
   bookId: string,
   onUpdate: (highlights: Highlight[]) => void,
   onError?: (error: Error) => void,
-  limit?: number
+  limit?: number,
 ): () => void {
   console.log("Setting up book highlights subscription:", {
     userId,
@@ -271,7 +278,7 @@ export function subscribeToHighlightsByBook(
     highlightsRef,
     where("userId", "==", userId),
     where("bookId", "==", bookId),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
   );
 
   if (limit) {
@@ -293,7 +300,7 @@ export function subscribeToHighlightsByBook(
             } catch (error) {
               console.error(
                 `Error converting book document at index ${index}:`,
-                error
+                error,
               );
               return null;
             }
@@ -309,21 +316,21 @@ export function subscribeToHighlightsByBook(
     (error) => {
       console.error("Book subscription error:", error);
       onError?.(error);
-    }
+    },
   );
 }
 
 export function subscribeToFavoriteHighlights(
   userId: string,
   onUpdate: (highlights: Highlight[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): () => void {
   const highlightsRef = collection(db, HIGHLIGHTS_COLLECTION);
   const q = query(
     highlightsRef,
     where("userId", "==", userId),
     where("isFavorite", "==", true),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
   );
 
   return onSnapshot(
@@ -335,6 +342,6 @@ export function subscribeToFavoriteHighlights(
     (error) => {
       console.error("Error in favorite highlights subscription:", error);
       onError?.(error);
-    }
+    },
   );
 }

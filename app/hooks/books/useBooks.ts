@@ -31,7 +31,7 @@ export function useBooks() {
       },
       (error) => {
         console.error("Books subscription error:", error);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -137,7 +137,7 @@ export function useDeleteBook() {
         throw new Error("Authentication required to delete book");
       }
       // First delete all highlights associated with the book
-      await highlightService.deleteHighlightsByBook(bookId);
+      await highlightService.deleteHighlightsByBook(bookId, user.uid);
       // Then delete the book itself
       return bookService.deleteBook(bookId);
     },
@@ -204,14 +204,16 @@ export function useUpdateReadingStatus() {
             old?.map((book) =>
               book.id === bookId
                 ? { ...book, status, ...updates, startDate, completedDate }
-                : book
-            )
+                : book,
+            ),
           );
         }
 
         if (previousBook) {
           queryClient.setQueryData<Book>([BOOKS_KEY, bookId], (old) =>
-            old ? { ...old, status, ...updates, startDate, completedDate } : old
+            old
+              ? { ...old, status, ...updates, startDate, completedDate }
+              : old,
           );
         }
       }
@@ -265,14 +267,14 @@ export function useUpdateReadingProgress() {
       if (previousBooks) {
         queryClient.setQueryData<Book[]>([BOOKS_KEY], (old) =>
           old?.map((book) =>
-            book.id === bookId ? { ...book, currentPage } : book
-          )
+            book.id === bookId ? { ...book, currentPage } : book,
+          ),
         );
       }
 
       if (previousBook) {
         queryClient.setQueryData<Book>([BOOKS_KEY, bookId], (old) =>
-          old ? { ...old, currentPage } : old
+          old ? { ...old, currentPage } : old,
         );
       }
 

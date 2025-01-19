@@ -44,7 +44,7 @@ export async function getBooks(userId: string): Promise<Book[]> {
     booksRef,
     where("userId", "==", userId),
     orderBy("updatedAt", "desc"),
-    limit(50) // Limit initial load to 50 books
+    limit(50), // Limit initial load to 50 books
   );
 
   const snapshot = await getDocs(q);
@@ -53,7 +53,7 @@ export async function getBooks(userId: string): Promise<Book[]> {
       ({
         id: doc.id,
         ...transformTimestamps(doc.data()),
-      } as Book)
+      }) as Book,
   );
 }
 
@@ -95,7 +95,7 @@ export async function addBook(userId: string, book: BaseBook): Promise<Book> {
 
 export async function updateBook(
   bookId: string,
-  updates: Partial<Book>
+  updates: Partial<Book>,
 ): Promise<void> {
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
   const timestamp = serverTimestamp();
@@ -116,7 +116,7 @@ export async function deleteBook(bookId: string): Promise<void> {
 export async function updateReadingStatus(
   bookId: string,
   status: ReadingStatusType,
-  additionalUpdates: Partial<Omit<Book, "startDate" | "completedDate">> = {}
+  additionalUpdates: Partial<Omit<Book, "startDate" | "completedDate">> = {},
 ): Promise<void> {
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
   const timestamp = serverTimestamp();
@@ -182,7 +182,7 @@ export async function updateReadingStatus(
 export async function updateReadingProgress(
   bookId: string,
   currentPage: number,
-  additionalUpdates: Partial<Book> = {}
+  additionalUpdates: Partial<Book> = {},
 ): Promise<void> {
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
   const timestamp = serverTimestamp();
@@ -199,14 +199,14 @@ export async function updateReadingProgress(
 export function subscribeToBooks(
   userId: string,
   onUpdate: (books: Book[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): () => void {
   const booksRef = collection(db, BOOKS_COLLECTION);
   const q = query(
     booksRef,
     where("userId", "==", userId),
     orderBy("updatedAt", "desc"),
-    limit(50)
+    limit(50),
   );
 
   return onSnapshot(
@@ -218,7 +218,7 @@ export function subscribeToBooks(
             ({
               id: doc.id,
               ...transformTimestamps(doc.data()),
-            } as Book)
+            }) as Book,
         );
         onUpdate(books);
       } catch (error) {
@@ -229,6 +229,6 @@ export function subscribeToBooks(
     (error) => {
       console.error("Books subscription error:", error);
       onError?.(error);
-    }
+    },
   );
 }

@@ -3,7 +3,6 @@ import ReadingControls from "../ReadingControls";
 
 interface ReadingControlsSectionProps {
   book: Required<Book>;
-  isLastBook: boolean;
   manualTotalPages: string;
   onStatusChange: (status: "not-started" | "in-progress" | "completed") => void;
   onProgressChange: (value: number) => void;
@@ -16,7 +15,6 @@ interface ReadingControlsSectionProps {
 
 export function ReadingControlsSection({
   book,
-  isLastBook,
   manualTotalPages,
   onStatusChange,
   onProgressChange,
@@ -50,7 +48,6 @@ export function ReadingControlsSection({
         onStatusChange={(bookId: string, status) => onStatusChange(status)}
         onProgressChange={(value: number[]) => onProgressChange(value[0])}
         onCancel={onCancel}
-        isLastBook={isLastBook}
         manualTotalPages={manualTotalPages}
         onManualTotalPagesChange={onManualTotalPagesChange}
         onTotalPagesUpdate={onTotalPagesUpdate}

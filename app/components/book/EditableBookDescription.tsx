@@ -39,17 +39,12 @@ export default function EditableBookDescription({
     <div className="space-y-2">
       {description ? (
         <div>
-          <p
-            className={cn(
-              "leading-tight md:leading-normal",
-              !isExpanded && "line-clamp-3 md:line-clamp-none"
-            )}
-          >
+          <p className={cn("leading-normal", !isExpanded && "line-clamp-3")}>
             {description}
           </p>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-blue-600 text-sm mt-1 hover:underline md:hidden"
+            className="text-blue-600 text-sm mt-1 hover:underline"
             aria-expanded={isExpanded}
             aria-controls="description-text"
           >

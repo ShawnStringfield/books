@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Search } from "lucide-react";
-import { useDebounce } from "@/app/hooks/utils/useDebounce";
+import { useState, useCallback, useEffect } from "react";
+import { Search, BookPlus } from "lucide-react";
 import {
   GoogleBook,
   GoogleBooksResponse,
@@ -15,6 +14,12 @@ import { Separator } from "@/app/components/ui/separator";
 import { AlertCircle } from "lucide-react";
 import { useAddBook, useBooks } from "@/app/hooks/books/useBooks";
 import { isDuplicateGoogleBook } from "@/app/lib/utils/bookUtils";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/app/components/ui/tabs";
 
 // Constants
 const MAX_RESULTS = 10;
@@ -37,6 +42,16 @@ interface AddBookFormProps {
   onCancel: () => void;
 }
 
+interface ManualBookFormData {
+  title: string;
+  author: string;
+  totalPages: string;
+  description: string;
+  isbn: string;
+  publisher: string;
+  coverUrl: string;
+}
+
 const fetchGoogleBooks = async (
   searchQuery: string,
   signal: AbortSignal,
@@ -50,6 +65,17 @@ const fetchGoogleBooks = async (
 
   if (!response.ok) {
     const errorData: GoogleBooksError = await response.json();
+    // Check for rate limit error (HTTP 429 Too Many Requests)
+    if (
+      response.status === 429 ||
+      (errorData.error?.errors || []).some(
+        (e) => e.reason === "rateLimitExceeded",
+      )
+    ) {
+      throw new Error(
+        "Rate limit reached. Please try manual entry or wait a few minutes.",
+      );
+    }
     throw new Error(
       errorData.error?.message ||
         `API error: ${response.status} ${response.statusText}`,
@@ -68,7 +94,17 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
   const [books, setBooks] = useState<GoogleBook[]>([]);
   const [selectedBook, setSelectedBook] = useState<GoogleBook | null>(null);
   const [addAsInProgress, setAddAsInProgress] = useState(true);
-  const debouncedQuery = useDebounce(query, 500);
+  const [activeTab, setActiveTab] = useState("search");
+  const [isRateLimited, setIsRateLimited] = useState(false);
+  const [manualFormData, setManualFormData] = useState<ManualBookFormData>({
+    title: "",
+    author: "",
+    totalPages: "",
+    description: "",
+    isbn: "",
+    publisher: "",
+    coverUrl: "",
+  });
   const addBookMutation = useAddBook();
   const { data: existingBooks = [] } = useBooks();
 
@@ -79,13 +115,29 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         : "Network error while searching books";
     setError(errorMessage);
     setBooks([]);
+
+    // If it's a rate limit error, disable search but don't redirect
+    if (errorMessage.includes("Rate limit")) {
+      setIsRateLimited(true);
+    }
   }, []);
+
+  // Reset rate limit after 30 seconds
+  useEffect(() => {
+    if (isRateLimited) {
+      const timer = setTimeout(() => {
+        setIsRateLimited(false);
+        setError(null);
+      }, 30000); // 30 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [isRateLimited]);
 
   const searchBooks = useCallback(
     async (controller: AbortController) => {
-      if (!debouncedQuery.trim()) {
-        setBooks([]);
-        setIsFirstLoad(false);
+      if (!query.trim()) {
+        setError("Please enter a search term");
         return;
       }
 
@@ -93,10 +145,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
       setError(null);
 
       try {
-        const results = await fetchGoogleBooks(
-          debouncedQuery,
-          controller.signal,
-        );
+        const results = await fetchGoogleBooks(query, controller.signal);
         setBooks(results);
       } catch (err) {
         if (err instanceof Error && err.name === "AbortError") {
@@ -108,14 +157,8 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         setIsFirstLoad(false);
       }
     },
-    [debouncedQuery, handleSearchError],
+    [query, handleSearchError],
   );
-
-  useEffect(() => {
-    const controller = new AbortController();
-    searchBooks(controller);
-    return () => controller.abort();
-  }, [debouncedQuery, searchBooks]);
 
   const validateAndPrepareBook = (book: GoogleBook) => {
     const volumeInfo = book.volumeInfo;
@@ -154,6 +197,53 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
 
     try {
       const newBook = validateAndPrepareBook(selectedBook);
+      await addBookMutation.mutateAsync(newBook);
+      onSuccess?.();
+      onCancel();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add book");
+    }
+  };
+
+  const handleManualFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setManualFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleManualSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    try {
+      const newBook = {
+        title: manualFormData.title.trim(),
+        author: manualFormData.author.trim(),
+        totalPages: parseInt(manualFormData.totalPages) || 0,
+        currentPage: addAsInProgress ? 1 : 0,
+        status: addAsInProgress
+          ? ReadingStatus.IN_PROGRESS
+          : ReadingStatus.NOT_STARTED,
+        ...(addAsInProgress ? { startDate: new Date().toISOString() } : {}),
+        description: manualFormData.description.trim(),
+        isbn: manualFormData.isbn.trim(),
+        publisher: manualFormData.publisher.trim(),
+        coverUrl: manualFormData.coverUrl.trim(),
+        categories: [],
+        fromGoogle: false,
+      };
+
+      if (!newBook.title) {
+        throw new Error("Title is required");
+      }
+      if (!newBook.author) {
+        throw new Error("Author is required");
+      }
+
       await addBookMutation.mutateAsync(newBook);
       onSuccess?.();
       onCancel();
@@ -293,47 +383,200 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
     </div>
   );
 
-  return (
-    <div className="space-y-4">
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-gray-400" />
-        </div>
+  const renderManualForm = () => (
+    <form onSubmit={handleManualSubmit} className="space-y-4">
+      <div className="space-y-4">
         <Input
-          type="text"
-          placeholder="Search by title, author, or ISBN..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-10"
-          aria-label="Search books"
+          name="title"
+          placeholder="Book Title *"
+          value={manualFormData.title}
+          onChange={handleManualFormChange}
+          required
+          aria-label="Book Title"
         />
+        <Input
+          name="author"
+          placeholder="Author *"
+          value={manualFormData.author}
+          onChange={handleManualFormChange}
+          required
+          aria-label="Author"
+        />
+        <Input
+          name="totalPages"
+          type="number"
+          placeholder="Total Pages"
+          value={manualFormData.totalPages}
+          onChange={handleManualFormChange}
+          min="1"
+          aria-label="Total Pages"
+        />
+        <Input
+          name="description"
+          placeholder="Description"
+          value={manualFormData.description}
+          onChange={handleManualFormChange}
+          aria-label="Description"
+        />
+        <Input
+          name="isbn"
+          placeholder="ISBN"
+          value={manualFormData.isbn}
+          onChange={handleManualFormChange}
+          aria-label="ISBN"
+        />
+        <Input
+          name="publisher"
+          placeholder="Publisher"
+          value={manualFormData.publisher}
+          onChange={handleManualFormChange}
+          aria-label="Publisher"
+        />
+        <Input
+          name="coverUrl"
+          placeholder="Cover Image URL"
+          value={manualFormData.coverUrl}
+          onChange={handleManualFormChange}
+          type="url"
+          aria-label="Cover Image URL"
+        />
+
+        <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+          <input
+            type="checkbox"
+            id="manualAddAsInProgress"
+            checked={addAsInProgress}
+            onChange={(e) => setAddAsInProgress(e.target.checked)}
+            className="h-4 w-4 rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+          />
+          <label
+            htmlFor="manualAddAsInProgress"
+            className="text-sm font-medium text-blue-900"
+          >
+            Add to &ldquo;Currently Reading&rdquo;
+          </label>
+        </div>
       </div>
 
-      {error && (
-        <div
-          className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-lg"
-          role="alert"
-        >
-          <AlertCircle className="h-4 w-4" />
-          <p className="text-sm">{error}</p>
-        </div>
-      )}
+      <div className="flex justify-end gap-3 pt-4">
+        <Button variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={addBookMutation.isPending}>
+          {addBookMutation.isPending ? "Adding..." : "Add Book"}
+        </Button>
+      </div>
+    </form>
+  );
 
-      {isLoading ? (
-        <div className="text-center py-4">
-          <div
-            className={`animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto ${
-              !isFirstLoad ? "opacity-50" : ""
-            }`}
-            role="progressbar"
-            aria-label="Searching books"
-          />
-        </div>
-      ) : selectedBook ? (
-        renderSelectedBook()
-      ) : (
-        renderSearchResults()
-      )}
+  return (
+    <div className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="search" className="flex items-center gap-2">
+            <Search className="h-4 w-4" />
+            Search {isRateLimited && "(Rate Limited)"}
+          </TabsTrigger>
+          <TabsTrigger value="manual" className="flex items-center gap-2">
+            <BookPlus className="h-4 w-4" />
+            Manual Entry
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="search" className="mt-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const controller = new AbortController();
+              searchBooks(controller);
+            }}
+            className="space-y-4"
+          >
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-400" />
+                </div>
+                <Input
+                  type="text"
+                  placeholder={
+                    isRateLimited
+                      ? "Search is temporarily disabled due to rate limiting"
+                      : "Search by title, author, or ISBN..."
+                  }
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="pl-10"
+                  aria-label="Search books"
+                  disabled={isRateLimited}
+                />
+              </div>
+              <Button type="submit" disabled={isLoading || isRateLimited}>
+                {isLoading
+                  ? "Searching..."
+                  : isRateLimited
+                    ? "Rate Limited"
+                    : "Search"}
+              </Button>
+            </div>
+          </form>
+
+          {isRateLimited && (
+            <div
+              className="flex items-center gap-2 p-3 mt-4 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg"
+              role="alert"
+            >
+              <AlertCircle className="h-4 w-4" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">
+                  Search is temporarily rate limited
+                </p>
+                <p className="text-sm mt-1">
+                  You can switch to the &ldquo;Manual Entry&rdquo; tab to add
+                  your book, or wait 30 seconds for search to be re-enabled.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {error && !isRateLimited && (
+            <div
+              className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-lg"
+              role="alert"
+            >
+              <AlertCircle className="h-4 w-4" />
+              <div className="flex-1">
+                <p className="text-sm">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="text-center py-4">
+              <div
+                className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"
+                role="progressbar"
+                aria-label="Searching books"
+              />
+            </div>
+          ) : selectedBook ? (
+            renderSelectedBook()
+          ) : books.length > 0 ? (
+            renderSearchResults()
+          ) : (
+            !isFirstLoad &&
+            !error && (
+              <p className="text-center text-gray-500 py-4">
+                No books found. Try a different search or add manually.
+              </p>
+            )
+          )}
+        </TabsContent>
+
+        <TabsContent value="manual" className="mt-4">
+          {renderManualForm()}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -9,7 +9,8 @@ import { useId, useState } from "react";
 import ReadingProgressBar from "../ReadingProgressBar";
 import { useRouter } from "next/navigation";
 import BookHighlights from "@/app/components/highlights/BookHighlights";
-import { DeleteBookDialog } from "@/app/components/dialogs/DeleteBookDialog";
+import { Button } from "@/app/components/ui/button";
+import { Loader2 } from "lucide-react";
 import ReadingControls from "@/app/components/book/ReadingControls";
 import { calculatePercentComplete } from "@/app/lib/utils/bookUtils";
 import { useDeleteBook } from "@/app/hooks/books/useBooks";
@@ -30,26 +31,22 @@ interface BookDetailsSheetProps {
   children?: React.ReactNode;
 }
 
-const BookDetailsSheet = ({
-  book,
-  books = [],
-  children,
-}: BookDetailsSheetProps) => {
+const BookDetailsSheet = ({ book, children }: BookDetailsSheetProps) => {
   const router = useRouter();
   const uniqueId = useId();
   const [editingHighlightId, setEditingHighlightId] = useState<string | null>(
-    null
+    null,
   );
   const [editedText, setEditedText] = useState("");
   const deleteBookMutation = useDeleteBook();
-  const isLastBook = books.length === 1;
   const { data: highlights = [] } = useHighlightsByBook(book.id || "");
   const updateHighlightMutation = useUpdateHighlight();
   const [highlightToDelete, setHighlightToDelete] = useState<string | null>(
-    null
+    null,
   );
   const deleteHighlightMutation = useDeleteHighlight();
   const { toggleFavorite } = useHighlightActions();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Early return if no book id
   if (!book.id) {
@@ -60,10 +57,14 @@ const BookDetailsSheet = ({
   const bookId: string = book.id;
 
   const handleDelete = () => {
-    if (!isLastBook) {
-      deleteBookMutation.mutate(bookId);
-      router.push("/dashboard/library");
-    }
+    deleteBookMutation.mutate(bookId, {
+      onSuccess: () => {
+        router.push("/dashboard/library");
+      },
+      onError: (error) => {
+        console.error("Failed to delete book:", error);
+      },
+    });
   };
 
   const handleToggleFavorite = (highlight: {
@@ -115,7 +116,7 @@ const BookDetailsSheet = ({
               totalPages={book.totalPages}
               progress={calculatePercentComplete(
                 book.currentPage,
-                book.totalPages
+                book.totalPages,
               )}
               variant="bleed"
             />
@@ -133,11 +134,9 @@ const BookDetailsSheet = ({
             showReadingControls,
             showHighlightForm,
             manualTotalPages,
-            showDeleteWarning,
             toggleReadingControls,
             toggleHighlightForm,
             setManualTotalPages,
-            setShowDeleteWarning,
           }) => (
             <>
               <div className="flex flex-col h-full">
@@ -146,7 +145,7 @@ const BookDetailsSheet = ({
                   totalPages={book.totalPages}
                   progress={calculatePercentComplete(
                     book.currentPage,
-                    book.totalPages
+                    book.totalPages,
                   )}
                   variant="bleed"
                 />
@@ -154,12 +153,48 @@ const BookDetailsSheet = ({
                 <BookDetailsSheetHeader
                   onReadingControlsClick={toggleReadingControls}
                   onHighlightClick={toggleHighlightForm}
-                  onDeleteClick={() => setShowDeleteWarning(true)}
+                  onDeleteClick={() => setShowDeleteConfirm(true)}
                   showReadingControls={showReadingControls}
                   showHighlights={showHighlightForm}
                 />
 
                 <div className="flex-1 overflow-y-auto px-4 sm:px-6">
+                  {showDeleteConfirm && (
+                    <div className="py-4 px-4 mb-4 bg-red-50 rounded-lg border border-red-100">
+                      <div className="space-y-4">
+                        <p className="text-sm text-gray-600">
+                          Are you sure you want to delete &quot;{book.title}
+                          &quot;? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowDeleteConfirm(false)}
+                            disabled={deleteBookMutation.isPending}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleDelete}
+                            disabled={deleteBookMutation.isPending}
+                          >
+                            {deleteBookMutation.isPending ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Deleting...
+                              </>
+                            ) : (
+                              "Delete Book"
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <BookDetailsContent book={book} />
 
                   {highlights.length > 0 &&
@@ -213,13 +248,6 @@ const BookDetailsSheet = ({
                   )}
                 </div>
               </div>
-
-              <DeleteBookDialog
-                isOpen={showDeleteWarning}
-                onClose={() => setShowDeleteWarning(false)}
-                onConfirm={handleDelete}
-                bookTitle={book.title}
-              />
             </>
           )}
         </BookProgressManager>

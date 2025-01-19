@@ -6,7 +6,6 @@ import { useState, useEffect } from "react";
 import { EditModeProvider, useEditMode } from "@/app/contexts/EditModeContext";
 import {
   useBook,
-  useBooks,
   useDeleteBook,
   useUpdateBook,
 } from "@/app/hooks/books/useBooks";
@@ -31,13 +30,11 @@ function BookDetailsContent() {
     typeof params.id === "string"
       ? params.id
       : Array.isArray(params.id)
-      ? params.id[0]
-      : "";
-  const { data: books = [], isLoading: isBooksLoading } = useBooks();
+        ? params.id[0]
+        : "";
   const { data: book, isLoading: isBookLoading } = useBook(id);
   const deleteBookMutation = useDeleteBook();
   const updateBookMutation = useUpdateBook();
-  const isLastBook = books.length === 1;
   const { showEditControls, toggleEditControls } = useEditMode();
   const [editedDescription, setEditedDescription] = useState("");
   const [editedGenre, setEditedGenre] = useState("");
@@ -81,11 +78,11 @@ function BookDetailsContent() {
           highlights: [],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-        } as unknown as Required<Book>)
+        } as unknown as Required<Book>),
   );
 
   // Show loading state if data is being fetched
-  if (isBooksLoading || isBookLoading) {
+  if (isBookLoading) {
     return (
       <DashboardLayout>
         <div className="p-6 pb-12 max-w-4xl mx-auto space-y-8">
@@ -129,13 +126,11 @@ function BookDetailsContent() {
   } = bookProgress;
 
   const handleDelete = () => {
-    if (!isLastBook) {
-      deleteBookMutation.mutate(validatedBook.id, {
-        onSuccess: () => {
-          router.push("/dashboard/library");
-        },
-      });
-    }
+    deleteBookMutation.mutate(validatedBook.id, {
+      onSuccess: () => {
+        router.push("/dashboard/library");
+      },
+    });
   };
 
   const handleSaveChanges = () => {
@@ -199,7 +194,6 @@ function BookDetailsContent() {
         {showReadingControls && (
           <ReadingControlsSection
             book={validatedBook}
-            isLastBook={isLastBook}
             manualTotalPages={manualTotalPages}
             onStatusChange={handleStatusChange}
             onProgressChange={handleProgressChange}

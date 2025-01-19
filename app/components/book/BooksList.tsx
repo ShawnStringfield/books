@@ -81,8 +81,16 @@ export function BooksList({
 
   const handleDelete = () => {
     if (bookToDelete) {
-      deleteBookMutation.mutate(bookToDelete);
-      setBookToDelete(null);
+      deleteBookMutation.mutate(bookToDelete, {
+        onSuccess: () => {
+          setBookToDelete(null);
+        },
+        onError: (error) => {
+          console.error("Failed to delete book:", error);
+          // Keep the dialog open on error
+          setBookToDelete(bookToDelete);
+        },
+      });
     }
   };
 
@@ -91,15 +99,30 @@ export function BooksList({
   };
 
   if (isLoading) {
-    return null;
+    return (
+      <div className="flex items-center justify-center w-full py-12">
+        <div className="space-y-4 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
+          <p className="text-gray-600">Loading your library...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="text-red-600 text-center py-12">
-        {error instanceof Error
-          ? error.message
-          : "An error occurred while loading books"}
+      <div className="text-red-600 text-center py-12 space-y-4">
+        <p className="font-semibold">
+          {error instanceof Error
+            ? error.message
+            : "An error occurred while loading books"}
+        </p>
+        {error instanceof Error && error.name === "RateLimitError" && (
+          <p className="text-sm text-gray-600">
+            You&apos;ve reached the rate limit for this operation. Please wait a
+            few minutes before trying again.
+          </p>
+        )}
       </div>
     );
   }
@@ -132,6 +155,7 @@ export function BooksList({
         onClose={() => setBookToDelete(null)}
         onConfirm={handleDelete}
         bookTitle={books.find((b) => b.id === bookToDelete)?.title || ""}
+        isDeleting={deleteBookMutation.isPending}
       />
     </div>
   );

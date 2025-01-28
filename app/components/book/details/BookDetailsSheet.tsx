@@ -108,23 +108,12 @@ const BookDetailsSheet = ({ book, children }: BookDetailsSheetProps) => {
 
   return (
     <Sheet>
-      <SheetTrigger asChild>
-        {children || (
-          <button className="w-full text-left">
-            <ReadingProgressBar
-              currentPage={book.currentPage}
-              totalPages={book.totalPages}
-              progress={calculatePercentComplete(
-                book.currentPage,
-                book.totalPages,
-              )}
-              variant="bleed"
-            />
-          </button>
-        )}
-      </SheetTrigger>
+      <SheetTrigger asChild>{children}</SheetTrigger>
 
-      <SheetContent side="right" className="w-full sm:max-w-xl p-0">
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-xl p-0 mt-4 mb-4 mr-4 h-[calc(100vh-2rem)] rounded-xl overflow-hidden"
+      >
         <SheetTitle className="sr-only">{book.title} Details</SheetTitle>
         <BookProgressManager book={book}>
           {({
@@ -140,15 +129,17 @@ const BookDetailsSheet = ({ book, children }: BookDetailsSheetProps) => {
           }) => (
             <>
               <div className="flex flex-col h-full">
-                <ReadingProgressBar
-                  currentPage={book.currentPage}
-                  totalPages={book.totalPages}
-                  progress={calculatePercentComplete(
-                    book.currentPage,
-                    book.totalPages,
-                  )}
-                  variant="bleed"
-                />
+                <div className="">
+                  <ReadingProgressBar
+                    currentPage={book.currentPage}
+                    totalPages={book.totalPages}
+                    progress={calculatePercentComplete(
+                      book.currentPage,
+                      book.totalPages,
+                    )}
+                    variant="bleed"
+                  />
+                </div>
 
                 <BookDetailsSheetHeader
                   onReadingControlsClick={toggleReadingControls}

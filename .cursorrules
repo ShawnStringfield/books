@@ -1,0 +1,7 @@
+{
+  "rules": [
+    "Use React 19's Actions API for form handling",
+    "Prefer Server Components over client-side effects",
+    "Replace useMemo/useCallback with React Compiler optimizations"
+  ]
+} 
